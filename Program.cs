@@ -2,11 +2,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
 using NutriApi.Inicializadores;
+using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.Equivalencias;
 using NutriApi.Services.Pacientes;
-
 using NutriApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -169,15 +169,56 @@ builder.Services.AddAuthorization();
 // SERVICIOS
 // =====================================
 
-// Autenticación
-builder.Services.AddScoped<ITokenService, TokenService>();
+// -----------------------------
+// AUTENTICACIÓN
+// -----------------------------
 
-builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<
+    ITokenService,
+    TokenService
+>();
+
+builder.Services.AddScoped<
+    IAuthService,
+    AuthService
+>();
 
 
-// Pacientes
-builder.Services.AddScoped<IPacienteService, PacienteService>();
+// -----------------------------
+// PACIENTES
+// -----------------------------
 
+builder.Services.AddScoped<
+    IPacienteService,
+    PacienteService
+>();
+
+
+// -----------------------------
+// CATEGORÍAS DE ALIMENTOS
+// -----------------------------
+
+builder.Services.AddScoped<
+    ICategoriaAlimentoService,
+    CategoriaAlimentoService
+>();
+
+
+// -----------------------------
+// ALIMENTOS
+// -----------------------------
+
+builder.Services.AddScoped<
+    IAlimentoService,
+    AlimentoService
+>();
+
+
+// Equivalencias
+builder.Services.AddScoped<
+    IEquivalenciaService,
+    EquivalenciaService
+>();
 
 // =====================================
 // BUILD
@@ -185,33 +226,30 @@ builder.Services.AddScoped<IPacienteService, PacienteService>();
 
 var app = builder.Build();
 
-
-// =====================================
 // ROLES INICIALES
-// =====================================
 
-await InicializadorRoles.InicializarAsync(app.Services);
+await InicializadorRoles.InicializarAsync(
+    app.Services
+);
 
-
-// =====================================
 // PIPELINE HTTP
-// =====================================
 
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
+
 app.UseHttpsRedirection();
 
+// AUTENTICACIÓN
 
 
 app.UseAuthentication();
 
-
+// AUTORIZACIÓN
 
 app.UseAuthorization();
-
 
 app.MapControllers();
 
