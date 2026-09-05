@@ -8,6 +8,8 @@ using NutriApi.Services.Auth;
 using NutriApi.Services.Equivalencias;
 using NutriApi.Services.Pacientes;
 using NutriApp.Data;
+using NutriApi.Services.Dietas;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -218,6 +220,19 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IEquivalenciaService,
     EquivalenciaService
+>();
+
+// Dietas
+builder.Services.AddScoped<
+    IDietaService,
+    DietaService
+>();
+
+//comidas 
+
+builder.Services.AddScoped<
+    IComidaService,
+    ComidaService
 >();
 
 // =====================================
