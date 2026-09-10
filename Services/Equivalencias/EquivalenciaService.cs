@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using NutriApi.Calculos;
 using NutriApi.DTOs.Equivalencias;
 
 using NutriApp.Data;
@@ -701,42 +701,38 @@ public class EquivalenciaService : IEquivalenciaService
          * papa = 400 * 1.5 = 600g
          */
 
-        var factor =
-            cantidad /
-            origen.CantidadEquivalente;
-
-
         var conversiones =
-            grupo.Equivalencias
-                .Where(e =>
-                    e.Activa
-                    &&
-                    e.Alimento.Activo
-                    &&
-                    e.AlimentoId != alimentoOrigenId
-                )
-                .Select(e =>
-                    new ConversionEquivalenciaDto
-                    {
-                        AlimentoId =
-                            e.AlimentoId,
+     grupo.Equivalencias
+         .Where(e =>
+             e.Activa
+             &&
+             e.Alimento.Activo
+             &&
+             e.AlimentoId != alimentoOrigenId
+         )
+         .Select(e =>
+             new ConversionEquivalenciaDto
+             {
+                 AlimentoId =
+                     e.AlimentoId,
 
-                        Alimento =
-                            e.Alimento.Nombre,
+                 Alimento =
+                     e.Alimento.Nombre,
 
-                        Cantidad =
-                            Math.Round(
-                                e.CantidadEquivalente *
-                                factor,
-                                2
-                            ),
+                 Cantidad =
+                     CalculadoraEquivalencias
+                         .CalcularCantidadDestino(
+                             cantidad,
+                             origen.CantidadEquivalente,
+                             e.CantidadEquivalente
+                         ),
 
-                        UnidadMedida =
-                            e.UnidadMedida.ToString()
-                    }
-                )
-                .OrderBy(e => e.Alimento)
-                .ToList();
+                 UnidadMedida =
+                     e.UnidadMedida.ToString()
+             }
+         )
+         .OrderBy(e => e.Alimento)
+         .ToList();
 
 
         return new ResultadoEquivalencia<

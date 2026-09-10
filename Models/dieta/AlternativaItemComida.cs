@@ -10,12 +10,14 @@ public class AlternativaItemComida
 
     public int AlimentoId { get; set; }
 
+    public int GrupoEquivalenciaId { get; set; }
+
     public bool Activa { get; set; } = true;
 
-
-    // Navegación
 
     public ItemOpcionComida ItemOpcionComida { get; set; } = null!;
 
     public Alimento Alimento { get; set; } = null!;
+
+    public GrupoEquivalencia GrupoEquivalencia { get; set; } = null!;
 }

@@ -326,6 +326,13 @@ public class NutriAppDbContext
             .OnDelete(DeleteBehavior.Restrict);
 
 
+        modelBuilder.Entity<AlternativaItemComida>()
+    .HasOne(a => a.GrupoEquivalencia)
+    .WithMany()
+    .HasForeignKey(a => a.GrupoEquivalenciaId)
+    .OnDelete(DeleteBehavior.Restrict);
+
+
         // No podemos agregar dos veces la misma alternativa
         // al mismo item.
 

@@ -2,13 +2,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+
 using NutriApi.Inicializadores;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.Dietas;
 using NutriApi.Services.Equivalencias;
+using NutriApi.Services.Notas;
 using NutriApi.Services.Pacientes;
 using NutriApp.Data;
-using NutriApi.Services.Dietas;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,25 +35,31 @@ builder.Services.AddOpenApi();
 // =====================================
 
 var connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
+    builder.Configuration.GetConnectionString(
+        "DefaultConnection"
+    )
     ?? throw new InvalidOperationException(
         "No se encontró DefaultConnection."
     );
 
-builder.Services.AddDbContext<NutriAppDbContext>(options =>
-{
-    options.UseNpgsql(
-        connectionString,
-        npgsqlOptions =>
-        {
-            npgsqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 5,
-                maxRetryDelay: TimeSpan.FromSeconds(5),
-                errorCodesToAdd: null
-            );
-        }
-    );
-});
+
+builder.Services.AddDbContext<NutriAppDbContext>(
+    options =>
+    {
+        options.UseNpgsql(
+            connectionString,
+            npgsqlOptions =>
+            {
+                npgsqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay:
+                        TimeSpan.FromSeconds(5),
+                    errorCodesToAdd: null
+                );
+            }
+        );
+    }
+);
 
 
 // =====================================
@@ -59,42 +67,55 @@ builder.Services.AddDbContext<NutriAppDbContext>(options =>
 // =====================================
 
 builder.Services
-    .AddIdentity<UsuarioAplicacion, IdentityRole<int>>(options =>
+    .AddIdentity<
+        UsuarioAplicacion,
+        IdentityRole<int>
+    >(options =>
     {
         // -----------------------------
         // USUARIO
         // -----------------------------
 
-        options.User.RequireUniqueEmail = true;
+        options.User.RequireUniqueEmail =
+            true;
 
 
         // -----------------------------
         // PASSWORD
         // -----------------------------
 
-        options.Password.RequiredLength = 8;
+        options.Password.RequiredLength =
+            8;
 
-        options.Password.RequireDigit = true;
+        options.Password.RequireDigit =
+            true;
 
-        options.Password.RequireLowercase = true;
+        options.Password.RequireLowercase =
+            true;
 
-        options.Password.RequireUppercase = true;
+        options.Password.RequireUppercase =
+            true;
 
-        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireNonAlphanumeric =
+            false;
 
 
         // -----------------------------
         // BLOQUEO DE CUENTA
         // -----------------------------
 
-        options.Lockout.AllowedForNewUsers = true;
+        options.Lockout.AllowedForNewUsers =
+            true;
 
-        options.Lockout.MaxFailedAccessAttempts = 5;
+        options.Lockout.MaxFailedAccessAttempts =
+            5;
 
         options.Lockout.DefaultLockoutTimeSpan =
             TimeSpan.FromMinutes(15);
     })
-    .AddEntityFrameworkStores<NutriAppDbContext>()
+    .AddEntityFrameworkStores<
+        NutriAppDbContext
+    >()
     .AddDefaultTokenProviders();
 
 
@@ -108,11 +129,13 @@ var jwtKey =
         "No se encontró Jwt:Key."
     );
 
+
 var jwtIssuer =
     builder.Configuration["Jwt:Issuer"]
     ?? throw new InvalidOperationException(
         "No se encontró Jwt:Issuer."
     );
+
 
 var jwtAudience =
     builder.Configuration["Jwt:Audience"]
@@ -125,37 +148,49 @@ builder.Services
     .AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+            JwtBearerDefaults
+                .AuthenticationScheme;
 
         options.DefaultChallengeScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+            JwtBearerDefaults
+                .AuthenticationScheme;
 
         options.DefaultScheme =
-            JwtBearerDefaults.AuthenticationScheme;
+            JwtBearerDefaults
+                .AuthenticationScheme;
     })
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters =
             new TokenValidationParameters
             {
-                ValidateIssuer = true,
+                ValidateIssuer =
+                    true,
 
-                ValidateAudience = true,
+                ValidateAudience =
+                    true,
 
-                ValidateLifetime = true,
+                ValidateLifetime =
+                    true,
 
-                ValidateIssuerSigningKey = true,
+                ValidateIssuerSigningKey =
+                    true,
 
-                ValidIssuer = jwtIssuer,
+                ValidIssuer =
+                    jwtIssuer,
 
-                ValidAudience = jwtAudience,
+                ValidAudience =
+                    jwtAudience,
 
                 IssuerSigningKey =
                     new SymmetricSecurityKey(
-                        Convert.FromBase64String(jwtKey)
+                        Convert.FromBase64String(
+                            jwtKey
+                        )
                     ),
 
-                ClockSkew = TimeSpan.Zero
+                ClockSkew =
+                    TimeSpan.Zero
             };
     });
 
@@ -216,24 +251,86 @@ builder.Services.AddScoped<
 >();
 
 
-// Equivalencias
+// -----------------------------
+// EQUIVALENCIAS
+// -----------------------------
+
 builder.Services.AddScoped<
     IEquivalenciaService,
     EquivalenciaService
 >();
 
-// Dietas
+
+// -----------------------------
+// DIETAS
+// -----------------------------
+
 builder.Services.AddScoped<
     IDietaService,
     DietaService
 >();
 
-//comidas 
+
+// -----------------------------
+// COMIDAS
+// -----------------------------
 
 builder.Services.AddScoped<
     IComidaService,
     ComidaService
 >();
+
+
+// -----------------------------
+// OPCIONES / ITEMS
+// -----------------------------
+
+builder.Services.AddScoped<
+    IOpcionComidaService,
+    OpcionComidaService
+>();
+
+
+// -----------------------------
+// ALTERNATIVAS
+// -----------------------------
+
+builder.Services.AddScoped<
+    IAlternativaItemComidaService,
+    AlternativaItemComidaService
+>();
+
+// -----------------------------
+// NOTAS DE PACIENTES
+// -----------------------------
+
+builder.Services.AddScoped<
+    INotaPacienteService,
+    NotaPacienteService
+>();
+
+
+// =====================================
+// CORS
+// =====================================
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(
+        "FrontendLocal",
+        policy =>
+        {
+            policy
+                .WithOrigins(
+                    "http://localhost:5173",
+                    "http://127.0.0.1:5173"
+                )
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        }
+    );
+});
+
 
 // =====================================
 // BUILD
@@ -241,13 +338,61 @@ builder.Services.AddScoped<
 
 var app = builder.Build();
 
+
+// =====================================
 // ROLES INICIALES
+// =====================================
 
-await InicializadorRoles.InicializarAsync(
-    app.Services
-);
+try
+{
+    await InicializadorRoles
+        .InicializarAsync(
+            app.Services
+        );
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        "No se pudieron inicializar los roles."
+    );
 
-// PIPELINE HTTP
+    Console.WriteLine(
+        ex.ToString()
+    );
+}
+
+
+// =====================================
+// USUARIOS DE PRUEBA
+// SOLO DESARROLLO
+// =====================================
+
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        await InicializadorUsuariosPrueba
+            .InicializarAsync(
+                app.Services,
+                app.Configuration
+            );
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(
+            "No se pudieron inicializar los usuarios de prueba."
+        );
+
+        Console.WriteLine(
+            ex.ToString()
+        );
+    }
+}
+
+
+// =====================================
+// OPEN API
+// =====================================
 
 if (app.Environment.IsDevelopment())
 {
@@ -255,17 +400,41 @@ if (app.Environment.IsDevelopment())
 }
 
 
+// =====================================
+// PIPELINE HTTP
+// =====================================
+
 app.UseHttpsRedirection();
 
-// AUTENTICACIÓN
 
+// -----------------------------
+// CORS
+// -----------------------------
+
+app.UseCors(
+    "FrontendLocal"
+);
+
+
+// -----------------------------
+// AUTENTICACIÓN
+// -----------------------------
 
 app.UseAuthentication();
 
+
+// -----------------------------
 // AUTORIZACIÓN
+// -----------------------------
 
 app.UseAuthorization();
 
+
+// -----------------------------
+// CONTROLLERS
+// -----------------------------
+
 app.MapControllers();
+
 
 app.Run();
