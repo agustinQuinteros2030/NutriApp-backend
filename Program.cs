@@ -10,6 +10,7 @@ using NutriApi.Services.Dietas;
 using NutriApi.Services.Equivalencias;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Pacientes;
+using NutriApi.Services.Pagos;
 using NutriApp.Data;
 
 
@@ -312,6 +313,12 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IComplementoDietaService,
     ComplementoDietaService
+>();
+
+
+builder.Services.AddScoped<
+    IPagoPacienteService,
+    PagoPacienteService
 >();
 
 

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using NutriApp.Models.Alimentos;
 using NutriApp.Models.Dietas;
 using NutriApp.Models.Pacientes;
+using NutriApp.Models.Pagos;
 using NutriApp.Models.Usuarios;
 
 namespace NutriApp.Data;
@@ -71,6 +72,8 @@ public class NutriAppDbContext
     public DbSet<SuplementacionDieta> SuplementacionesDietas { get; set; }
 
     public DbSet<ItemSuplementacion> ItemsSuplementacion { get; set; }
+
+    public DbSet<PagoPaciente> PagosPacientes { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -150,6 +153,31 @@ public class NutriAppDbContext
             .WithMany(n => n.NotasPacientes)
             .HasForeignKey(n => n.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+
+        modelBuilder.Entity<PagoPaciente>()
+    .HasOne(p =>
+        p.Paciente
+    )
+    .WithMany(p =>
+        p.Pagos
+    )
+    .HasForeignKey(p =>
+        p.PacienteId
+    )
+    .OnDelete(
+        DeleteBehavior.Restrict
+    );
+
+
+        modelBuilder.Entity<PagoPaciente>()
+            .HasIndex(p =>
+                new
+                {
+                    p.PacienteId,
+                    p.ProximoVencimiento
+                }
+            );
     }
 
 
@@ -437,5 +465,10 @@ public class NutriAppDbContext
         modelBuilder.Entity<ItemSuplementacion>()
             .Property(i => i.Cantidad)
             .HasPrecision(10, 2);
+
+
+        modelBuilder.Entity<PagoPaciente>()
+        .Property(p => p.Monto)
+        .HasPrecision(12, 2);
     }
 }
