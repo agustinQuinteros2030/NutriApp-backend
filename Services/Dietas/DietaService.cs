@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using NutriApi.Calculos;
 using NutriApi.DTOs.Dietas;
 
 using NutriApp.Data;
@@ -36,7 +37,8 @@ public class DietaService : IDietaService
                 .AnyAsync(p =>
                     p.Id == pacienteId
                     &&
-                    p.NutricionistaId == nutricionistaId
+                    p.NutricionistaId ==
+                    nutricionistaId
                 );
 
 
@@ -49,7 +51,8 @@ public class DietaService : IDietaService
 
 
         if (dto.FechaFin.HasValue &&
-            dto.FechaFin.Value < dto.FechaInicio)
+            dto.FechaFin.Value <
+            dto.FechaInicio)
         {
             return ErrorValidacion(
                 "La fecha de fin no puede ser anterior a la fecha de inicio."
@@ -57,53 +60,80 @@ public class DietaService : IDietaService
         }
 
 
+        /*
+         * Cada nueva dieta del paciente
+         * incrementa la versión.
+         */
+
         var ultimaVersion =
             await _context.Dietas
                 .Where(d =>
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                 )
-                .Select(d => (int?)d.Version)
+                .Select(d =>
+                    (int?)d.Version
+                )
                 .MaxAsync()
-                ?? 0;
+            ?? 0;
 
 
-        var dieta = new Dieta
-        {
-            PacienteId = pacienteId,
+        var dieta =
+            new Dieta
+            {
+                PacienteId =
+                    pacienteId,
 
-            Nombre = dto.Nombre.Trim(),
+                Nombre =
+                    dto.Nombre.Trim(),
 
-            Descripcion =
-                dto.Descripcion?.Trim(),
+                Descripcion =
+                    dto.Descripcion?.Trim(),
 
-            Version = ultimaVersion + 1,
+                Version =
+                    ultimaVersion + 1,
 
-            FechaInicio = dto.FechaInicio,
+                FechaInicio =
+                    dto.FechaInicio,
 
-            FechaFin = dto.FechaFin,
+                FechaFin =
+                    dto.FechaFin,
 
-            Estado = EstadoDieta.Borrador,
+                Estado =
+                    EstadoDieta.Borrador,
 
-            ObservacionesGenerales =
-                dto.ObservacionesGenerales?.Trim(),
+                ObservacionesGenerales =
+                    dto.ObservacionesGenerales
+                        ?.Trim(),
 
-            FechaCreacion = DateTime.UtcNow
-        };
+                FechaCreacion =
+                    DateTime.UtcNow
+            };
 
 
-        _context.Dietas.Add(dieta);
+        _context.Dietas
+            .Add(dieta);
+
 
         await _context.SaveChangesAsync();
 
+
+        /*
+         * Una dieta recién creada todavía
+         * no tiene comidas.
+         *
+         * Por eso sus totales comienzan en cero.
+         */
 
         return new ResultadoDieta<DietaDetalleDto>
         {
             Exitoso = true,
 
-            Datos = MapearDetalle(
-                dieta,
-                0
-            ),
+            Datos =
+                MapearDetalle(
+                    dieta,
+                    0
+                ),
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -125,7 +155,8 @@ public class DietaService : IDietaService
             await _context.Pacientes
                 .AsNoTracking()
                 .AnyAsync(p =>
-                    p.Id == pacienteId
+                    p.Id ==
+                    pacienteId
                     &&
                     p.NutricionistaId ==
                     nutricionistaId
@@ -137,9 +168,11 @@ public class DietaService : IDietaService
             return new ResultadoDieta<
                 List<DietaListadoDto>>
             {
-                Exitoso = false,
+                Exitoso =
+                    false,
 
-                Error = "Paciente no encontrado.",
+                Error =
+                    "Paciente no encontrado.",
 
                 TipoError =
                     TipoErrorDieta.NoEncontrado
@@ -147,21 +180,35 @@ public class DietaService : IDietaService
         }
 
 
+        /*
+         * El listado sigue siendo liviano.
+         *
+         * No cargamos todo el árbol nutricional
+         * porque solamente necesitamos
+         * información resumida de cada dieta.
+         */
+
         var dietas =
             await _context.Dietas
                 .AsNoTracking()
                 .Where(d =>
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                 )
-                .OrderByDescending(d => d.Version)
+                .OrderByDescending(d =>
+                    d.Version
+                )
                 .Select(d =>
                     new DietaListadoDto
                     {
-                        Id = d.Id,
+                        Id =
+                            d.Id,
 
-                        Nombre = d.Nombre,
+                        Nombre =
+                            d.Nombre,
 
-                        Version = d.Version,
+                        Version =
+                            d.Version,
 
                         Estado =
                             d.Estado.ToString(),
@@ -187,7 +234,8 @@ public class DietaService : IDietaService
         {
             Exitoso = true,
 
-            Datos = dietas,
+            Datos =
+                dietas,
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -199,32 +247,59 @@ public class DietaService : IDietaService
     // DETALLE
     // ==========================================
 
-    public async Task<ResultadoDieta<DietaDetalleDto>>
+    public async Task<
+        ResultadoDieta<DietaDetalleDto>>
         ObtenerPorIdAsync(
             int nutricionistaId,
             int pacienteId,
             int dietaId)
     {
+        /*
+         * Para obtener los totales del plan
+         * necesitamos llegar hasta el alimento:
+         *
+         * Dieta
+         * -> Comidas
+         * -> Secciones
+         * -> Opciones
+         * -> Items
+         * -> Alimento
+         */
+
         var dieta =
             await _context.Dietas
                 .AsNoTracking()
+
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alimento
+                                )
+
                 .Where(d =>
-                    d.Id == dietaId
+                    d.Id ==
+                    dietaId
                     &&
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                     &&
-                    d.Paciente.NutricionistaId ==
+                    d.Paciente
+                        .NutricionistaId ==
                     nutricionistaId
                 )
-                .Select(d =>
-                    new
-                    {
-                        Dieta = d,
 
-                        CantidadComidas =
-                            d.Comidas.Count
-                    }
-                )
+                .AsSplitQuery()
+
                 .FirstOrDefaultAsync();
 
 
@@ -240,8 +315,8 @@ public class DietaService : IDietaService
 
             Datos =
                 MapearDetalle(
-                    dieta.Dieta,
-                    dieta.CantidadComidas
+                    dieta,
+                    dieta.Comidas.Count
                 ),
 
             TipoError =
@@ -254,7 +329,8 @@ public class DietaService : IDietaService
     // EDITAR
     // ==========================================
 
-    public async Task<ResultadoDieta<DietaDetalleDto>>
+    public async Task<
+        ResultadoDieta<DietaDetalleDto>>
         EditarAsync(
             int nutricionistaId,
             int pacienteId,
@@ -263,13 +339,34 @@ public class DietaService : IDietaService
     {
         var dieta =
             await _context.Dietas
-                .Include(d => d.Comidas)
+
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alimento
+                                )
+
+                .AsSplitQuery()
+
                 .FirstOrDefaultAsync(d =>
-                    d.Id == dietaId
+                    d.Id ==
+                    dietaId
                     &&
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                     &&
-                    d.Paciente.NutricionistaId ==
+                    d.Paciente
+                        .NutricionistaId ==
                     nutricionistaId
                 );
 
@@ -290,7 +387,8 @@ public class DietaService : IDietaService
 
 
         if (dto.FechaFin.HasValue &&
-            dto.FechaFin.Value < dto.FechaInicio)
+            dto.FechaFin.Value <
+            dto.FechaInicio)
         {
             return ErrorValidacion(
                 "La fecha de fin no puede ser anterior a la fecha de inicio."
@@ -311,7 +409,8 @@ public class DietaService : IDietaService
             dto.FechaFin;
 
         dieta.ObservacionesGenerales =
-            dto.ObservacionesGenerales?.Trim();
+            dto.ObservacionesGenerales
+                ?.Trim();
 
         dieta.FechaActualizacion =
             DateTime.UtcNow;
@@ -340,7 +439,8 @@ public class DietaService : IDietaService
     // ACTIVAR
     // ==========================================
 
-    public async Task<ResultadoDieta<DietaDetalleDto>>
+    public async Task<
+        ResultadoDieta<DietaDetalleDto>>
         ActivarAsync(
             int nutricionistaId,
             int pacienteId,
@@ -348,13 +448,34 @@ public class DietaService : IDietaService
     {
         var dieta =
             await _context.Dietas
-                .Include(d => d.Comidas)
+
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alimento
+                                )
+
+                .AsSplitQuery()
+
                 .FirstOrDefaultAsync(d =>
-                    d.Id == dietaId
+                    d.Id ==
+                    dietaId
                     &&
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                     &&
-                    d.Paciente.NutricionistaId ==
+                    d.Paciente
+                        .NutricionistaId ==
                     nutricionistaId
                 );
 
@@ -394,9 +515,11 @@ public class DietaService : IDietaService
         var dietasActivasAnteriores =
             await _context.Dietas
                 .Where(d =>
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                     &&
-                    d.Id != dietaId
+                    d.Id !=
+                    dietaId
                     &&
                     d.Estado ==
                     EstadoDieta.Activa
@@ -450,7 +573,8 @@ public class DietaService : IDietaService
     // ARCHIVAR
     // ==========================================
 
-    public async Task<ResultadoDieta<DietaDetalleDto>>
+    public async Task<
+        ResultadoDieta<DietaDetalleDto>>
         ArchivarAsync(
             int nutricionistaId,
             int pacienteId,
@@ -458,13 +582,34 @@ public class DietaService : IDietaService
     {
         var dieta =
             await _context.Dietas
-                .Include(d => d.Comidas)
+
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alimento
+                                )
+
+                .AsSplitQuery()
+
                 .FirstOrDefaultAsync(d =>
-                    d.Id == dietaId
+                    d.Id ==
+                    dietaId
                     &&
-                    d.PacienteId == pacienteId
+                    d.PacienteId ==
+                    pacienteId
                     &&
-                    d.Paciente.NutricionistaId ==
+                    d.Paciente
+                        .NutricionistaId ==
                     nutricionistaId
                 );
 
@@ -487,10 +632,12 @@ public class DietaService : IDietaService
         dieta.Estado =
             EstadoDieta.Archivada;
 
+
         dieta.FechaFin ??=
             DateOnly.FromDateTime(
                 DateTime.UtcNow
             );
+
 
         dieta.FechaActualizacion =
             DateTime.UtcNow;
@@ -519,13 +666,46 @@ public class DietaService : IDietaService
     // MAPPER
     // ==========================================
 
-    private static DietaDetalleDto MapearDetalle(
-        Dieta dieta,
-        int cantidadComidas)
+    private static DietaDetalleDto
+        MapearDetalle(
+            Dieta dieta,
+            int cantidadComidas)
     {
+        /*
+         * Para calcular el total del plan:
+         *
+         * 1. Recorremos todas las comidas.
+         *
+         * 2. Juntamos todas sus secciones.
+         *
+         * 3. CalculadoraTotalesNutricionales
+         *    toma únicamente la opción
+         *    predeterminada de cada sección.
+         *
+         * 4. Suma los items de esas opciones.
+         */
+
+        var secciones =
+            dieta.Comidas?
+                .SelectMany(c =>
+                    c.Secciones
+                )
+                .ToList()
+            ??
+            new List<SeccionComida>();
+
+
+        var resultadoTotales =
+            CalculadoraTotalesNutricionales
+                .CalcularSecciones(
+                    secciones
+                );
+
+
         return new DietaDetalleDto
         {
-            Id = dieta.Id,
+            Id =
+                dieta.Id,
 
             PacienteId =
                 dieta.PacienteId,
@@ -558,7 +738,50 @@ public class DietaService : IDietaService
                 dieta.FechaCreacion,
 
             FechaActualizacion =
-                dieta.FechaActualizacion
+                dieta.FechaActualizacion,
+
+            Totales =
+                MapearTotales(
+                    resultadoTotales
+                )
+        };
+    }
+
+
+    // ==========================================
+    // MAPPER TOTALES
+    // ==========================================
+
+    private static TotalesNutricionalesDto
+        MapearTotales(
+            ResultadoTotalesNutricionales resultado)
+    {
+        return new TotalesNutricionalesDto
+        {
+            Calorias =
+                resultado.Calorias,
+
+            Proteinas =
+                resultado.Proteinas,
+
+            Carbohidratos =
+                resultado.Carbohidratos,
+
+            Grasas =
+                resultado.Grasas,
+
+            CantidadItems =
+                resultado.CantidadItems,
+
+            ItemsSinCalculo =
+                resultado.ItemsSinCalculo,
+
+            SeccionesSinOpcionPredeterminada =
+                resultado
+                    .SeccionesSinOpcionPredeterminada,
+
+            EsCompleto =
+                resultado.EsCompleto
         };
     }
 
@@ -574,9 +797,11 @@ public class DietaService : IDietaService
     {
         return new ResultadoDieta<DietaDetalleDto>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
-            Error = mensaje,
+            Error =
+                mensaje,
 
             TipoError =
                 TipoErrorDieta.NoEncontrado
@@ -590,9 +815,11 @@ public class DietaService : IDietaService
     {
         return new ResultadoDieta<DietaDetalleDto>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
-            Error = mensaje,
+            Error =
+                mensaje,
 
             TipoError =
                 TipoErrorDieta.Validacion

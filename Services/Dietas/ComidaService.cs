@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+using NutriApi.Calculos;
 using NutriApi.DTOs.Dietas;
 
 using NutriApp.Data;
@@ -52,7 +53,8 @@ public class ComidaService : IComidaService
         }
 
 
-        if (dieta.Estado == EstadoDieta.Archivada)
+        if (dieta.Estado ==
+            EstadoDieta.Archivada)
         {
             return Error<ComidaDetalleDto>(
                 "No se puede modificar una dieta archivada.",
@@ -70,22 +72,29 @@ public class ComidaService : IComidaService
         }
 
 
-        var comida = new Comida
-        {
-            DietaId = dietaId,
+        var comida =
+            new Comida
+            {
+                DietaId =
+                    dietaId,
 
-            Nombre = dto.Nombre.Trim(),
+                Nombre =
+                    dto.Nombre.Trim(),
 
-            Tipo = dto.Tipo,
+                Tipo =
+                    dto.Tipo,
 
-            Orden = dto.Orden,
+                Orden =
+                    dto.Orden,
 
-            Observaciones =
-                dto.Observaciones?.Trim()
-        };
+                Observaciones =
+                    dto.Observaciones?.Trim()
+            };
 
 
-        _context.Comidas.Add(comida);
+        _context.Comidas
+            .Add(comida);
+
 
         await _context.SaveChangesAsync();
 
@@ -94,10 +103,11 @@ public class ComidaService : IComidaService
         {
             Exitoso = true,
 
-            Datos = MapearComida(
-                comida,
-                new List<SeccionComidaDto>()
-            ),
+            Datos =
+                MapearComida(
+                    comida,
+                    new List<SeccionComidaDto>()
+                ),
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -144,19 +154,26 @@ public class ComidaService : IComidaService
                 .Where(c =>
                     c.DietaId == dietaId
                 )
-                .OrderBy(c => c.Orden)
-                .ThenBy(c => c.Id)
+                .OrderBy(c =>
+                    c.Orden
+                )
+                .ThenBy(c =>
+                    c.Id
+                )
                 .Select(c =>
                     new ComidaListadoDto
                     {
-                        Id = c.Id,
+                        Id =
+                            c.Id,
 
-                        Nombre = c.Nombre,
+                        Nombre =
+                            c.Nombre,
 
                         Tipo =
                             c.Tipo.ToString(),
 
-                        Orden = c.Orden,
+                        Orden =
+                            c.Orden,
 
                         CantidadSecciones =
                             c.Secciones.Count
@@ -170,7 +187,8 @@ public class ComidaService : IComidaService
         {
             Exitoso = true,
 
-            Datos = comidas,
+            Datos =
+                comidas,
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -182,16 +200,44 @@ public class ComidaService : IComidaService
     // DETALLE COMIDA
     // ==========================================
 
-    public async Task<ResultadoDieta<ComidaDetalleDto>>
+    public async Task<
+        ResultadoDieta<ComidaDetalleDto>>
         ObtenerComidaAsync(
             int nutricionistaId,
             int pacienteId,
             int dietaId,
             int comidaId)
     {
+        /*
+         * Para calcular los totales necesitamos:
+         *
+         * Comida
+         *   -> Secciones
+         *      -> Opciones
+         *         -> Items
+         *            -> Alimento
+         *
+         * El cálculo se realiza después de obtener
+         * las entidades, no dentro del SELECT SQL.
+         */
+
         var comida =
             await _context.Comidas
                 .AsNoTracking()
+
+                .Include(c =>
+                    c.Secciones
+                )
+                    .ThenInclude(s =>
+                        s.Opciones
+                    )
+                        .ThenInclude(o =>
+                            o.Items
+                        )
+                            .ThenInclude(i =>
+                                i.Alimento
+                            )
+
                 .Where(c =>
                     c.Id == comidaId
                     &&
@@ -204,54 +250,9 @@ public class ComidaService : IComidaService
                         .NutricionistaId ==
                     nutricionistaId
                 )
-                .Select(c =>
-                    new ComidaDetalleDto
-                    {
-                        Id = c.Id,
 
-                        DietaId =
-                            c.DietaId,
+                .AsSplitQuery()
 
-                        Nombre =
-                            c.Nombre,
-
-                        Tipo =
-                            c.Tipo.ToString(),
-
-                        Orden =
-                            c.Orden,
-
-                        Observaciones =
-                            c.Observaciones,
-
-                        Secciones =
-                            c.Secciones
-                                .OrderBy(s => s.Orden)
-                                .ThenBy(s => s.Id)
-                                .Select(s =>
-                                    new SeccionComidaDto
-                                    {
-                                        Id = s.Id,
-
-                                        Nombre =
-                                            s.Nombre,
-
-                                        Tipo =
-                                            s.Tipo.ToString(),
-
-                                        Orden =
-                                            s.Orden,
-
-                                        Observaciones =
-                                            s.Observaciones,
-
-                                        CantidadOpciones =
-                                            s.Opciones.Count
-                                    }
-                                )
-                                .ToList()
-                    }
-                )
                 .FirstOrDefaultAsync();
 
 
@@ -264,11 +265,29 @@ public class ComidaService : IComidaService
         }
 
 
+        var secciones =
+            comida.Secciones
+                .OrderBy(s =>
+                    s.Orden
+                )
+                .ThenBy(s =>
+                    s.Id
+                )
+                .Select(s =>
+                    MapearSeccion(s)
+                )
+                .ToList();
+
+
         return new ResultadoDieta<ComidaDetalleDto>
         {
             Exitoso = true,
 
-            Datos = comida,
+            Datos =
+                MapearComida(
+                    comida,
+                    secciones
+                ),
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -280,7 +299,8 @@ public class ComidaService : IComidaService
     // EDITAR COMIDA
     // ==========================================
 
-    public async Task<ResultadoDieta<ComidaDetalleDto>>
+    public async Task<
+        ResultadoDieta<ComidaDetalleDto>>
         EditarComidaAsync(
             int nutricionistaId,
             int pacienteId,
@@ -290,9 +310,26 @@ public class ComidaService : IComidaService
     {
         var comida =
             await _context.Comidas
-                .Include(c => c.Dieta)
-                .Include(c => c.Secciones)
-                    .ThenInclude(s => s.Opciones)
+
+                .Include(c =>
+                    c.Dieta
+                )
+
+                .Include(c =>
+                    c.Secciones
+                )
+                    .ThenInclude(s =>
+                        s.Opciones
+                    )
+                        .ThenInclude(o =>
+                            o.Items
+                        )
+                            .ThenInclude(i =>
+                                i.Alimento
+                            )
+
+                .AsSplitQuery()
+
                 .FirstOrDefaultAsync(c =>
                     c.Id == comidaId
                     &&
@@ -353,9 +390,15 @@ public class ComidaService : IComidaService
 
         var secciones =
             comida.Secciones
-                .OrderBy(s => s.Orden)
-                .ThenBy(s => s.Id)
-                .Select(MapearSeccion)
+                .OrderBy(s =>
+                    s.Orden
+                )
+                .ThenBy(s =>
+                    s.Id
+                )
+                .Select(s =>
+                    MapearSeccion(s)
+                )
                 .ToList();
 
 
@@ -379,7 +422,8 @@ public class ComidaService : IComidaService
     // CREAR SECCIÓN
     // ==========================================
 
-    public async Task<ResultadoDieta<SeccionComidaDto>>
+    public async Task<
+        ResultadoDieta<SeccionComidaDto>>
         CrearSeccionAsync(
             int nutricionistaId,
             int pacienteId,
@@ -389,7 +433,9 @@ public class ComidaService : IComidaService
     {
         var comida =
             await _context.Comidas
-                .Include(c => c.Dieta)
+                .Include(c =>
+                    c.Dieta
+                )
                 .FirstOrDefaultAsync(c =>
                     c.Id == comidaId
                     &&
@@ -432,25 +478,29 @@ public class ComidaService : IComidaService
         }
 
 
-        var seccion = new SeccionComida
-        {
-            ComidaId = comidaId,
+        var seccion =
+            new SeccionComida
+            {
+                ComidaId =
+                    comidaId,
 
-            Nombre =
-                dto.Nombre.Trim(),
+                Nombre =
+                    dto.Nombre.Trim(),
 
-            Tipo =
-                dto.Tipo,
+                Tipo =
+                    dto.Tipo,
 
-            Orden =
-                dto.Orden,
+                Orden =
+                    dto.Orden,
 
-            Observaciones =
-                dto.Observaciones?.Trim()
-        };
+                Observaciones =
+                    dto.Observaciones?.Trim()
+            };
 
 
-        _context.SeccionesComidas.Add(seccion);
+        _context.SeccionesComidas
+            .Add(seccion);
+
 
         await _context.SaveChangesAsync();
 
@@ -460,7 +510,9 @@ public class ComidaService : IComidaService
             Exitoso = true,
 
             Datos =
-                MapearSeccion(seccion),
+                MapearSeccion(
+                    seccion
+                ),
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -499,7 +551,8 @@ public class ComidaService : IComidaService
 
         if (!comidaExiste)
         {
-            return Error<List<SeccionComidaDto>>(
+            return Error<
+                List<SeccionComidaDto>>(
                 "Comida no encontrada.",
                 TipoErrorDieta.NoEncontrado
             );
@@ -512,12 +565,17 @@ public class ComidaService : IComidaService
                 .Where(s =>
                     s.ComidaId == comidaId
                 )
-                .OrderBy(s => s.Orden)
-                .ThenBy(s => s.Id)
+                .OrderBy(s =>
+                    s.Orden
+                )
+                .ThenBy(s =>
+                    s.Id
+                )
                 .Select(s =>
                     new SeccionComidaDto
                     {
-                        Id = s.Id,
+                        Id =
+                            s.Id,
 
                         Nombre =
                             s.Nombre,
@@ -543,7 +601,8 @@ public class ComidaService : IComidaService
         {
             Exitoso = true,
 
-            Datos = secciones,
+            Datos =
+                secciones,
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -555,7 +614,8 @@ public class ComidaService : IComidaService
     // EDITAR SECCIÓN
     // ==========================================
 
-    public async Task<ResultadoDieta<SeccionComidaDto>>
+    public async Task<
+        ResultadoDieta<SeccionComidaDto>>
         EditarSeccionAsync(
             int nutricionistaId,
             int pacienteId,
@@ -566,20 +626,29 @@ public class ComidaService : IComidaService
     {
         var seccion =
             await _context.SeccionesComidas
-                .Include(s => s.Comida)
-                    .ThenInclude(c => c.Dieta)
-                .Include(s => s.Opciones)
+                .Include(s =>
+                    s.Comida
+                )
+                    .ThenInclude(c =>
+                        c.Dieta
+                    )
+                .Include(s =>
+                    s.Opciones
+                )
                 .FirstOrDefaultAsync(s =>
                     s.Id == seccionId
                     &&
                     s.ComidaId == comidaId
                     &&
-                    s.Comida.DietaId == dietaId
+                    s.Comida.DietaId ==
+                    dietaId
                     &&
-                    s.Comida.Dieta.PacienteId ==
+                    s.Comida.Dieta
+                        .PacienteId ==
                     pacienteId
                     &&
-                    s.Comida.Dieta.Paciente
+                    s.Comida.Dieta
+                        .Paciente
                         .NutricionistaId ==
                     nutricionistaId
                 );
@@ -634,7 +703,9 @@ public class ComidaService : IComidaService
             Exitoso = true,
 
             Datos =
-                MapearSeccion(seccion),
+                MapearSeccion(
+                    seccion
+                ),
 
             TipoError =
                 TipoErrorDieta.Ninguno
@@ -646,13 +717,31 @@ public class ComidaService : IComidaService
     // MAPPERS
     // ==========================================
 
-    private static ComidaDetalleDto MapearComida(
-        Comida comida,
-        List<SeccionComidaDto> secciones)
+    private static ComidaDetalleDto
+        MapearComida(
+            Comida comida,
+            List<SeccionComidaDto> secciones)
     {
+        /*
+         * Para el total de la comida:
+         *
+         * - recorremos todas las secciones
+         * - de cada sección tomamos solamente
+         *   la opción predeterminada
+         * - sumamos sus items
+         */
+
+        var resultadoTotales =
+            CalculadoraTotalesNutricionales
+                .CalcularSecciones(
+                    comida.Secciones
+                );
+
+
         return new ComidaDetalleDto
         {
-            Id = comida.Id,
+            Id =
+                comida.Id,
 
             DietaId =
                 comida.DietaId,
@@ -670,17 +759,24 @@ public class ComidaService : IComidaService
                 comida.Observaciones,
 
             Secciones =
-                secciones
+                secciones,
+
+            Totales =
+                MapearTotales(
+                    resultadoTotales
+                )
         };
     }
 
 
-    private static SeccionComidaDto MapearSeccion(
-        SeccionComida seccion)
+    private static SeccionComidaDto
+        MapearSeccion(
+            SeccionComida seccion)
     {
         return new SeccionComidaDto
         {
-            Id = seccion.Id,
+            Id =
+                seccion.Id,
 
             Nombre =
                 seccion.Nombre,
@@ -695,7 +791,43 @@ public class ComidaService : IComidaService
                 seccion.Observaciones,
 
             CantidadOpciones =
-                seccion.Opciones?.Count ?? 0
+                seccion.Opciones?.Count
+                ??
+                0
+        };
+    }
+
+
+    private static TotalesNutricionalesDto
+        MapearTotales(
+            ResultadoTotalesNutricionales resultado)
+    {
+        return new TotalesNutricionalesDto
+        {
+            Calorias =
+                resultado.Calorias,
+
+            Proteinas =
+                resultado.Proteinas,
+
+            Carbohidratos =
+                resultado.Carbohidratos,
+
+            Grasas =
+                resultado.Grasas,
+
+            CantidadItems =
+                resultado.CantidadItems,
+
+            ItemsSinCalculo =
+                resultado.ItemsSinCalculo,
+
+            SeccionesSinOpcionPredeterminada =
+                resultado
+                    .SeccionesSinOpcionPredeterminada,
+
+            EsCompleto =
+                resultado.EsCompleto
         };
     }
 
@@ -704,17 +836,21 @@ public class ComidaService : IComidaService
     // ERROR GENÉRICO
     // ==========================================
 
-    private static ResultadoDieta<T> Error<T>(
-        string mensaje,
-        TipoErrorDieta tipo)
+    private static ResultadoDieta<T>
+        Error<T>(
+            string mensaje,
+            TipoErrorDieta tipo)
     {
         return new ResultadoDieta<T>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
-            Error = mensaje,
+            Error =
+                mensaje,
 
-            TipoError = tipo
+            TipoError =
+                tipo
         };
     }
 }

@@ -309,6 +309,12 @@ builder.Services.AddScoped<
     NotaPacienteService
 >();
 
+builder.Services.AddScoped<
+    IComplementoDietaService,
+    ComplementoDietaService
+>();
+
+
 
 // =====================================
 // CORS

@@ -6,7 +6,8 @@ public class OpcionSeccionComidaDto
 
     public int SeccionComidaId { get; set; }
 
-    public string Nombre { get; set; } = string.Empty;
+    public string Nombre { get; set; } =
+        string.Empty;
 
     public int Orden { get; set; }
 
@@ -15,5 +16,9 @@ public class OpcionSeccionComidaDto
     public string? Observaciones { get; set; }
 
     public List<ItemOpcionComidaDto> Items { get; set; }
+        = new();
+
+
+    public TotalesNutricionalesDto Totales { get; set; }
         = new();
 }
