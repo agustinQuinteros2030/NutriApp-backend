@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 using NutriApi.Inicializadores;
+using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
 using NutriApi.Services.Dietas;
@@ -11,6 +12,7 @@ using NutriApi.Services.Equivalencias;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
+using NutriApi.Services.PlanPaciente;
 using NutriApp.Data;
 
 
@@ -319,6 +321,25 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IPagoPacienteService,
     PagoPacienteService
+>();
+
+
+// -----------------------------
+// PLAN DEL PACIENTE
+// -----------------------------
+
+builder.Services.AddScoped<
+    IPlanPacienteService,
+    PlanPacienteService
+>();
+
+// -----------------------------
+// ACTIVACIÓN DE CUENTA
+// -----------------------------
+
+builder.Services.AddScoped<
+    IActivacionCuentaService,
+    ActivacionCuentaService
 >();
 
 
