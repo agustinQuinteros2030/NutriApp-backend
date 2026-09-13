@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 
 using NutriApi.DTOs.Pacientes;
-
+using NutriApi.Services.Pacientes;
 using NutriApp.Data;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Usuarios;
+namespace NutriApi.Services.MiPerfil;
 
-namespace NutriApi.Services.Pacientes;
+
 
 public class PacienteService : IPacienteService
 {

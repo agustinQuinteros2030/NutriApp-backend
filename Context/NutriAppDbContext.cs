@@ -7,6 +7,7 @@ using NutriApp.Models.Alimentos;
 using NutriApp.Models.Dietas;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Pagos;
+using NutriApp.Models.Seguimiento;
 using NutriApp.Models.Usuarios;
 
 namespace NutriApp.Data;
@@ -75,6 +76,18 @@ public class NutriAppDbContext
 
     public DbSet<PagoPaciente> PagosPacientes { get; set; }
 
+    // =========================
+    // SEGUIMIENTO
+    // =========================
+
+    public DbSet<RegistroDiarioPaciente>
+        RegistrosDiariosPacientes
+    { get; set; }
+
+
+    public DbSet<SeguimientoSemanalPaciente>
+    SeguimientosSemanalesPacientes
+    { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,6 +104,8 @@ public class NutriAppDbContext
         ConfigurarDietas(modelBuilder);
 
         ConfigurarDecimales(modelBuilder);
+
+        ConfigurarSeguimiento(modelBuilder);
     }
 
 
@@ -470,5 +485,96 @@ public class NutriAppDbContext
         modelBuilder.Entity<PagoPaciente>()
         .Property(p => p.Monto)
         .HasPrecision(12, 2);
+
+
+        modelBuilder
+    .Entity<SeguimientoSemanalPaciente>()
+    .Property(s =>
+        s.PesoActual
+    )
+    .HasPrecision(
+        6,
+        2
+    );
     }
+
+
+    private static void ConfigurarSeguimiento(
+    ModelBuilder modelBuilder)
+    {
+        modelBuilder
+            .Entity<RegistroDiarioPaciente>()
+            .HasOne(r =>
+                r.Paciente
+            )
+            .WithMany(p =>
+                p.RegistrosDiarios
+            )
+            .HasForeignKey(r =>
+                r.PacienteId
+            )
+            .OnDelete(
+                DeleteBehavior.Restrict
+            );
+
+
+        /*
+         * Un paciente solamente puede tener
+         * un registro por fecha.
+         */
+
+        modelBuilder
+            .Entity<RegistroDiarioPaciente>()
+            .HasIndex(r =>
+                new
+                {
+                    r.PacienteId,
+                    r.Fecha
+                }
+            )
+            .IsUnique();
+
+        // ==========================================
+        // SEGUIMIENTO SEMANAL
+        // ==========================================
+
+        modelBuilder
+            .Entity<SeguimientoSemanalPaciente>()
+            .HasOne(s =>
+                s.Paciente
+            )
+            .WithMany(p =>
+                p.SeguimientosSemanales
+            )
+            .HasForeignKey(s =>
+                s.PacienteId
+            )
+            .OnDelete(
+                DeleteBehavior.Restrict
+            );
+
+
+        /*
+         * Un paciente solamente puede completar
+         * un seguimiento para cada semana.
+         *
+         * FechaInicioSemana funciona como
+         * identificador lógico de la semana.
+         */
+
+        modelBuilder
+            .Entity<SeguimientoSemanalPaciente>()
+            .HasIndex(s =>
+                new
+                {
+                    s.PacienteId,
+                    s.FechaInicioSemana
+                }
+            )
+            .IsUnique();
+    }
+
+
+
+
 }

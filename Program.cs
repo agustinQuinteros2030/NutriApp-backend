@@ -9,10 +9,13 @@ using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
 using NutriApi.Services.Dietas;
 using NutriApi.Services.Equivalencias;
+using NutriApi.Services.MiPerfil;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
+
 using NutriApi.Services.PlanPaciente;
+using NutriApi.Services.RegistroDiario;
 using NutriApp.Data;
 
 
@@ -340,6 +343,21 @@ builder.Services.AddScoped<
 builder.Services.AddScoped<
     IActivacionCuentaService,
     ActivacionCuentaService
+>();
+//------------------------------
+// PERFIL DEL PACIENTE
+//------------------------------
+builder.Services.AddScoped<
+    IPerfilPacienteService,
+    PerfilPacienteService
+>();
+//------------------------------
+// REGISTRO DIARIO DEL PACIENTE
+//------------------------------
+
+builder.Services.AddScoped<
+    IRegistroDiarioService,
+    RegistroDiarioService
 >();
 
 
