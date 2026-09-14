@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NutriApi.DTOs.Dietas;
-
 public class EditarItemSuplementacionDto
 {
     [Required(
@@ -21,6 +19,8 @@ public class EditarItemSuplementacionDto
         typeof(decimal),
         "0.01",
         "999999999",
+        ParseLimitsInInvariantCulture = true,
+        ConvertValueInInvariantCulture = true,
         ErrorMessage =
             "La cantidad debe ser mayor a cero."
     )]

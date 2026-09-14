@@ -18,12 +18,14 @@ public class CrearItemSuplementacionDto
 
 
     [Range(
-        typeof(decimal),
-        "0.01",
-        "999999999",
-        ErrorMessage =
-            "La cantidad debe ser mayor a cero."
-    )]
+         typeof(decimal),
+         "0.01",
+         "999999999",
+         ParseLimitsInInvariantCulture = true,
+         ConvertValueInInvariantCulture = true,
+         ErrorMessage =
+             "La cantidad debe ser mayor a cero."
+     )]
     public decimal? Cantidad { get; set; }
 
 

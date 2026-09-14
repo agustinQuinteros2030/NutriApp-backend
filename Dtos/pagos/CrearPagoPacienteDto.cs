@@ -13,6 +13,8 @@ public class CrearPagoPacienteDto
         typeof(decimal),
         "0.01",
         "999999999999",
+        ParseLimitsInInvariantCulture = true,
+        ConvertValueInInvariantCulture = true,
         ErrorMessage =
             "El monto debe ser mayor a cero."
     )]

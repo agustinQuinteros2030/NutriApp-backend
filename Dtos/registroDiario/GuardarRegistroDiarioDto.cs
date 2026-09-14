@@ -1,7 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace NutriApi.DTOs.RegistroDiario;
-
 public class GuardarRegistroDiarioDto
 {
     [Required]
