@@ -16,6 +16,7 @@ using NutriApi.Services.Pagos;
 
 using NutriApi.Services.PlanPaciente;
 using NutriApi.Services.RegistroDiario;
+using NutriApi.Services.SeguimientoSemanal;
 using NutriApp.Data;
 
 
@@ -359,7 +360,14 @@ builder.Services.AddScoped<
     IRegistroDiarioService,
     RegistroDiarioService
 >();
+//--------------------------
+// SEGUIMIENTO SEMANAL DEL PACIENTE
+//--------------------------
 
+builder.Services.AddScoped<
+    ISeguimientoSemanalService,
+    SeguimientoSemanalService
+>();
 
 
 // =====================================
