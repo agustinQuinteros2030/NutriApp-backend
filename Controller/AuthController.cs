@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.AspNetCore.RateLimiting;
 using NutriApi.DTOs.Auth;
 using NutriApi.Services.Auth;
 
@@ -48,6 +48,7 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("login")]
+    [EnableRateLimiting("AuthSensitive")]
     public async Task<IActionResult>
         Login(LoginDto dto)
     {

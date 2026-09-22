@@ -7,8 +7,10 @@ public class ActivacionCuentaGeneradaDto
     public string Email { get; set; } =
         string.Empty;
 
-    public string Token { get; set; } =
-        string.Empty;
+    public string? Telefono { get; set; }
 
     public bool CuentaActivada { get; set; }
+
+    public string EnlaceActivacion { get; set; } =
+        string.Empty;
 }

@@ -10,5 +10,7 @@ public enum TipoErrorActivacionCuenta
 
     TokenInvalido = 3,
 
-    Interno = 4
+    ErrorInterno = 4,
+
+     ServicioEmail = 5
 }

@@ -484,7 +484,7 @@ public class NutriAppDbContext
 
         modelBuilder.Entity<PagoPaciente>()
         .Property(p => p.Monto)
-        .HasPrecision(12, 2);
+        .HasPrecision(18, 2);
 
 
         modelBuilder

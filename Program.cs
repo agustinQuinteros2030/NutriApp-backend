@@ -1,26 +1,47 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
+using NutriApi.Configuracion;
+
 using NutriApi.Inicializadores;
+
 using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
+using NutriApi.Services.Email;
 using NutriApi.Services.Equivalencias;
 using NutriApi.Services.MiPerfil;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
-
 using NutriApi.Services.PlanPaciente;
+using NutriApi.Services.RecuperacionPassword;
 using NutriApi.Services.RegistroDiario;
 using NutriApi.Services.SeguimientoSemanal;
+
 using NutriApp.Data;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 
-var builder = WebApplication.CreateBuilder(args);
+var builder =
+    WebApplication.CreateBuilder(args);
+
+
+// =====================================
+// CONFIGURACIÓN DE EMAIL
+// =====================================
+
+builder.Services.Configure<EmailOpciones>(
+    builder.Configuration.GetSection(
+        EmailOpciones.Seccion
+    )
+);
 
 
 // =====================================
@@ -127,6 +148,30 @@ builder.Services
 
 
 // =====================================
+// TOKENS DE IDENTITY
+// =====================================
+//
+// Aplica a los tokens generados mediante
+// los providers por defecto de Identity.
+//
+// Actualmente:
+// - activación de cuenta
+// - recuperación de contraseña
+//
+// Ambos utilizan password reset tokens.
+// =====================================
+
+builder.Services.Configure<
+    DataProtectionTokenProviderOptions>(
+    options =>
+    {
+        options.TokenLifespan =
+            TimeSpan.FromHours(24);
+    }
+);
+
+
+// =====================================
 // JWT
 // =====================================
 
@@ -168,6 +213,10 @@ builder.Services
     })
     .AddJwtBearer(options =>
     {
+        // =====================================
+        // VALIDACIÓN NORMAL DEL JWT
+        // =====================================
+
         options.TokenValidationParameters =
             new TokenValidationParameters
             {
@@ -199,14 +248,232 @@ builder.Services
                 ClockSkew =
                     TimeSpan.Zero
             };
-    });
 
+
+        // =====================================
+        // VALIDACIÓN DEL USUARIO
+        // =====================================
+
+        options.Events =
+            new JwtBearerEvents
+            {
+                OnTokenValidated =
+                    async context =>
+                    {
+                        // -------------------------
+                        // USER ID DEL TOKEN
+                        // -------------------------
+
+                        var usuarioId =
+                            context.Principal?
+                                .FindFirst(
+                                    ClaimTypes
+                                        .NameIdentifier
+                                )?
+                                .Value;
+
+
+                        // -------------------------
+                        // SECURITY STAMP DEL TOKEN
+                        // -------------------------
+
+                        var stampToken =
+                            context.Principal?
+                                .FindFirst(
+                                    "security_stamp"
+                                )?
+                                .Value;
+
+
+                        if (string.IsNullOrWhiteSpace(
+                                usuarioId)
+                            ||
+                            string.IsNullOrWhiteSpace(
+                                stampToken))
+                        {
+                            context.Fail(
+                                "Token inválido."
+                            );
+
+                            return;
+                        }
+
+
+                        // -------------------------
+                        // USER MANAGER
+                        // -------------------------
+
+                        var userManager =
+                            context
+                                .HttpContext
+                                .RequestServices
+                                .GetRequiredService<
+                                    UserManager<
+                                        UsuarioAplicacion
+                                    >
+                                >();
+
+
+                        // -------------------------
+                        // USUARIO ACTUAL
+                        // -------------------------
+
+                        var usuario =
+                            await userManager
+                                .FindByIdAsync(
+                                    usuarioId
+                                );
+
+
+                        if (usuario is null)
+                        {
+                            context.Fail(
+                                "Usuario inválido."
+                            );
+
+                            return;
+                        }
+
+
+                        // -------------------------
+                        // USUARIO DESACTIVADO
+                        // -------------------------
+
+                        /*
+                         * Esto hace que desactivar
+                         * una cuenta invalide también
+                         * los JWT existentes.
+                         */
+
+                        if (!usuario.Activo)
+                        {
+                            context.Fail(
+                                "Usuario desactivado."
+                            );
+
+                            return;
+                        }
+
+
+                        // -------------------------
+                        // SECURITY STAMP ACTUAL
+                        // -------------------------
+
+                        var stampActual =
+                            await userManager
+                                .GetSecurityStampAsync(
+                                    usuario
+                                );
+
+
+                        /*
+                         * JWT:
+                         * security_stamp = ABC
+                         *
+                         * Identity actual:
+                         * security_stamp = XYZ
+                         *
+                         * Si no coinciden, hubo un
+                         * cambio de seguridad.
+                         *
+                         * Ejemplo:
+                         * cambio/reset de contraseña.
+                         */
+
+                        if (!string.Equals(
+                                stampToken,
+                                stampActual,
+                                StringComparison
+                                    .Ordinal))
+                        {
+                            context.Fail(
+                                "Token revocado."
+                            );
+
+                            return;
+                        }
+                    }
+            };
+    });
 
 // =====================================
 // AUTORIZACIÓN
 // =====================================
 
 builder.Services.AddAuthorization();
+
+
+// =====================================
+// RATE LIMITING
+// =====================================
+//
+// Esta política NO se aplica globalmente.
+//
+// Solamente se aplica a endpoints que tengan:
+//
+// [EnableRateLimiting("AuthSensitive")]
+//
+// Ejemplo:
+// - login
+// - solicitar recuperación
+// - restablecer contraseña
+// - activar cuenta
+//
+// Límite actual:
+// 5 requests / minuto / IP
+// =====================================
+
+builder.Services.AddRateLimiter(
+    options =>
+    {
+        options.RejectionStatusCode =
+            StatusCodes
+                .Status429TooManyRequests;
+
+
+        options.AddPolicy(
+            "AuthSensitive",
+            httpContext =>
+            {
+                var ip =
+                    httpContext
+                        .Connection
+                        .RemoteIpAddress?
+                        .ToString()
+                    ?? "unknown";
+
+
+                return RateLimitPartition
+                    .GetFixedWindowLimiter(
+                        partitionKey:
+                            ip,
+
+                        factory:
+                            _ =>
+                                new FixedWindowRateLimiterOptions
+                                {
+                                    PermitLimit =
+                                        5,
+
+                                    Window =
+                                        TimeSpan
+                                            .FromMinutes(1),
+
+                                    QueueLimit =
+                                        0,
+
+                                    QueueProcessingOrder =
+                                        QueueProcessingOrder
+                                            .OldestFirst,
+
+                                    AutoReplenishment =
+                                        true
+                                }
+                    );
+            }
+        );
+    }
+);
 
 
 // =====================================
@@ -226,6 +493,26 @@ builder.Services.AddScoped<
     IAuthService,
     AuthService
 >();
+
+
+// -----------------------------
+// EMAIL
+// -----------------------------
+
+/*builder.Services.AddHttpClient<
+    IEmailService,
+    EmailService>(
+    client =>
+    {
+        client.BaseAddress =
+            new Uri(
+                "https://api.resend.com/"
+            );
+
+        client.Timeout =
+            TimeSpan.FromSeconds(15);
+    }
+);*/
 
 
 // -----------------------------
@@ -307,6 +594,7 @@ builder.Services.AddScoped<
     AlternativaItemComidaService
 >();
 
+
 // -----------------------------
 // NOTAS DE PACIENTES
 // -----------------------------
@@ -316,11 +604,20 @@ builder.Services.AddScoped<
     NotaPacienteService
 >();
 
+
+// -----------------------------
+// COMPLEMENTOS DE DIETA
+// -----------------------------
+
 builder.Services.AddScoped<
     IComplementoDietaService,
     ComplementoDietaService
 >();
 
+
+// -----------------------------
+// PAGOS
+// -----------------------------
 
 builder.Services.AddScoped<
     IPagoPacienteService,
@@ -337,6 +634,7 @@ builder.Services.AddScoped<
     PlanPacienteService
 >();
 
+
 // -----------------------------
 // ACTIVACIÓN DE CUENTA
 // -----------------------------
@@ -345,28 +643,55 @@ builder.Services.AddScoped<
     IActivacionCuentaService,
     ActivacionCuentaService
 >();
-//------------------------------
+
+
+// -----------------------------
 // PERFIL DEL PACIENTE
-//------------------------------
+// -----------------------------
+
 builder.Services.AddScoped<
     IPerfilPacienteService,
     PerfilPacienteService
 >();
-//------------------------------
+
+
+// -----------------------------
 // REGISTRO DIARIO DEL PACIENTE
-//------------------------------
+// -----------------------------
 
 builder.Services.AddScoped<
     IRegistroDiarioService,
     RegistroDiarioService
 >();
-//--------------------------
-// SEGUIMIENTO SEMANAL DEL PACIENTE
-//--------------------------
+
+
+// -----------------------------
+// SEGUIMIENTO SEMANAL
+// -----------------------------
 
 builder.Services.AddScoped<
     ISeguimientoSemanalService,
     SeguimientoSemanalService
+>();
+
+
+// -----------------------------
+// RECUPERACIÓN DE PASSWORD
+// -----------------------------
+
+builder.Services.AddScoped<
+    IRecuperacionPasswordService,
+    RecuperacionPasswordService
+>();
+
+
+// -----------------------------
+// DASHBOARD NUTRICIONISTA
+// -----------------------------
+
+builder.Services.AddScoped<
+    IDashboardNutricionistaService,
+    DashboardNutricionistaService
 >();
 
 
@@ -396,7 +721,8 @@ builder.Services.AddCors(options =>
 // BUILD
 // =====================================
 
-var app = builder.Build();
+var app =
+    builder.Build();
 
 
 // =====================================
@@ -468,12 +794,26 @@ app.UseHttpsRedirection();
 
 
 // -----------------------------
+// ROUTING
+// -----------------------------
+
+app.UseRouting();
+
+
+// -----------------------------
 // CORS
 // -----------------------------
 
 app.UseCors(
     "FrontendLocal"
 );
+
+
+// -----------------------------
+// RATE LIMITING
+// -----------------------------
+
+app.UseRateLimiter();
 
 
 // -----------------------------

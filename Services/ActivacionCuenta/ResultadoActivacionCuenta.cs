@@ -9,5 +9,4 @@ public class ResultadoActivacionCuenta<T>
     public string? Error { get; set; }
 
     public TipoErrorActivacionCuenta TipoError { get; set; }
-        = TipoErrorActivacionCuenta.Ninguno;
 }

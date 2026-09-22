@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 using NutriApi.DTOs.ActivacionCuenta;
 using NutriApi.Services.ActivacionCuenta;
@@ -66,7 +67,7 @@ public class ActivacionCuentaController
 
 
     // ==========================================
-    // GENERAR INVITACIÓN
+    // GENERAR ENLACE DE ACTIVACIÓN
     // NUTRICIONISTA
     // ==========================================
 
@@ -111,6 +112,7 @@ public class ActivacionCuentaController
     // ==========================================
 
     [AllowAnonymous]
+    [EnableRateLimiting("AuthSensitive")]
     [HttpPost(
         "auth/activar-cuenta"
     )]

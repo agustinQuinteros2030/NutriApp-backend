@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
+using NutriApi.Configuracion;
 using NutriApi.DTOs.ActivacionCuenta;
 
 using NutriApp.Data;
@@ -14,21 +16,29 @@ namespace NutriApi.Services.ActivacionCuenta;
 public class ActivacionCuentaService
     : IActivacionCuentaService
 {
-    private readonly NutriAppDbContext _context;
+    private readonly NutriAppDbContext
+        _context;
 
     private readonly UserManager<UsuarioAplicacion>
         _userManager;
 
+    private readonly EmailOpciones
+        _emailOpciones;
+
 
     public ActivacionCuentaService(
         NutriAppDbContext context,
-        UserManager<UsuarioAplicacion> userManager)
+        UserManager<UsuarioAplicacion> userManager,
+        IOptions<EmailOpciones> emailOpciones)
     {
         _context =
             context;
 
         _userManager =
             userManager;
+
+        _emailOpciones =
+            emailOpciones.Value;
     }
 
 
@@ -96,7 +106,8 @@ public class ActivacionCuentaService
 
 
     // ==========================================
-    // GENERAR TOKEN
+    // GENERAR ACTIVACIÓN
+    // NUTRICIONISTA
     // ==========================================
 
     public async Task<
@@ -113,6 +124,10 @@ public class ActivacionCuentaService
             );
 
 
+        // ======================================
+        // PACIENTE
+        // ======================================
+
         if (paciente is null)
         {
             return Error<
@@ -123,6 +138,10 @@ public class ActivacionCuentaService
             );
         }
 
+
+        // ======================================
+        // CUENTA YA ACTIVADA
+        // ======================================
 
         var cuentaActivada =
             await _userManager
@@ -142,6 +161,20 @@ public class ActivacionCuentaService
         }
 
 
+        // ======================================
+        // EMAIL
+        // ======================================
+
+        /*
+         * Aunque ya no enviamos un email,
+         * el email sigue formando parte del
+         * enlace de activación.
+         *
+         * ActivarCuentaAsync posteriormente
+         * utiliza este email para localizar
+         * al usuario mediante Identity.
+         */
+
         if (string.IsNullOrWhiteSpace(
             paciente.Email))
         {
@@ -153,6 +186,37 @@ public class ActivacionCuentaService
             );
         }
 
+
+        // ======================================
+        // FRONTEND URL
+        // ======================================
+
+        /*
+         * Por ahora seguimos reutilizando
+         * EmailOpciones.FrontendUrl.
+         *
+         * Esto evita modificar configuración
+         * adicional innecesariamente.
+         *
+         * Más adelante podemos moverlo a una
+         * configuración general de la aplicación.
+         */
+
+        if (string.IsNullOrWhiteSpace(
+            _emailOpciones.FrontendUrl))
+        {
+            return Error<
+                ActivacionCuentaGeneradaDto>(
+                "No se encuentra configurada la URL del frontend.",
+                TipoErrorActivacionCuenta
+                    .ErrorInterno
+            );
+        }
+
+
+        // ======================================
+        // TOKEN IDENTITY
+        // ======================================
 
         /*
          * Identity genera el token real.
@@ -181,12 +245,65 @@ public class ActivacionCuentaService
          */
 
         var tokenCodificado =
-            WebEncoders.Base64UrlEncode(
-                Encoding.UTF8.GetBytes(
-                    tokenIdentity
-                )
+            WebEncoders
+                .Base64UrlEncode(
+                    Encoding.UTF8
+                        .GetBytes(
+                            tokenIdentity
+                        )
+                );
+
+
+        // ======================================
+        // ENLACE DE ACTIVACIÓN
+        // ======================================
+
+        var frontendUrl =
+            _emailOpciones
+                .FrontendUrl
+                .Trim()
+                .TrimEnd('/');
+
+
+        var emailCodificado =
+            Uri.EscapeDataString(
+                paciente.Email
             );
 
+
+        var tokenUrl =
+            Uri.EscapeDataString(
+                tokenCodificado
+            );
+
+
+        var enlaceActivacion =
+            $"{frontendUrl}/activar-cuenta" +
+            $"?email={emailCodificado}" +
+            $"&token={tokenUrl}";
+
+
+        // ======================================
+        // RESPUESTA
+        // ======================================
+
+        /*
+         * IMPORTANTE:
+         *
+         * Ahora el token sí vuelve al frontend,
+         * pero únicamente dentro del enlace
+         * generado para un nutricionista
+         * autenticado y propietario del paciente.
+         *
+         * El frontend NO debe persistir este
+         * enlace en localStorage/sessionStorage.
+         *
+         * Su única finalidad es:
+         *
+         * - copiarlo;
+         * - abrir WhatsApp;
+         * - enviarlo manualmente al paciente.
+         */
 
         return new ResultadoActivacionCuenta<
             ActivacionCuentaGeneradaDto>
@@ -203,11 +320,17 @@ public class ActivacionCuentaService
                     Email =
                         paciente.Email,
 
-                    Token =
-                        tokenCodificado,
+                    Telefono =
+                        string.IsNullOrWhiteSpace(
+                            paciente.PhoneNumber)
+                            ? null
+                            : paciente.PhoneNumber.Trim(),
 
                     CuentaActivada =
-                        false
+                        false,
+
+                    EnlaceActivacion =
+                        enlaceActivacion
                 },
 
             TipoError =
