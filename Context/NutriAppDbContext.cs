@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NutriApp.Models.Alimentos;
 using NutriApp.Models.Dietas;
+using NutriApp.Models.Notificaciones;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Pagos;
 using NutriApp.Models.Seguimiento;
@@ -89,6 +90,16 @@ public class NutriAppDbContext
     SeguimientosSemanalesPacientes
     { get; set; }
 
+
+
+
+    public DbSet<Notificacion> Notificaciones
+    {
+        get;
+        set;
+    }
+
+    public DbSet<Turno> Turnos { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // MUY IMPORTANTE porque usamos Identity
@@ -106,6 +117,127 @@ public class NutriAppDbContext
         ConfigurarDecimales(modelBuilder);
 
         ConfigurarSeguimiento(modelBuilder);
+
+        ConfigurarNotificaciones(modelBuilder);
+        ConfigurarTurnos(modelBuilder);
+    }
+
+    private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
+    {
+        // ==========================================
+        // NOTIFICACIONES
+        // ==========================================
+
+        modelBuilder.Entity<Notificacion>(
+            entity =>
+            {
+                entity.HasKey(n =>
+                    n.Id
+                );
+
+
+                // ======================================
+                // USUARIO
+                // ======================================
+
+                entity.HasOne(n =>
+                        n.Usuario
+                    )
+                    .WithMany()
+                    .HasForeignKey(n =>
+                        n.UsuarioId
+                    )
+                    .OnDelete(
+                        DeleteBehavior.Cascade
+                    );
+
+
+                // ======================================
+                // CONTENIDO
+                // ======================================
+
+                entity.Property(n =>
+                        n.Titulo
+                    )
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+
+                entity.Property(n =>
+                        n.Mensaje
+                    )
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+
+                entity.Property(n =>
+                        n.RecursoTipo
+                    )
+                    .HasMaxLength(100);
+
+
+                // ======================================
+                // ENUM
+                // ======================================
+
+                entity.Property(n =>
+                        n.Tipo
+                    )
+                    .IsRequired();
+
+
+                // ======================================
+                // ESTADO
+                // ======================================
+
+                entity.Property(n =>
+                        n.Leida
+                    )
+                    .IsRequired()
+                    .HasDefaultValue(false);
+
+
+                entity.Property(n =>
+                        n.FechaCreacion
+                    )
+                    .IsRequired();
+
+
+                // ======================================
+                // ÍNDICES
+                // ======================================
+
+                /*
+                 * Consulta principal:
+                 *
+                 * "dame las notificaciones de este
+                 * usuario ordenadas por fecha".
+                 */
+
+                entity.HasIndex(n =>
+                    new
+                    {
+                        n.UsuarioId,
+                        n.FechaCreacion
+                    });
+
+
+                /*
+                 * Muy utilizado para:
+                 *
+                 * "¿cuántas notificaciones no leídas
+                 * tiene este usuario?"
+                 */
+
+                entity.HasIndex(n =>
+                    new
+                    {
+                        n.UsuarioId,
+                        n.Leida
+                    });
+            }
+        );
+
     }
 
 
@@ -572,6 +704,132 @@ public class NutriAppDbContext
                 }
             )
             .IsUnique();
+    }
+
+    private static void ConfigurarTurnos(
+    ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Turno>(
+            entity =>
+            {
+                // ======================================
+                // PK
+                // ======================================
+
+                entity.HasKey(t =>
+                    t.Id
+                );
+
+
+                // ======================================
+                // PACIENTE
+                // ======================================
+
+                entity.HasOne(t =>
+                        t.Paciente
+                    )
+                    .WithMany()
+                    .HasForeignKey(t =>
+                        t.PacienteId
+                    )
+                    .OnDelete(
+                        DeleteBehavior.Restrict
+                    );
+
+
+                // ======================================
+                // FECHA
+                // ======================================
+
+                entity.Property(t =>
+                        t.FechaHora
+                    )
+                    .IsRequired();
+
+
+                entity.Property(t =>
+                        t.FechaCreacion
+                    )
+                    .IsRequired();
+
+
+                // ======================================
+                // ENUMS
+                // ======================================
+
+                entity.Property(t =>
+                        t.Modalidad
+                    )
+                    .IsRequired();
+
+
+                entity.Property(t =>
+                        t.Estado
+                    )
+                    .IsRequired();
+
+
+                // ======================================
+                // TEXTOS
+                // ======================================
+
+                entity.Property(t =>
+                        t.Lugar
+                    )
+                    .HasMaxLength(200);
+
+
+                entity.Property(t =>
+                        t.LinkReunion
+                    )
+                    .HasMaxLength(500);
+
+
+                entity.Property(t =>
+                        t.Motivo
+                    )
+                    .HasMaxLength(250);
+
+
+                entity.Property(t =>
+                        t.Observaciones
+                    )
+                    .HasMaxLength(1000);
+
+
+                // ======================================
+                // ÍNDICES
+                // ======================================
+
+                /*
+                 * Consultaremos frecuentemente:
+                 *
+                 * turnos de un paciente
+                 * ordenados por fecha.
+                 */
+
+                entity.HasIndex(t =>
+                    new
+                    {
+                        t.PacienteId,
+                        t.FechaHora
+                    });
+
+
+                /*
+                 * También consultaremos:
+                 *
+                 * próximos turnos programados.
+                 */
+
+                entity.HasIndex(t =>
+                    new
+                    {
+                        t.Estado,
+                        t.FechaHora
+                    });
+            }
+        );
     }
 
 

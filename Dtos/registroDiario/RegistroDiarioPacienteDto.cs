@@ -1,6 +1,4 @@
-﻿namespace NutriApi.DTOs.RegistroDiario;
-
-public class RegistroDiarioPacienteDto
+﻿public class RegistroDiarioPacienteDto
 {
     public int Id { get; set; }
 
@@ -8,13 +6,15 @@ public class RegistroDiarioPacienteDto
 
     public DateOnly Fecha { get; set; }
 
-    public int? AdherenciaPorcentaje { get; set; }
+    public bool? CumplioPlan { get; set; }
 
-    public int? Hambre { get; set; }
+    public decimal? CinturaCm { get; set; }
 
-    public int? Energia { get; set; }
+    public decimal? CaderaCm { get; set; }
 
-    public bool? Entreno { get; set; }
+    public decimal? GemeloCm { get; set; }
+
+    public decimal? CuelloCm { get; set; }
 
     public string? Observaciones { get; set; }
 

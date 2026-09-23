@@ -22,14 +22,14 @@ public class ActivacionCuentaService
     private readonly UserManager<UsuarioAplicacion>
         _userManager;
 
-    private readonly EmailOpciones
-        _emailOpciones;
+    private readonly AplicacionOpciones
+     _aplicacionOpciones;
 
 
     public ActivacionCuentaService(
         NutriAppDbContext context,
         UserManager<UsuarioAplicacion> userManager,
-        IOptions<EmailOpciones> emailOpciones)
+        IOptions<AplicacionOpciones> aplicacionOpciones)
     {
         _context =
             context;
@@ -37,10 +37,9 @@ public class ActivacionCuentaService
         _userManager =
             userManager;
 
-        _emailOpciones =
-            emailOpciones.Value;
+        _aplicacionOpciones =
+            aplicacionOpciones.Value;
     }
-
 
     // ==========================================
     // ESTADO DE ACTIVACIÓN
@@ -202,8 +201,7 @@ public class ActivacionCuentaService
          * configuración general de la aplicación.
          */
 
-        if (string.IsNullOrWhiteSpace(
-            _emailOpciones.FrontendUrl))
+        if (string.IsNullOrWhiteSpace(_aplicacionOpciones.FrontendUrl))
         {
             return Error<
                 ActivacionCuentaGeneradaDto>(
@@ -259,7 +257,7 @@ public class ActivacionCuentaService
         // ======================================
 
         var frontendUrl =
-            _emailOpciones
+            _aplicacionOpciones
                 .FrontendUrl
                 .Trim()
                 .TrimEnd('/');

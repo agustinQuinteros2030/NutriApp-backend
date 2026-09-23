@@ -1,40 +1,36 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
+namespace NutriApi.DTOs.RegistroDiario;
+
 public class GuardarRegistroDiarioDto
 {
     [Required]
     public DateOnly Fecha { get; set; }
 
 
-    [Range(
-        0,
-        100,
-        ErrorMessage =
-            "La adherencia debe estar entre 0 y 100."
-    )]
-    public int? AdherenciaPorcentaje { get; set; }
+    // ==========================================
+    // CHECK-IN
+    // ==========================================
+
+    public bool? CumplioPlan { get; set; }
 
 
-    [Range(
-        1,
-        5,
-        ErrorMessage =
-            "El hambre debe estar entre 1 y 5."
-    )]
-    public int? Hambre { get; set; }
+    // ==========================================
+    // MEDICIONES OPCIONALES
+    // ==========================================
+
+    public decimal? CinturaCm { get; set; }
+
+    public decimal? CaderaCm { get; set; }
+
+    public decimal? GemeloCm { get; set; }
+
+    public decimal? CuelloCm { get; set; }
 
 
-    [Range(
-        1,
-        5,
-        ErrorMessage =
-            "La energía debe estar entre 1 y 5."
-    )]
-    public int? Energia { get; set; }
-
-
-    public bool? Entreno { get; set; }
-
+    // ==========================================
+    // OBSERVACIONES
+    // ==========================================
 
     [MaxLength(
         1000,

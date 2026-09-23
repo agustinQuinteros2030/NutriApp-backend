@@ -2,8 +2,10 @@
 
 using NutriApi.Configuracion;
 using NutriApi.DTOs.SeguimientoSemanal;
+using NutriApi.Services.Notificaciones;
 
 using NutriApp.Data;
+using NutriApp.Enums.Notificaciones;
 using NutriApp.Enums.Seguimiento;
 using NutriApp.Models.Seguimiento;
 
@@ -12,13 +14,29 @@ namespace NutriApi.Services.SeguimientoSemanal;
 public class SeguimientoSemanalService
     : ISeguimientoSemanalService
 {
-    private readonly NutriAppDbContext _context;
+    private readonly NutriAppDbContext
+        _context;
+
+    private readonly INotificacionService
+        _notificacionService;
+
+    private readonly ILogger<SeguimientoSemanalService>
+        _logger;
 
 
     public SeguimientoSemanalService(
-        NutriAppDbContext context)
+        NutriAppDbContext context,
+        INotificacionService notificacionService,
+        ILogger<SeguimientoSemanalService> logger)
     {
-        _context = context;
+        _context =
+            context;
+
+        _notificacionService =
+            notificacionService;
+
+        _logger =
+            logger;
     }
 
 
@@ -120,15 +138,28 @@ public class SeguimientoSemanalService
             int pacienteId,
             CrearSeguimientoSemanalDto dto)
     {
-        var pacienteExiste =
+        /*
+         * Antes solamente comprobábamos existencia.
+         *
+         * Ahora necesitamos además:
+         *
+         * - NutricionistaId
+         * - Nombre
+         * - Apellido
+         *
+         * para poder crear la notificación.
+         */
+
+        var paciente =
             await _context.Pacientes
                 .AsNoTracking()
-                .AnyAsync(p =>
-                    p.Id == pacienteId
+                .FirstOrDefaultAsync(p =>
+                    p.Id ==
+                    pacienteId
                 );
 
 
-        if (!pacienteExiste)
+        if (paciente is null)
         {
             return Error<
                 SeguimientoSemanalDto>(
@@ -270,7 +301,9 @@ public class SeguimientoSemanalService
 
         _context
             .SeguimientosSemanalesPacientes
-            .Add(seguimiento);
+            .Add(
+                seguimiento
+            );
 
 
         try
@@ -314,6 +347,36 @@ public class SeguimientoSemanalService
 
             throw;
         }
+
+
+        // ======================================
+        // NOTIFICACIÓN AL NUTRICIONISTA
+        // ======================================
+
+        /*
+         * El seguimiento ya quedó persistido.
+         *
+         * Si la notificación falla por algún
+         * problema aislado, NO hacemos fallar
+         * la operación principal.
+         */
+
+        var nombrePaciente =
+            ObtenerNombrePaciente(
+                paciente.Nombre,
+                paciente.Apellido
+            );
+
+
+        await IntentarCrearNotificacionAsync(
+            paciente.NutricionistaId,
+            TipoNotificacion
+                .SeguimientoRespondido,
+            "Nuevo seguimiento semanal",
+            $"{nombrePaciente} completó su seguimiento semanal.",
+            "SeguimientoSemanal",
+            seguimiento.Id
+        );
 
 
         return Exito(
@@ -372,7 +435,9 @@ public class SeguimientoSemanalService
 
         return Exito(
             seguimientos
-                .Select(Mapear)
+                .Select(
+                    Mapear
+                )
                 .ToList()
         );
     }
@@ -426,7 +491,9 @@ public class SeguimientoSemanalService
 
         return Exito(
             seguimientos
-                .Select(Mapear)
+                .Select(
+                    Mapear
+                )
                 .ToList()
         );
     }
@@ -532,6 +599,22 @@ public class SeguimientoSemanalService
         }
 
 
+        /*
+         * Guardamos el estado ANTES de editar.
+         *
+         * Si FechaRevisionNutricionista ya tenía
+         * valor significa que el nutricionista
+         * está modificando una revisión existente.
+         *
+         * En ese caso NO volvemos a notificar.
+         */
+
+        var esPrimeraRevision =
+            !seguimiento
+                .FechaRevisionNutricionista
+                .HasValue;
+
+
         seguimiento.RevisionNutricionista =
             dto.Revision.Trim();
 
@@ -542,6 +625,24 @@ public class SeguimientoSemanalService
 
         await _context
             .SaveChangesAsync();
+
+
+        // ======================================
+        // NOTIFICACIÓN AL PACIENTE
+        // ======================================
+
+        if (esPrimeraRevision)
+        {
+            await IntentarCrearNotificacionAsync(
+                seguimiento.PacienteId,
+                TipoNotificacion
+                    .SeguimientoRevisado,
+                "Seguimiento revisado",
+                "Tu nutricionista revisó tu seguimiento semanal.",
+                "SeguimientoSemanal",
+                seguimiento.Id
+            );
+        }
 
 
         return Exito(
@@ -570,6 +671,73 @@ public class SeguimientoSemanalService
                 p.NutricionistaId ==
                 nutricionistaId
             );
+    }
+
+
+    // ==========================================
+    // NOTIFICACIONES
+    // ==========================================
+
+    private async Task
+        IntentarCrearNotificacionAsync(
+            int usuarioId,
+            TipoNotificacion tipo,
+            string titulo,
+            string mensaje,
+            string? recursoTipo,
+            int? recursoId)
+    {
+        try
+        {
+            await _notificacionService
+                .CrearAsync(
+                    usuarioId,
+                    tipo,
+                    titulo,
+                    mensaje,
+                    recursoTipo,
+                    recursoId
+                );
+        }
+        catch (Exception ex)
+        {
+            /*
+             * La notificación es secundaria.
+             *
+             * No queremos convertir una operación
+             * exitosa de seguimiento/revisión en
+             * un 500 porque falló el subsistema
+             * de notificaciones.
+             */
+
+            _logger.LogError(
+                ex,
+                "No se pudo crear la notificación {TipoNotificacion} para el usuario {UsuarioId}.",
+                tipo,
+                usuarioId
+            );
+        }
+    }
+
+
+    // ==========================================
+    // NOMBRE DEL PACIENTE
+    // ==========================================
+
+    private static string
+        ObtenerNombrePaciente(
+            string? nombre,
+            string? apellido)
+    {
+        var nombreCompleto =
+            $"{nombre} {apellido}"
+                .Trim();
+
+
+        return string.IsNullOrWhiteSpace(
+            nombreCompleto)
+            ? "Un paciente"
+            : nombreCompleto;
     }
 
 
@@ -692,7 +860,9 @@ public class SeguimientoSemanalService
 
 
         var fin =
-            inicio.AddDays(6);
+            inicio.AddDays(
+                6
+            );
 
 
         return (

@@ -10,13 +10,15 @@ namespace NutriApi.Services.RegistroDiario;
 public class RegistroDiarioService
     : IRegistroDiarioService
 {
-    private readonly NutriAppDbContext _context;
+    private readonly NutriAppDbContext
+        _context;
 
 
     public RegistroDiarioService(
         NutriAppDbContext context)
     {
-        _context = context;
+        _context =
+            context;
     }
 
 
@@ -36,7 +38,8 @@ public class RegistroDiarioService
             await _context.Pacientes
                 .AsNoTracking()
                 .AnyAsync(p =>
-                    p.Id == pacienteId
+                    p.Id ==
+                    pacienteId
                 );
 
 
@@ -52,7 +55,9 @@ public class RegistroDiarioService
 
 
         var errorValidacion =
-            Validar(dto);
+            Validar(
+                dto
+            );
 
 
         if (errorValidacion is not null)
@@ -79,9 +84,14 @@ public class RegistroDiarioService
 
 
         /*
-         * Si no existe, creamos.
+         * Un paciente tiene como máximo
+         * un registro por fecha.
          *
-         * Si existe, actualizamos.
+         * Si no existe:
+         *     creamos.
+         *
+         * Si existe:
+         *     actualizamos.
          */
 
         if (registro is null)
@@ -95,17 +105,20 @@ public class RegistroDiarioService
                     Fecha =
                         dto.Fecha,
 
-                    AdherenciaPorcentaje =
-                        dto.AdherenciaPorcentaje,
+                    CumplioPlan =
+                        dto.CumplioPlan,
 
-                    Hambre =
-                        dto.Hambre,
+                    CinturaCm =
+                        dto.CinturaCm,
 
-                    Energia =
-                        dto.Energia,
+                    CaderaCm =
+                        dto.CaderaCm,
 
-                    Entreno =
-                        dto.Entreno,
+                    GemeloCm =
+                        dto.GemeloCm,
+
+                    CuelloCm =
+                        dto.CuelloCm,
 
                     Observaciones =
                         Limpiar(
@@ -119,21 +132,26 @@ public class RegistroDiarioService
 
             _context
                 .RegistrosDiariosPacientes
-                .Add(registro);
+                .Add(
+                    registro
+                );
         }
         else
         {
-            registro.AdherenciaPorcentaje =
-                dto.AdherenciaPorcentaje;
+            registro.CumplioPlan =
+                dto.CumplioPlan;
 
-            registro.Hambre =
-                dto.Hambre;
+            registro.CinturaCm =
+                dto.CinturaCm;
 
-            registro.Energia =
-                dto.Energia;
+            registro.CaderaCm =
+                dto.CaderaCm;
 
-            registro.Entreno =
-                dto.Entreno;
+            registro.GemeloCm =
+                dto.GemeloCm;
+
+            registro.CuelloCm =
+                dto.CuelloCm;
 
             registro.Observaciones =
                 Limpiar(
@@ -150,13 +168,15 @@ public class RegistroDiarioService
 
 
         return Exito(
-            Mapear(registro)
+            Mapear(
+                registro
+            )
         );
     }
 
 
     // ==========================================
-    // HISTORIAL DEL PACIENTE AUTENTICADO
+    // PACIENTE - HISTORIAL PROPIO
     // ==========================================
 
     public async Task<
@@ -191,17 +211,20 @@ public class RegistroDiarioService
                         Fecha =
                             r.Fecha,
 
-                        AdherenciaPorcentaje =
-                            r.AdherenciaPorcentaje,
+                        CumplioPlan =
+                            r.CumplioPlan,
 
-                        Hambre =
-                            r.Hambre,
+                        CinturaCm =
+                            r.CinturaCm,
 
-                        Energia =
-                            r.Energia,
+                        CaderaCm =
+                            r.CaderaCm,
 
-                        Entreno =
-                            r.Entreno,
+                        GemeloCm =
+                            r.GemeloCm,
+
+                        CuelloCm =
+                            r.CuelloCm,
 
                         Observaciones =
                             r.Observaciones,
@@ -233,7 +256,7 @@ public class RegistroDiarioService
 
 
     // ==========================================
-    // REGISTRO PROPIO POR FECHA
+    // PACIENTE - REGISTRO POR FECHA
     // ==========================================
 
     public async Task<
@@ -268,13 +291,15 @@ public class RegistroDiarioService
 
 
         return Exito(
-            Mapear(registro)
+            Mapear(
+                registro
+            )
         );
     }
 
 
     // ==========================================
-    // HISTORIAL PARA NUTRICIONISTA
+    // NUTRICIONISTA - HISTORIAL PACIENTE
     // ==========================================
 
     public async Task<
@@ -285,10 +310,11 @@ public class RegistroDiarioService
             int pacienteId)
     {
         /*
-         * Ownership.
+         * Ownership:
          *
-         * Un nutricionista solamente puede
-         * consultar registros de sus pacientes.
+         * El nutricionista solamente puede
+         * consultar registros pertenecientes
+         * a sus pacientes.
          */
 
         var pacientePertenece =
@@ -340,17 +366,20 @@ public class RegistroDiarioService
                         Fecha =
                             r.Fecha,
 
-                        AdherenciaPorcentaje =
-                            r.AdherenciaPorcentaje,
+                        CumplioPlan =
+                            r.CumplioPlan,
 
-                        Hambre =
-                            r.Hambre,
+                        CinturaCm =
+                            r.CinturaCm,
 
-                        Energia =
-                            r.Energia,
+                        CaderaCm =
+                            r.CaderaCm,
 
-                        Entreno =
-                            r.Entreno,
+                        GemeloCm =
+                            r.GemeloCm,
+
+                        CuelloCm =
+                            r.CuelloCm,
 
                         Observaciones =
                             r.Observaciones,
@@ -389,39 +418,35 @@ public class RegistroDiarioService
         Validar(
             GuardarRegistroDiarioDto dto)
     {
-        if (dto.AdherenciaPorcentaje.HasValue &&
-            (
-                dto.AdherenciaPorcentaje < 0
-                ||
-                dto.AdherenciaPorcentaje > 100
-            ))
+        if (dto.CinturaCm.HasValue &&
+            dto.CinturaCm <= 0)
         {
             return
-                "La adherencia debe estar entre 0 y 100.";
+                "La medida de cintura debe ser mayor a cero.";
         }
 
 
-        if (dto.Hambre.HasValue &&
-            (
-                dto.Hambre < 1
-                ||
-                dto.Hambre > 5
-            ))
+        if (dto.CaderaCm.HasValue &&
+            dto.CaderaCm <= 0)
         {
             return
-                "El hambre debe estar entre 1 y 5.";
+                "La medida de cadera debe ser mayor a cero.";
         }
 
 
-        if (dto.Energia.HasValue &&
-            (
-                dto.Energia < 1
-                ||
-                dto.Energia > 5
-            ))
+        if (dto.GemeloCm.HasValue &&
+            dto.GemeloCm <= 0)
         {
             return
-                "La energía debe estar entre 1 y 5.";
+                "La medida de gemelo debe ser mayor a cero.";
+        }
+
+
+        if (dto.CuelloCm.HasValue &&
+            dto.CuelloCm <= 0)
+        {
+            return
+                "La medida de cuello debe ser mayor a cero.";
         }
 
 
@@ -448,17 +473,20 @@ public class RegistroDiarioService
             Fecha =
                 registro.Fecha,
 
-            AdherenciaPorcentaje =
-                registro.AdherenciaPorcentaje,
+            CumplioPlan =
+                registro.CumplioPlan,
 
-            Hambre =
-                registro.Hambre,
+            CinturaCm =
+                registro.CinturaCm,
 
-            Energia =
-                registro.Energia,
+            CaderaCm =
+                registro.CaderaCm,
 
-            Entreno =
-                registro.Entreno,
+            GemeloCm =
+                registro.GemeloCm,
+
+            CuelloCm =
+                registro.CuelloCm,
 
             Observaciones =
                 registro.Observaciones,
@@ -481,8 +509,7 @@ public class RegistroDiarioService
             string? texto)
     {
         return string.IsNullOrWhiteSpace(
-            texto
-        )
+            texto)
             ? null
             : texto.Trim();
     }

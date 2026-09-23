@@ -22,14 +22,14 @@ public class RecuperacionPasswordService
     private readonly UserManager<UsuarioAplicacion>
         _userManager;
 
-    private readonly EmailOpciones
-        _emailOpciones;
-
+   
+    private readonly AplicacionOpciones
+    _aplicacionOpciones;
 
     public RecuperacionPasswordService(
         NutriAppDbContext context,
         UserManager<UsuarioAplicacion> userManager,
-        IOptions<EmailOpciones> emailOpciones)
+        IOptions<AplicacionOpciones> aplicacionOpciones)
     {
         _context =
             context;
@@ -37,8 +37,8 @@ public class RecuperacionPasswordService
         _userManager =
             userManager;
 
-        _emailOpciones =
-            emailOpciones.Value;
+        _aplicacionOpciones =
+            aplicacionOpciones.Value;
     }
 
 
@@ -238,7 +238,7 @@ public class RecuperacionPasswordService
         // ======================================
 
         if (string.IsNullOrWhiteSpace(
-            _emailOpciones.FrontendUrl))
+            _aplicacionOpciones.FrontendUrl))
         {
             return Error<
                 RecuperacionPasswordPacienteGeneradaDto>(
@@ -281,7 +281,7 @@ public class RecuperacionPasswordService
         // ======================================
 
         var frontendUrl =
-            _emailOpciones
+            _aplicacionOpciones
                 .FrontendUrl
                 .Trim()
                 .TrimEnd('/');

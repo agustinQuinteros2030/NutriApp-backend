@@ -13,17 +13,18 @@ using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
 using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
-using NutriApi.Services.Email;
+
 using NutriApi.Services.Equivalencias;
 using NutriApi.Services.MiPerfil;
 using NutriApi.Services.Notas;
+using NutriApi.Services.Notificaciones;
 using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
 using NutriApi.Services.PlanPaciente;
 using NutriApi.Services.RecuperacionPassword;
 using NutriApi.Services.RegistroDiario;
 using NutriApi.Services.SeguimientoSemanal;
-
+using NutriApi.Services.Turnos;
 using NutriApp.Data;
 using System.Security.Claims;
 using System.Threading.RateLimiting;
@@ -499,20 +500,7 @@ builder.Services.AddScoped<
 // EMAIL
 // -----------------------------
 
-/*builder.Services.AddHttpClient<
-    IEmailService,
-    EmailService>(
-    client =>
-    {
-        client.BaseAddress =
-            new Uri(
-                "https://api.resend.com/"
-            );
 
-        client.Timeout =
-            TimeSpan.FromSeconds(15);
-    }
-);*/
 
 
 // -----------------------------
@@ -685,6 +673,13 @@ builder.Services.AddScoped<
 >();
 
 
+builder.Services.Configure<AplicacionOpciones>(
+    builder.Configuration.GetSection(
+        AplicacionOpciones.Seccion
+    )
+);
+
+
 // -----------------------------
 // DASHBOARD NUTRICIONISTA
 // -----------------------------
@@ -693,6 +688,16 @@ builder.Services.AddScoped<
     IDashboardNutricionistaService,
     DashboardNutricionistaService
 >();
+
+
+builder.Services.AddScoped<
+    INotificacionService,
+    NotificacionService>();
+
+
+builder.Services.AddScoped<
+    ITurnoService,
+    TurnoService>();
 
 
 // =====================================

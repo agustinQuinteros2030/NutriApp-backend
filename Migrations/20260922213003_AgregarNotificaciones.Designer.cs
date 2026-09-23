@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NutriApp.Data;
@@ -11,9 +12,11 @@ using NutriApp.Data;
 namespace NutriApi.Migrations
 {
     [DbContext(typeof(NutriAppDbContext))]
-    partial class NutriAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260922213003_AgregarNotificaciones")]
+    partial class AgregarNotificaciones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -885,57 +888,6 @@ namespace NutriApi.Migrations
                     b.ToTable("SeguimientosSemanalesPacientes");
                 });
 
-            modelBuilder.Entity("Turno", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Estado")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("FechaHora")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("LinkReunion")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("Lugar")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)");
-
-                    b.Property<int>("Modalidad")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Motivo")
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<string>("Observaciones")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Estado", "FechaHora");
-
-                    b.HasIndex("PacienteId", "FechaHora");
-
-                    b.ToTable("Turnos");
-                });
-
             modelBuilder.Entity("UsuarioAplicacion", b =>
                 {
                     b.Property<int>("Id")
@@ -1352,17 +1304,6 @@ namespace NutriApi.Migrations
                 {
                     b.HasOne("NutriApp.Models.Usuarios.Paciente", "Paciente")
                         .WithMany("SeguimientosSemanales")
-                        .HasForeignKey("PacienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Paciente");
-                });
-
-            modelBuilder.Entity("Turno", b =>
-                {
-                    b.HasOne("NutriApp.Models.Usuarios.Paciente", "Paciente")
-                        .WithMany()
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();

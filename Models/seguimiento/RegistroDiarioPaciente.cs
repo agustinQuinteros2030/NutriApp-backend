@@ -1,7 +1,5 @@
 ﻿using NutriApp.Models.Usuarios;
 
-namespace NutriApp.Models.Seguimiento;
-
 public class RegistroDiarioPaciente
 {
     public int Id { get; set; }
@@ -10,20 +8,49 @@ public class RegistroDiarioPaciente
 
     public DateOnly Fecha { get; set; }
 
-    public int? AdherenciaPorcentaje { get; set; }
 
-    public int? Hambre { get; set; }
+    // ==========================================
+    // CHECK-IN DIARIO
+    // ==========================================
 
-    public int? Energia { get; set; }
+    /*
+     * true  = cumplió
+     * false = no cumplió
+     * null  = no respondió
+     */
 
-    public bool? Entreno { get; set; }
+    public bool? CumplioPlan { get; set; }
+
+
+    // ==========================================
+    // MEDICIONES OPCIONALES
+    // ==========================================
+
+    public decimal? CinturaCm { get; set; }
+
+    public decimal? CaderaCm { get; set; }
+
+    public decimal? GemeloCm { get; set; }
+
+    public decimal? CuelloCm { get; set; }
+
+
+    // ==========================================
+    // OBSERVACIONES
+    // ==========================================
 
     public string? Observaciones { get; set; }
+
+
+    // ==========================================
+    // AUDITORÍA
+    // ==========================================
 
     public DateTime FechaCreacion { get; set; }
         = DateTime.UtcNow;
 
     public DateTime? FechaActualizacion { get; set; }
+
 
     public Paciente Paciente { get; set; } = null!;
 }
