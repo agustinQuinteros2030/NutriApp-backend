@@ -1,4 +1,4 @@
-﻿namespace NutriApi.DTOs.Equivalencias;
+﻿using NutriApi.DTOs.Equivalencias;
 
 public class GrupoEquivalenciaDetalleDto
 {
@@ -7,6 +7,8 @@ public class GrupoEquivalenciaDetalleDto
     public string Nombre { get; set; } = string.Empty;
 
     public string? Descripcion { get; set; }
+
+    public string Criterio { get; set; } = string.Empty;
 
     public bool Activo { get; set; }
 

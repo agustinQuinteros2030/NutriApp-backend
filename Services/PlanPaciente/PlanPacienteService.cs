@@ -536,12 +536,44 @@ public class PlanPacienteService
     // ==========================================
 
     private static List<MiPlanAlternativaDto>
-        MapearAlternativas(
-            ItemOpcionComida item,
-            List<EquivalenciaAlimento> equivalencias)
+    MapearAlternativas(
+        ItemOpcionComida item,
+        List<EquivalenciaAlimento> equivalencias)
     {
         var resultado =
             new List<MiPlanAlternativaDto>();
+
+
+        // ==========================================
+        // ALIMENTO ORIGINAL
+        // ==========================================
+
+        if (item.Alimento is null ||
+            !item.Alimento.Activo)
+        {
+            return resultado;
+        }
+
+
+        /*
+         * Para hacer el cálculo nutricional automático,
+         * la cantidad del item debe estar expresada
+         * usando la unidad base del alimento.
+         *
+         * Ejemplo:
+         *
+         * Arroz:
+         * UnidadBase = Gramos
+         *
+         * 100 gramos -> OK
+         * 2 porciones -> no podemos inferir gramos.
+         */
+
+        if (item.UnidadMedida !=
+            item.Alimento.UnidadBase)
+        {
+            return resultado;
+        }
 
 
         foreach (var alternativa
@@ -550,11 +582,9 @@ public class PlanPacienteService
                         a.Activa
                     ))
         {
-            /*
-             * Si el alimento alternativo fue
-             * desactivado posteriormente,
-             * no se lo mostramos al paciente.
-             */
+            // ======================================
+            // ALIMENTO ALTERNATIVO
+            // ======================================
 
             if (alternativa.Alimento is null ||
                 !alternativa.Alimento.Activo)
@@ -562,6 +592,10 @@ public class PlanPacienteService
                 continue;
             }
 
+
+            // ======================================
+            // GRUPO
+            // ======================================
 
             if (alternativa
                     .GrupoEquivalencia is null ||
@@ -573,6 +607,22 @@ public class PlanPacienteService
             }
 
 
+            var grupo =
+                alternativa
+                    .GrupoEquivalencia;
+
+
+            if (!Enum.IsDefined(
+                    grupo.Criterio))
+            {
+                continue;
+            }
+
+
+            // ======================================
+            // VALIDAR MEMBRESÍA DEL ORIGEN
+            // ======================================
+
             var origen =
                 equivalencias
                     .FirstOrDefault(e =>
@@ -582,8 +632,14 @@ public class PlanPacienteService
                         &&
                         e.AlimentoId ==
                         item.AlimentoId
+                        &&
+                        e.Activa
                     );
 
+
+            // ======================================
+            // VALIDAR MEMBRESÍA DEL DESTINO
+            // ======================================
 
             var destino =
                 equivalencias
@@ -594,13 +650,17 @@ public class PlanPacienteService
                         &&
                         e.AlimentoId ==
                         alternativa.AlimentoId
+                        &&
+                        e.Activa
                     );
 
 
             /*
-             * Si alguna equivalencia dejó
-             * de estar activa, no ofrecemos
-             * esa alternativa.
+             * EquivalenciaAlimento ahora solamente
+             * representa pertenencia al grupo.
+             *
+             * Si alguno dejó de pertenecer,
+             * no mostramos la alternativa.
              */
 
             if (origen is null ||
@@ -610,34 +670,93 @@ public class PlanPacienteService
             }
 
 
-            /*
-             * No convertimos automáticamente
-             * entre gramos / ml / unidades.
-             */
+            // ======================================
+            // VALIDAR CANTIDADES BASE
+            // ======================================
 
-            if (item.UnidadMedida !=
-                origen.UnidadMedida)
+            if (item.Alimento.CantidadBase <= 0 ||
+                alternativa
+                    .Alimento
+                    .CantidadBase <= 0)
             {
                 continue;
             }
 
 
+            // ======================================
+            // VALIDAR NUTRIENTE ORIGEN
+            // ======================================
+
+            var valorOrigen =
+                CalculadoraEquivalencias
+                    .ObtenerValorCriterio(
+                        item.Alimento,
+                        grupo.Criterio
+                    );
+
+
+            if (!valorOrigen.HasValue ||
+                valorOrigen.Value <= 0)
+            {
+                continue;
+            }
+
+
+            // ======================================
+            // VALIDAR NUTRIENTE DESTINO
+            // ======================================
+
+            var valorDestino =
+                CalculadoraEquivalencias
+                    .ObtenerValorCriterio(
+                        alternativa.Alimento,
+                        grupo.Criterio
+                    );
+
+
+            if (!valorDestino.HasValue ||
+                valorDestino.Value <= 0)
+            {
+                continue;
+            }
+
+
+            // ======================================
+            // CALCULAR EQUIVALENCIA AUTOMÁTICA
+            // ======================================
+
             var cantidadCalculada =
                 CalculadoraEquivalencias
                     .CalcularCantidadDestino(
                         item.Cantidad,
-                        origen.CantidadEquivalente,
-                        destino.CantidadEquivalente
+                        item.Alimento,
+                        alternativa.Alimento,
+                        grupo.Criterio
                     );
 
+
+            // ======================================
+            // CALCULAR NUTRICIÓN
+            // ======================================
+
+            /*
+             * La cantidad calculada queda expresada
+             * en la UnidadBase del alimento destino.
+             */
 
             var nutricion =
                 CalcularNutricion(
                     cantidadCalculada,
-                    destino.UnidadMedida,
+                    alternativa
+                        .Alimento
+                        .UnidadBase,
                     alternativa.Alimento
                 );
 
+
+            // ======================================
+            // DTO
+            // ======================================
 
             resultado.Add(
                 new MiPlanAlternativaDto
@@ -658,16 +777,15 @@ public class PlanPacienteService
                             .GrupoEquivalenciaId,
 
                     GrupoEquivalencia =
-                        alternativa
-                            .GrupoEquivalencia
-                            .Nombre,
+                        grupo.Nombre,
 
                     CantidadCalculada =
                         cantidadCalculada,
 
                     UnidadMedida =
-                        destino
-                            .UnidadMedida
+                        alternativa
+                            .Alimento
+                            .UnidadBase
                             .ToString(),
 
                     Nutricion =
@@ -683,7 +801,6 @@ public class PlanPacienteService
             )
             .ToList();
     }
-
 
     // ==========================================
     // NUTRICIÓN

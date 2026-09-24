@@ -45,4 +45,12 @@ public interface IDietaService
             int pacienteId,
             int dietaId
         );
+
+
+    Task<ResultadoDieta<bool>>
+    EliminarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
 }

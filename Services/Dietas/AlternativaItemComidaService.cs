@@ -5,6 +5,7 @@ using NutriApi.DTOs.Dietas;
 
 using NutriApp.Data;
 using NutriApp.Enums;
+using NutriApp.Enums.Alimentos;
 using NutriApp.Models.Alimentos;
 using NutriApp.Models.Dietas;
 
@@ -60,6 +61,10 @@ public class AlternativaItemComidaService
         }
 
 
+        // ======================================
+        // DIETA ARCHIVADA
+        // ======================================
+
         if (item.OpcionSeccionComida
                 .SeccionComida
                 .Comida
@@ -73,6 +78,10 @@ public class AlternativaItemComidaService
             );
         }
 
+
+        // ======================================
+        // MISMO ALIMENTO
+        // ======================================
 
         if (item.AlimentoId ==
             dto.AlimentoId)
@@ -92,7 +101,8 @@ public class AlternativaItemComidaService
             await _context.Alimentos
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a =>
-                    a.Id == dto.AlimentoId
+                    a.Id ==
+                    dto.AlimentoId
                     &&
                     a.NutricionistaId ==
                     nutricionistaId
@@ -151,12 +161,39 @@ public class AlternativaItemComidaService
         }
 
 
+        if (!Enum.IsDefined(grupo.Criterio))
+        {
+            return Error<AlternativaItemComidaDto>(
+                "El grupo posee un criterio de equivalencia inválido.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
         // ======================================
-        // EQUIVALENCIA DEL ALIMENTO ORIGINAL
+        // PERTENENCIA DEL ALIMENTO ORIGINAL
         // ======================================
 
+        /*
+         * EquivalenciaAlimento deja de representar
+         * una regla matemática manual.
+         *
+         * Ahora la utilizamos para determinar que:
+         *
+         * "este alimento pertenece a este grupo".
+         *
+         * Por ejemplo:
+         *
+         * Grupo = Carbohidratos
+         *
+         * Arroz pertenece
+         * Papa pertenece
+         * Fideos pertenecen
+         */
+
         var equivalenciaOrigen =
-            await _context.EquivalenciasAlimentos
+            await _context
+                .EquivalenciasAlimentos
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e =>
                     e.GrupoEquivalenciaId ==
@@ -179,11 +216,12 @@ public class AlternativaItemComidaService
 
 
         // ======================================
-        // EQUIVALENCIA DEL ALTERNATIVO
+        // PERTENENCIA DEL ALIMENTO ALTERNATIVO
         // ======================================
 
         var equivalenciaAlternativa =
-            await _context.EquivalenciasAlimentos
+            await _context
+                .EquivalenciasAlimentos
                 .AsNoTracking()
                 .FirstOrDefaultAsync(e =>
                     e.GrupoEquivalenciaId ==
@@ -205,22 +243,51 @@ public class AlternativaItemComidaService
         }
 
 
+        // ======================================
+        // VALIDAR UNIDAD DEL ITEM
+        // ======================================
+
         /*
-         * Para calcular la equivalencia:
+         * Para poder calcular automáticamente
+         * los nutrientes necesitamos que la cantidad
+         * indicada en la dieta utilice la misma
+         * unidad base del alimento.
          *
-         * cantidadActual /
-         * cantidadEquivalenteOrigen
+         * Ejemplo:
          *
-         * necesitamos que el item esté expresado
-         * en la misma unidad que la equivalencia
-         * del alimento original.
+         * Arroz:
+         * UnidadBase = Gramos
+         *
+         * 100 Gramos -> OK
+         * 2 Porciones -> no podemos inferir gramos.
          */
 
         if (item.UnidadMedida !=
-            equivalenciaOrigen.UnidadMedida)
+            item.Alimento.UnidadBase)
         {
             return Error<AlternativaItemComidaDto>(
-                "La unidad del ítem no coincide con la unidad utilizada en la equivalencia.",
+                $"El alimento '{item.Alimento.Nombre}' debe utilizar la unidad base '{item.Alimento.UnidadBase}' para calcular equivalencias automáticamente.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
+        // ======================================
+        // VALIDAR CÁLCULO NUTRICIONAL
+        // ======================================
+
+        var errorCalculo =
+            ValidarCalculoAutomatico(
+                item.Alimento,
+                alimentoAlternativo,
+                grupo.Criterio
+            );
+
+
+        if (errorCalculo is not null)
+        {
+            return Error<AlternativaItemComidaDto>(
+                errorCalculo,
                 TipoErrorDieta.Validacion
             );
         }
@@ -231,7 +298,8 @@ public class AlternativaItemComidaService
         // ======================================
 
         var existente =
-            await _context.AlternativasItemsComidas
+            await _context
+                .AlternativasItemsComidas
                 .FirstOrDefaultAsync(a =>
                     a.ItemOpcionComidaId ==
                     itemId
@@ -246,8 +314,8 @@ public class AlternativaItemComidaService
          *
          * ItemOpcionComidaId + AlimentoId
          *
-         * Por eso, si ya existía pero estaba
-         * inactiva, la reactivamos.
+         * Si existía pero estaba inactiva,
+         * la reactivamos.
          */
 
         if (existente is not null)
@@ -268,27 +336,25 @@ public class AlternativaItemComidaService
                 grupo.Id;
 
 
-            await _context.SaveChangesAsync();
+            await _context
+                .SaveChangesAsync();
 
 
             return new ResultadoDieta<
                 AlternativaItemComidaDto>
             {
-                Exitoso = true,
+                Exitoso =
+                    true,
 
                 Datos =
                     CrearDto(
                         existente.Id,
+                        item.Alimento,
                         alimentoAlternativo,
                         grupo.Id,
                         grupo.Nombre,
                         item.Cantidad,
-                        equivalenciaOrigen
-                            .CantidadEquivalente,
-                        equivalenciaAlternativa
-                            .CantidadEquivalente,
-                        equivalenciaAlternativa
-                            .UnidadMedida,
+                        grupo.Criterio,
                         true
                     ),
 
@@ -299,7 +365,7 @@ public class AlternativaItemComidaService
 
 
         // ======================================
-        // CREAR
+        // CREAR ALTERNATIVA
         // ======================================
 
         var alternativa =
@@ -319,31 +385,30 @@ public class AlternativaItemComidaService
             };
 
 
-        _context.AlternativasItemsComidas
+        _context
+            .AlternativasItemsComidas
             .Add(alternativa);
 
 
-        await _context.SaveChangesAsync();
+        await _context
+            .SaveChangesAsync();
 
 
         return new ResultadoDieta<
             AlternativaItemComidaDto>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             Datos =
                 CrearDto(
                     alternativa.Id,
+                    item.Alimento,
                     alimentoAlternativo,
                     grupo.Id,
                     grupo.Nombre,
                     item.Cantidad,
-                    equivalenciaOrigen
-                        .CantidadEquivalente,
-                    equivalenciaAlternativa
-                        .CantidadEquivalente,
-                    equivalenciaAlternativa
-                        .UnidadMedida,
+                    grupo.Criterio,
                     true
                 ),
 
@@ -392,10 +457,15 @@ public class AlternativaItemComidaService
 
 
         var query =
-            _context.AlternativasItemsComidas
+            _context
+                .AlternativasItemsComidas
                 .AsNoTracking()
-                .Include(a => a.Alimento)
-                .Include(a => a.GrupoEquivalencia)
+                .Include(a =>
+                    a.Alimento
+                )
+                .Include(a =>
+                    a.GrupoEquivalencia
+                )
                 .Where(a =>
                     a.ItemOpcionComidaId ==
                     itemId
@@ -412,7 +482,8 @@ public class AlternativaItemComidaService
 
 
         var alternativas =
-            await query.ToListAsync();
+            await query
+                .ToListAsync();
 
 
         if (alternativas.Count == 0)
@@ -420,7 +491,8 @@ public class AlternativaItemComidaService
             return new ResultadoDieta<
                 List<AlternativaItemComidaDto>>
             {
-                Exitoso = true,
+                Exitoso =
+                    true,
 
                 Datos =
                     new(),
@@ -431,12 +503,17 @@ public class AlternativaItemComidaService
         }
 
 
+        // ======================================
+        // PERTENENCIAS A GRUPOS
+        // ======================================
+
         /*
-         * Traemos todas las equivalencias necesarias
-         * en una única consulta.
+         * Seguimos comprobando que tanto el alimento
+         * original como el alternativo continúen
+         * perteneciendo al grupo.
          *
-         * Evitamos hacer consultas dentro
-         * del foreach.
+         * Si después se desactiva una membresía,
+         * esa alternativa deja de ofrecerse.
          */
 
         var gruposIds =
@@ -461,7 +538,8 @@ public class AlternativaItemComidaService
 
 
         var equivalencias =
-            await _context.EquivalenciasAlimentos
+            await _context
+                .EquivalenciasAlimentos
                 .AsNoTracking()
                 .Where(e =>
                     gruposIds.Contains(
@@ -482,9 +560,45 @@ public class AlternativaItemComidaService
                 AlternativaItemComidaDto>();
 
 
+        // ======================================
+        // UNIDAD DEL ALIMENTO ORIGINAL
+        // ======================================
+
+        /*
+         * Sin una relación explícita entre:
+         *
+         * Porcion -> gramos
+         * Unidad -> gramos
+         *
+         * no podemos transformar cantidades
+         * automáticamente.
+         */
+
+        if (item.UnidadMedida !=
+            item.Alimento.UnidadBase)
+        {
+            return new ResultadoDieta<
+                List<AlternativaItemComidaDto>>
+            {
+                Exitoso =
+                    true,
+
+                Datos =
+                    resultado,
+
+                TipoError =
+                    TipoErrorDieta.Ninguno
+            };
+        }
+
+
         foreach (var alternativa
                  in alternativas)
         {
+            // ==================================
+            // VALIDAR MEMBRESÍA ORIGEN
+            // ==================================
+
             var origen =
                 equivalencias
                     .FirstOrDefault(e =>
@@ -496,6 +610,10 @@ public class AlternativaItemComidaService
                         item.AlimentoId
                     );
 
+
+            // ==================================
+            // VALIDAR MEMBRESÍA DESTINO
+            // ==================================
 
             var destino =
                 equivalencias
@@ -510,9 +628,9 @@ public class AlternativaItemComidaService
 
 
             /*
-             * Si alguna equivalencia fue desactivada
+             * Si alguna membresía fue desactivada
              * después de crear la dieta,
-             * no la ofrecemos como alternativa válida.
+             * no ofrecemos esa alternativa.
              */
 
             if (origen is null ||
@@ -522,16 +640,74 @@ public class AlternativaItemComidaService
             }
 
 
-            if (item.UnidadMedida !=
-                origen.UnidadMedida)
+            // ==================================
+            // GRUPO VÁLIDO
+            // ==================================
+
+            if (!alternativa
+                    .GrupoEquivalencia
+                    .Activo)
             {
                 continue;
             }
 
 
+            if (!Enum.IsDefined(
+                    alternativa
+                        .GrupoEquivalencia
+                        .Criterio))
+            {
+                continue;
+            }
+
+
+            // ==================================
+            // ALIMENTO ACTIVO
+            // ==================================
+
+            if (!alternativa.Alimento.Activo)
+            {
+                continue;
+            }
+
+
+            // ==================================
+            // VALIDAR MACROS
+            // ==================================
+
+            var errorCalculo =
+                ValidarCalculoAutomatico(
+                    item.Alimento,
+                    alternativa.Alimento,
+                    alternativa
+                        .GrupoEquivalencia
+                        .Criterio
+                );
+
+
+            if (errorCalculo is not null)
+            {
+                /*
+                 * No queremos romper todo el listado
+                 * porque un único alimento tenga
+                 * información nutricional incompleta.
+                 *
+                 * Simplemente no ofrecemos esa
+                 * alternativa.
+                 */
+
+                continue;
+            }
+
+
+            // ==================================
+            // CALCULAR
+            // ==================================
+
             resultado.Add(
                 CrearDto(
                     alternativa.Id,
+                    item.Alimento,
                     alternativa.Alimento,
                     alternativa
                         .GrupoEquivalenciaId,
@@ -539,9 +715,9 @@ public class AlternativaItemComidaService
                         .GrupoEquivalencia
                         .Nombre,
                     item.Cantidad,
-                    origen.CantidadEquivalente,
-                    destino.CantidadEquivalente,
-                    destino.UnidadMedida,
+                    alternativa
+                        .GrupoEquivalencia
+                        .Criterio,
                     alternativa.Activa
                 )
             );
@@ -551,7 +727,8 @@ public class AlternativaItemComidaService
         return new ResultadoDieta<
             List<AlternativaItemComidaDto>>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             Datos =
                 resultado
@@ -619,9 +796,11 @@ public class AlternativaItemComidaService
 
 
         var alternativa =
-            await _context.AlternativasItemsComidas
+            await _context
+                .AlternativasItemsComidas
                 .FirstOrDefaultAsync(a =>
-                    a.Id == alternativaId
+                    a.Id ==
+                    alternativaId
                     &&
                     a.ItemOpcionComidaId ==
                     itemId
@@ -641,12 +820,14 @@ public class AlternativaItemComidaService
             activa;
 
 
-        await _context.SaveChangesAsync();
+        await _context
+            .SaveChangesAsync();
 
 
         return new ResultadoDieta<bool>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             Datos =
                 true,
@@ -671,7 +852,8 @@ public class AlternativaItemComidaService
             int opcionId,
             int itemId)
     {
-        return await _context.ItemsOpcionesComidas
+        return await _context
+            .ItemsOpcionesComidas
             .Include(i =>
                 i.Alimento
             )
@@ -691,7 +873,8 @@ public class AlternativaItemComidaService
                                 d.Paciente
                             )
             .FirstOrDefaultAsync(i =>
-                i.Id == itemId
+                i.Id ==
+                itemId
                 &&
                 i.OpcionSeccionComidaId ==
                 opcionId
@@ -701,23 +884,98 @@ public class AlternativaItemComidaService
                 seccionId
                 &&
                 i.OpcionSeccionComida
-                    .SeccionComida.ComidaId ==
+                    .SeccionComida
+                    .ComidaId ==
                 comidaId
                 &&
                 i.OpcionSeccionComida
-                    .SeccionComida.Comida.DietaId ==
+                    .SeccionComida
+                    .Comida
+                    .DietaId ==
                 dietaId
                 &&
                 i.OpcionSeccionComida
-                    .SeccionComida.Comida.Dieta
+                    .SeccionComida
+                    .Comida
+                    .Dieta
                     .PacienteId ==
                 pacienteId
                 &&
                 i.OpcionSeccionComida
-                    .SeccionComida.Comida.Dieta
-                    .Paciente.NutricionistaId ==
+                    .SeccionComida
+                    .Comida
+                    .Dieta
+                    .Paciente
+                    .NutricionistaId ==
                 nutricionistaId
             );
+    }
+
+
+    // ==========================================
+    // VALIDAR CÁLCULO AUTOMÁTICO
+    // ==========================================
+
+    private static string?
+        ValidarCalculoAutomatico(
+            Alimento alimentoOrigen,
+            Alimento alimentoDestino,
+            CriterioEquivalencia criterio)
+    {
+        if (!Enum.IsDefined(criterio))
+        {
+            return
+                "El criterio de equivalencia no es válido.";
+        }
+
+
+        if (alimentoOrigen.CantidadBase <= 0)
+        {
+            return
+                $"El alimento '{alimentoOrigen.Nombre}' no posee una cantidad base válida.";
+        }
+
+
+        if (alimentoDestino.CantidadBase <= 0)
+        {
+            return
+                $"El alimento '{alimentoDestino.Nombre}' no posee una cantidad base válida.";
+        }
+
+
+        var valorOrigen =
+            CalculadoraEquivalencias
+                .ObtenerValorCriterio(
+                    alimentoOrigen,
+                    criterio
+                );
+
+
+        var valorDestino =
+            CalculadoraEquivalencias
+                .ObtenerValorCriterio(
+                    alimentoDestino,
+                    criterio
+                );
+
+
+        if (!valorOrigen.HasValue ||
+            valorOrigen.Value <= 0)
+        {
+            return
+                $"El alimento '{alimentoOrigen.Nombre}' no posee un valor válido de {criterio}.";
+        }
+
+
+        if (!valorDestino.HasValue ||
+            valorDestino.Value <= 0)
+        {
+            return
+                $"El alimento '{alimentoDestino.Nombre}' no posee un valor válido de {criterio}.";
+        }
+
+
+        return null;
     }
 
 
@@ -728,80 +986,79 @@ public class AlternativaItemComidaService
     private static AlternativaItemComidaDto
         CrearDto(
             int id,
-            Alimento alimento,
+            Alimento alimentoOrigen,
+            Alimento alimentoDestino,
             int grupoId,
             string grupo,
             decimal cantidadOriginal,
-            decimal equivalenciaOriginal,
-            decimal equivalenciaDestino,
-            UnidadMedida unidadDestino,
+            CriterioEquivalencia criterio,
             bool activa)
     {
         /*
-         * Primero calculamos cuánta cantidad
-         * del alimento alternativo corresponde.
+         * Ya NO utilizamos:
+         *
+         * CantidadEquivalenteOrigen
+         * CantidadEquivalenteDestino
+         *
+         * El cálculo sale directamente de:
+         *
+         * cantidad original
+         * +
+         * información nutricional del origen
+         * +
+         * información nutricional del destino
+         * +
+         * criterio del grupo.
          */
 
         var cantidadCalculada =
             CalculadoraEquivalencias
                 .CalcularCantidadDestino(
                     cantidadOriginal,
-                    equivalenciaOriginal,
-                    equivalenciaDestino
+                    alimentoOrigen,
+                    alimentoDestino,
+                    criterio
                 );
 
 
         /*
-         * Después calculamos los nutrientes
-         * de ESA cantidad alternativa.
+         * Como la cantidad calculada queda expresada
+         * en la UnidadBase del alimento destino,
+         * podemos calcular automáticamente también
+         * sus calorías y macronutrientes.
          */
 
-        NutricionCalculadaDto? nutricion =
-            null;
+        var resultadoNutricional =
+            CalculadoraNutricional
+                .Calcular(
+                    cantidadCalculada,
+                    alimentoDestino.CantidadBase,
+                    alimentoDestino.Calorias,
+                    alimentoDestino.Proteinas,
+                    alimentoDestino.Carbohidratos,
+                    alimentoDestino.Grasas
+                );
 
 
-        /*
-         * Solo podemos aplicar proporcionalidad
-         * nutricional cuando la unidad base
-         * del alimento coincide con la unidad
-         * utilizada por la equivalencia.
-         */
+        var nutricion =
+            new NutricionCalculadaDto
+            {
+                Calorias =
+                    resultadoNutricional
+                        .Calorias,
 
-        if (unidadDestino ==
-            alimento.UnidadBase)
-        {
-            var resultadoNutricional =
-                CalculadoraNutricional
-                    .Calcular(
-                        cantidadCalculada,
-                        alimento.CantidadBase,
-                        alimento.Calorias,
-                        alimento.Proteinas,
-                        alimento.Carbohidratos,
-                        alimento.Grasas
-                    );
+                Proteinas =
+                    resultadoNutricional
+                        .Proteinas,
 
+                Carbohidratos =
+                    resultadoNutricional
+                        .Carbohidratos,
 
-            nutricion =
-                new NutricionCalculadaDto
-                {
-                    Calorias =
-                        resultadoNutricional
-                            .Calorias,
-
-                    Proteinas =
-                        resultadoNutricional
-                            .Proteinas,
-
-                    Carbohidratos =
-                        resultadoNutricional
-                            .Carbohidratos,
-
-                    Grasas =
-                        resultadoNutricional
-                            .Grasas
-                };
-        }
+                Grasas =
+                    resultadoNutricional
+                        .Grasas
+            };
 
 
         return new AlternativaItemComidaDto
@@ -810,10 +1067,10 @@ public class AlternativaItemComidaService
                 id,
 
             AlimentoId =
-                alimento.Id,
+                alimentoDestino.Id,
 
             Alimento =
-                alimento.Nombre,
+                alimentoDestino.Nombre,
 
             GrupoEquivalenciaId =
                 grupoId,
@@ -825,7 +1082,9 @@ public class AlternativaItemComidaService
                 cantidadCalculada,
 
             UnidadMedida =
-                unidadDestino.ToString(),
+                alimentoDestino
+                    .UnidadBase
+                    .ToString(),
 
             Activa =
                 activa,
@@ -847,7 +1106,8 @@ public class AlternativaItemComidaService
     {
         return new ResultadoDieta<T>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
             Error =
                 mensaje,

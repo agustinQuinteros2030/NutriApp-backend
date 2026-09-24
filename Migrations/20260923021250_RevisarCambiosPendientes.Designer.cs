@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NutriApp.Data;
@@ -11,9 +12,11 @@ using NutriApp.Data;
 namespace NutriApi.Migrations
 {
     [DbContext(typeof(NutriAppDbContext))]
-    partial class NutriAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260923021250_RevisarCambiosPendientes")]
+    partial class RevisarCambiosPendientes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -260,7 +263,14 @@ namespace NutriApi.Migrations
                     b.Property<int>("AlimentoId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal>("CantidadEquivalente")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
+
                     b.Property<int>("GrupoEquivalenciaId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UnidadMedida")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -283,9 +293,6 @@ namespace NutriApi.Migrations
 
                     b.Property<bool>("Activo")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("Criterio")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Descripcion")
                         .HasColumnType("text");

@@ -38,6 +38,14 @@ public interface IComidaService
             EditarComidaDto dto
         );
 
+    Task<ResultadoDieta<bool>>
+        EliminarComidaAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId
+        );
+
 
     // SECCIONES
 
@@ -66,5 +74,14 @@ public interface IComidaService
             int comidaId,
             int seccionId,
             EditarSeccionComidaDto dto
+        );
+
+    Task<ResultadoDieta<bool>>
+        EliminarSeccionAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId,
+            int seccionId
         );
 }

@@ -419,6 +419,81 @@ public class ComidaService : IComidaService
 
 
     // ==========================================
+    // ELIMINAR COMIDA
+    // ==========================================
+
+    public async Task<ResultadoDieta<bool>>
+        EliminarComidaAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId)
+    {
+        var comida =
+            await _context.Comidas
+                .Include(c =>
+                    c.Dieta
+                )
+                .FirstOrDefaultAsync(c =>
+                    c.Id ==
+                    comidaId
+                    &&
+                    c.DietaId ==
+                    dietaId
+                    &&
+                    c.Dieta.PacienteId ==
+                    pacienteId
+                    &&
+                    c.Dieta.Paciente
+                        .NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (comida is null)
+        {
+            return Error<bool>(
+                "Comida no encontrada.",
+                TipoErrorDieta.NoEncontrado
+            );
+        }
+
+
+        if (comida.Dieta.Estado ==
+            EstadoDieta.Archivada)
+        {
+            return Error<bool>(
+                "No se puede modificar una dieta archivada.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
+        _context.Comidas
+            .Remove(comida);
+
+
+        await _context.SaveChangesAsync();
+
+
+        return new ResultadoDieta<bool>
+        {
+            Exitoso =
+                true,
+
+            Datos =
+                true,
+
+            TipoError =
+                TipoErrorDieta.Ninguno
+        };
+    }
+
+
+
+
+
+    // ==========================================
     // CREAR SECCIÓN
     // ==========================================
 
@@ -830,6 +905,89 @@ public class ComidaService : IComidaService
                 resultado.EsCompleto
         };
     }
+
+
+    // ==========================================
+    // ELIMINAR SECCIÓN
+    // ==========================================
+
+    public async Task<ResultadoDieta<bool>>
+        EliminarSeccionAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId,
+            int seccionId)
+    {
+        var seccion =
+            await _context.SeccionesComidas
+                .Include(s =>
+                    s.Comida
+                )
+                    .ThenInclude(c =>
+                        c.Dieta
+                    )
+                .FirstOrDefaultAsync(s =>
+                    s.Id ==
+                    seccionId
+                    &&
+                    s.ComidaId ==
+                    comidaId
+                    &&
+                    s.Comida.DietaId ==
+                    dietaId
+                    &&
+                    s.Comida.Dieta
+                        .PacienteId ==
+                    pacienteId
+                    &&
+                    s.Comida.Dieta
+                        .Paciente
+                        .NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (seccion is null)
+        {
+            return Error<bool>(
+                "Sección no encontrada.",
+                TipoErrorDieta.NoEncontrado
+            );
+        }
+
+
+        if (seccion.Comida.Dieta.Estado ==
+            EstadoDieta.Archivada)
+        {
+            return Error<bool>(
+                "No se puede modificar una dieta archivada.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
+        _context.SeccionesComidas
+            .Remove(seccion);
+
+
+        await _context.SaveChangesAsync();
+
+
+        return new ResultadoDieta<bool>
+        {
+            Exitoso =
+                true,
+
+            Datos =
+                true,
+
+            TipoError =
+                TipoErrorDieta.Ninguno
+        };
+    }
+
+
 
 
     // ==========================================

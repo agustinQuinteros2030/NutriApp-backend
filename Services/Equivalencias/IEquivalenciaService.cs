@@ -43,13 +43,7 @@ public interface IEquivalenciaService
             AgregarEquivalenciaAlimentoDto dto
         );
 
-    Task<ResultadoEquivalencia<EquivalenciaAlimentoDto>>
-        EditarEquivalenciaAsync(
-            int nutricionistaId,
-            int grupoId,
-            int equivalenciaId,
-            EditarEquivalenciaAlimentoDto dto
-        );
+   
 
     Task<ResultadoEquivalencia<bool>>
         CambiarEstadoEquivalenciaAsync(

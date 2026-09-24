@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+
 using NutriApi.Calculos;
 using NutriApi.DTOs.Equivalencias;
 
@@ -11,6 +12,7 @@ public class EquivalenciaService : IEquivalenciaService
 {
     private readonly NutriAppDbContext _context;
 
+
     public EquivalenciaService(
         NutriAppDbContext context)
     {
@@ -22,23 +24,45 @@ public class EquivalenciaService : IEquivalenciaService
     // CREAR GRUPO
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
+    public async Task<
+        ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
         CrearGrupoAsync(
             int nutricionistaId,
             CrearGrupoEquivalenciaDto dto)
     {
-        var nombre = dto.Nombre.Trim();
+        var nombre =
+            dto.Nombre.Trim();
+
+
+        // ======================================
+        // VALIDAR CRITERIO
+        // ======================================
+
+        if (!Enum.IsDefined(dto.Criterio))
+        {
+            return ErrorGrupo(
+                "El criterio de equivalencia no es válido.",
+                TipoErrorEquivalencia.Validacion
+            );
+        }
+
+
+        // ======================================
+        // EVITAR NOMBRE DUPLICADO
+        // ======================================
 
         var existe =
             await _context.GruposEquivalencias
                 .AnyAsync(g =>
-                    g.NutricionistaId == nutricionistaId
+                    g.NutricionistaId ==
+                    nutricionistaId
                     &&
                     EF.Functions.ILike(
                         g.Nombre,
                         nombre
                     )
                 );
+
 
         if (existe)
         {
@@ -49,34 +73,52 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        var grupo = new GrupoEquivalencia
+        // ======================================
+        // CREAR
+        // ======================================
+
+        var grupo =
+            new GrupoEquivalencia
+            {
+                NutricionistaId =
+                    nutricionistaId,
+
+                Nombre =
+                    nombre,
+
+                Descripcion =
+                    dto.Descripcion?.Trim(),
+
+                Criterio =
+                    dto.Criterio,
+
+                Activo =
+                    true,
+
+                FechaCreacion =
+                    DateTime.UtcNow
+            };
+
+
+        _context.GruposEquivalencias
+            .Add(grupo);
+
+
+        await _context
+            .SaveChangesAsync();
+
+
+        return new ResultadoEquivalencia<
+            GrupoEquivalenciaDetalleDto>
         {
-            NutricionistaId = nutricionistaId,
-
-            Nombre = nombre,
-
-            Descripcion =
-                dto.Descripcion?.Trim(),
-
-            Activo = true,
-
-            FechaCreacion = DateTime.UtcNow
-        };
-
-
-        _context.GruposEquivalencias.Add(grupo);
-
-        await _context.SaveChangesAsync();
-
-
-        return new ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>
-        {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno,
 
-            Datos = MapearGrupo(grupo)
+            Datos =
+                MapearGrupo(grupo)
         };
     }
 
@@ -85,7 +127,8 @@ public class EquivalenciaService : IEquivalenciaService
     // LISTAR GRUPOS
     // ==========================================
 
-    public async Task<List<GrupoEquivalenciaListadoDto>>
+    public async Task<
+        List<GrupoEquivalenciaListadoDto>>
         ObtenerGruposAsync(
             int nutricionistaId,
             bool incluirInactivos)
@@ -102,22 +145,33 @@ public class EquivalenciaService : IEquivalenciaService
         if (!incluirInactivos)
         {
             query =
-                query.Where(g => g.Activo);
+                query.Where(g =>
+                    g.Activo
+                );
         }
 
 
         return await query
-            .OrderBy(g => g.Nombre)
+            .OrderBy(g =>
+                g.Nombre
+            )
             .Select(g =>
                 new GrupoEquivalenciaListadoDto
                 {
-                    Id = g.Id,
+                    Id =
+                        g.Id,
 
-                    Nombre = g.Nombre,
+                    Nombre =
+                        g.Nombre,
 
-                    Descripcion = g.Descripcion,
+                    Descripcion =
+                        g.Descripcion,
 
-                    Activo = g.Activo,
+                    Criterio =
+                        g.Criterio,
+
+                    Activo =
+                        g.Activo,
 
                     CantidadAlimentos =
                         g.Equivalencias.Count(e =>
@@ -133,18 +187,25 @@ public class EquivalenciaService : IEquivalenciaService
     // DETALLE GRUPO
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
+    public async Task<
+        ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
         ObtenerGrupoPorIdAsync(
             int nutricionistaId,
             int grupoId)
     {
         var grupo =
-            await _context.GruposEquivalencias
+            await _context
+                .GruposEquivalencias
                 .AsNoTracking()
-                .Include(g => g.Equivalencias)
-                    .ThenInclude(e => e.Alimento)
+                .Include(g =>
+                    g.Equivalencias
+                )
+                    .ThenInclude(e =>
+                        e.Alimento
+                    )
                 .FirstOrDefaultAsync(g =>
-                    g.Id == grupoId
+                    g.Id ==
+                    grupoId
                     &&
                     g.NutricionistaId ==
                     nutricionistaId
@@ -157,9 +218,11 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        return new ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>
+        return new ResultadoEquivalencia<
+            GrupoEquivalenciaDetalleDto>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno,
@@ -174,18 +237,25 @@ public class EquivalenciaService : IEquivalenciaService
     // EDITAR GRUPO
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
+    public async Task<
+        ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>>
         EditarGrupoAsync(
             int nutricionistaId,
             int grupoId,
             EditarGrupoEquivalenciaDto dto)
     {
         var grupo =
-            await _context.GruposEquivalencias
-                .Include(g => g.Equivalencias)
-                    .ThenInclude(e => e.Alimento)
+            await _context
+                .GruposEquivalencias
+                .Include(g =>
+                    g.Equivalencias
+                )
+                    .ThenInclude(e =>
+                        e.Alimento
+                    )
                 .FirstOrDefaultAsync(g =>
-                    g.Id == grupoId
+                    g.Id ==
+                    grupoId
                     &&
                     g.NutricionistaId ==
                     nutricionistaId
@@ -198,16 +268,36 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        var nombre = dto.Nombre.Trim();
+        // ======================================
+        // VALIDAR CRITERIO
+        // ======================================
 
+        if (!Enum.IsDefined(dto.Criterio))
+        {
+            return ErrorGrupo(
+                "El criterio de equivalencia no es válido.",
+                TipoErrorEquivalencia.Validacion
+            );
+        }
+
+
+        var nombre =
+            dto.Nombre.Trim();
+
+
+        // ======================================
+        // EVITAR NOMBRE DUPLICADO
+        // ======================================
 
         var existe =
-            await _context.GruposEquivalencias
+            await _context
+                .GruposEquivalencias
                 .AnyAsync(g =>
                     g.NutricionistaId ==
                     nutricionistaId
                     &&
-                    g.Id != grupoId
+                    g.Id !=
+                    grupoId
                     &&
                     EF.Functions.ILike(
                         g.Nombre,
@@ -225,18 +315,29 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        grupo.Nombre = nombre;
+        // ======================================
+        // ACTUALIZAR
+        // ======================================
+
+        grupo.Nombre =
+            nombre;
 
         grupo.Descripcion =
             dto.Descripcion?.Trim();
 
+        grupo.Criterio =
+            dto.Criterio;
 
-        await _context.SaveChangesAsync();
+
+        await _context
+            .SaveChangesAsync();
 
 
-        return new ResultadoEquivalencia<GrupoEquivalenciaDetalleDto>
+        return new ResultadoEquivalencia<
+            GrupoEquivalenciaDetalleDto>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno,
@@ -251,16 +352,19 @@ public class EquivalenciaService : IEquivalenciaService
     // ACTIVAR / DESACTIVAR GRUPO
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<bool>>
+    public async Task<
+        ResultadoEquivalencia<bool>>
         CambiarEstadoGrupoAsync(
             int nutricionistaId,
             int grupoId,
             bool activo)
     {
         var grupo =
-            await _context.GruposEquivalencias
+            await _context
+                .GruposEquivalencias
                 .FirstOrDefaultAsync(g =>
-                    g.Id == grupoId
+                    g.Id ==
+                    grupoId
                     &&
                     g.NutricionistaId ==
                     nutricionistaId
@@ -271,7 +375,8 @@ public class EquivalenciaService : IEquivalenciaService
         {
             return new ResultadoEquivalencia<bool>
             {
-                Exitoso = false,
+                Exitoso =
+                    false,
 
                 Error =
                     "Grupo de equivalencias no encontrado.",
@@ -282,16 +387,21 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        grupo.Activo = activo;
+        grupo.Activo =
+            activo;
 
-        await _context.SaveChangesAsync();
+
+        await _context
+            .SaveChangesAsync();
 
 
         return new ResultadoEquivalencia<bool>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
-            Datos = true,
+            Datos =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno
@@ -303,16 +413,19 @@ public class EquivalenciaService : IEquivalenciaService
     // AGREGAR ALIMENTO AL GRUPO
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<EquivalenciaAlimentoDto>>
+    public async Task<
+        ResultadoEquivalencia<EquivalenciaAlimentoDto>>
         AgregarAlimentoAsync(
             int nutricionistaId,
             int grupoId,
             AgregarEquivalenciaAlimentoDto dto)
     {
         var grupo =
-            await _context.GruposEquivalencias
+            await _context
+                .GruposEquivalencias
                 .FirstOrDefaultAsync(g =>
-                    g.Id == grupoId
+                    g.Id ==
+                    grupoId
                     &&
                     g.NutricionistaId ==
                     nutricionistaId
@@ -337,10 +450,15 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        // ======================================
+        // ALIMENTO
+        // ======================================
+
         var alimento =
             await _context.Alimentos
                 .FirstOrDefaultAsync(a =>
-                    a.Id == dto.AlimentoId
+                    a.Id ==
+                    dto.AlimentoId
                     &&
                     a.NutricionistaId ==
                     nutricionistaId
@@ -365,8 +483,13 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        // ======================================
+        // BUSCAR EXISTENTE
+        // ======================================
+
         var existente =
-            await _context.EquivalenciasAlimentos
+            await _context
+                .EquivalenciasAlimentos
                 .FirstOrDefaultAsync(e =>
                     e.GrupoEquivalenciaId ==
                     grupoId
@@ -377,12 +500,17 @@ public class EquivalenciaService : IEquivalenciaService
 
 
         /*
-         * Tenemos índice único:
+         * Por ahora mantenemos:
          *
-         * GrupoEquivalenciaId + AlimentoId
+         * CantidadEquivalente
+         * UnidadMedida
          *
-         * Por eso, si existía pero estaba inactiva,
-         * la reactivamos en vez de crear otra fila.
+         * porque todavía existen partes del
+         * sistema que utilizan la lógica anterior.
+         *
+         * Más adelante se eliminarán una vez que
+         * AlternativaItemComidaService utilice
+         * exclusivamente el cálculo nutricional.
          */
 
         if (existente is not null)
@@ -396,21 +524,21 @@ public class EquivalenciaService : IEquivalenciaService
             }
 
 
-            existente.CantidadEquivalente =
-                dto.CantidadEquivalente;
+           
 
-            existente.UnidadMedida =
-                dto.UnidadMedida;
-
-            existente.Activa = true;
+            existente.Activa =
+                true;
 
 
-            await _context.SaveChangesAsync();
+            await _context
+                .SaveChangesAsync();
 
 
-            return new ResultadoEquivalencia<EquivalenciaAlimentoDto>
+            return new ResultadoEquivalencia<
+                EquivalenciaAlimentoDto>
             {
-                Exitoso = true,
+                Exitoso =
+                    true,
 
                 TipoError =
                     TipoErrorEquivalencia.Ninguno,
@@ -424,6 +552,10 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        // ======================================
+        // CREAR EQUIVALENCIA
+        // ======================================
+
         var equivalencia =
             new EquivalenciaAlimento
             {
@@ -433,26 +565,27 @@ public class EquivalenciaService : IEquivalenciaService
                 AlimentoId =
                     alimento.Id,
 
-                CantidadEquivalente =
-                    dto.CantidadEquivalente,
+               
 
-                UnidadMedida =
-                    dto.UnidadMedida,
-
-                Activa = true
+                Activa =
+                    true
             };
 
 
-        _context.EquivalenciasAlimentos
+        _context
+            .EquivalenciasAlimentos
             .Add(equivalencia);
 
 
-        await _context.SaveChangesAsync();
+        await _context
+            .SaveChangesAsync();
 
 
-        return new ResultadoEquivalencia<EquivalenciaAlimentoDto>
+        return new ResultadoEquivalencia<
+            EquivalenciaAlimentoDto>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno,
@@ -467,72 +600,11 @@ public class EquivalenciaService : IEquivalenciaService
 
 
     // ==========================================
-    // EDITAR EQUIVALENCIA
-    // ==========================================
-
-    public async Task<ResultadoEquivalencia<EquivalenciaAlimentoDto>>
-        EditarEquivalenciaAsync(
-            int nutricionistaId,
-            int grupoId,
-            int equivalenciaId,
-            EditarEquivalenciaAlimentoDto dto)
-    {
-        var equivalencia =
-            await _context.EquivalenciasAlimentos
-                .Include(e => e.Alimento)
-                .Include(e => e.GrupoEquivalencia)
-                .FirstOrDefaultAsync(e =>
-                    e.Id == equivalenciaId
-                    &&
-                    e.GrupoEquivalenciaId ==
-                    grupoId
-                    &&
-                    e.GrupoEquivalencia
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
-
-
-        if (equivalencia is null)
-        {
-            return ErrorEquivalencia(
-                "Equivalencia no encontrada.",
-                TipoErrorEquivalencia.NoEncontrado
-            );
-        }
-
-
-        equivalencia.CantidadEquivalente =
-            dto.CantidadEquivalente;
-
-        equivalencia.UnidadMedida =
-            dto.UnidadMedida;
-
-
-        await _context.SaveChangesAsync();
-
-
-        return new ResultadoEquivalencia<EquivalenciaAlimentoDto>
-        {
-            Exitoso = true,
-
-            TipoError =
-                TipoErrorEquivalencia.Ninguno,
-
-            Datos =
-                MapearEquivalencia(
-                    equivalencia,
-                    equivalencia.Alimento.Nombre
-                )
-        };
-    }
-
-
-    // ==========================================
     // ACTIVAR / DESACTIVAR EQUIVALENCIA
     // ==========================================
 
-    public async Task<ResultadoEquivalencia<bool>>
+    public async Task<
+        ResultadoEquivalencia<bool>>
         CambiarEstadoEquivalenciaAsync(
             int nutricionistaId,
             int grupoId,
@@ -540,10 +612,14 @@ public class EquivalenciaService : IEquivalenciaService
             bool activa)
     {
         var equivalencia =
-            await _context.EquivalenciasAlimentos
-                .Include(e => e.GrupoEquivalencia)
+            await _context
+                .EquivalenciasAlimentos
+                .Include(e =>
+                    e.GrupoEquivalencia
+                )
                 .FirstOrDefaultAsync(e =>
-                    e.Id == equivalenciaId
+                    e.Id ==
+                    equivalenciaId
                     &&
                     e.GrupoEquivalenciaId ==
                     grupoId
@@ -558,7 +634,8 @@ public class EquivalenciaService : IEquivalenciaService
         {
             return new ResultadoEquivalencia<bool>
             {
-                Exitoso = false,
+                Exitoso =
+                    false,
 
                 Error =
                     "Equivalencia no encontrada.",
@@ -569,17 +646,21 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        equivalencia.Activa = activa;
+        equivalencia.Activa =
+            activa;
 
 
-        await _context.SaveChangesAsync();
+        await _context
+            .SaveChangesAsync();
 
 
         return new ResultadoEquivalencia<bool>
         {
-            Exitoso = true,
+            Exitoso =
+                true,
 
-            Datos = true,
+            Datos =
+                true,
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno
@@ -588,19 +669,26 @@ public class EquivalenciaService : IEquivalenciaService
 
 
     // ==========================================
+    // CONVERSIÓN
+    // ==========================================
+
+    // ==========================================
     // CONVERSIÓN AUTOMÁTICA
     // ==========================================
 
     public async Task<
         ResultadoEquivalencia<
-            List<ConversionEquivalenciaDto>
-        >>
+            List<ConversionEquivalenciaDto>>>
         ConvertirAsync(
             int nutricionistaId,
             int grupoId,
             int alimentoOrigenId,
             decimal cantidad)
     {
+        // ======================================
+        // VALIDAR CANTIDAD
+        // ======================================
+
         if (cantidad <= 0)
         {
             return new ResultadoEquivalencia<
@@ -617,13 +705,23 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        // ======================================
+        // OBTENER GRUPO
+        // ======================================
+
         var grupo =
-            await _context.GruposEquivalencias
+            await _context
+                .GruposEquivalencias
                 .AsNoTracking()
-                .Include(g => g.Equivalencias)
-                    .ThenInclude(e => e.Alimento)
+                .Include(g =>
+                    g.Equivalencias
+                )
+                    .ThenInclude(e =>
+                        e.Alimento
+                    )
                 .FirstOrDefaultAsync(g =>
-                    g.Id == grupoId
+                    g.Id ==
+                    grupoId
                     &&
                     g.NutricionistaId ==
                     nutricionistaId
@@ -646,6 +744,10 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        // ======================================
+        // VALIDAR GRUPO
+        // ======================================
+
         if (!grupo.Activo)
         {
             return new ResultadoEquivalencia<
@@ -662,6 +764,26 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
+        if (!Enum.IsDefined(grupo.Criterio))
+        {
+            return new ResultadoEquivalencia<
+                List<ConversionEquivalenciaDto>>
+            {
+                Exitoso = false,
+
+                Error =
+                    "El criterio del grupo de equivalencias no es válido.",
+
+                TipoError =
+                    TipoErrorEquivalencia.Validacion
+            };
+        }
+
+
+        // ======================================
+        // ALIMENTO ORIGEN
+        // ======================================
+
         var origen =
             grupo.Equivalencias
                 .FirstOrDefault(e =>
@@ -669,6 +791,8 @@ public class EquivalenciaService : IEquivalenciaService
                     alimentoOrigenId
                     &&
                     e.Activa
+                    &&
+                    e.Alimento.Activo
                 );
 
 
@@ -688,65 +812,166 @@ public class EquivalenciaService : IEquivalenciaService
         }
 
 
-        /*
-         * EJEMPLO:
-         *
-         * Arroz = 100g
-         * Papa  = 400g
-         *
-         * Usuario pide 150g arroz.
-         *
-         * factor = 150 / 100 = 1.5
-         *
-         * papa = 400 * 1.5 = 600g
-         */
+        // ======================================
+        // VALIDAR CANTIDAD BASE
+        // ======================================
+
+        if (origen.Alimento.CantidadBase <= 0)
+        {
+            return new ResultadoEquivalencia<
+                List<ConversionEquivalenciaDto>>
+            {
+                Exitoso = false,
+
+                Error =
+                    $"El alimento '{origen.Alimento.Nombre}' no posee una cantidad base válida.",
+
+                TipoError =
+                    TipoErrorEquivalencia.Validacion
+            };
+        }
+
+
+        // ======================================
+        // VALIDAR NUTRIENTE ORIGEN
+        // ======================================
+
+        var valorOrigen =
+            CalculadoraEquivalencias
+                .ObtenerValorCriterio(
+                    origen.Alimento,
+                    grupo.Criterio
+                );
+
+
+        if (!valorOrigen.HasValue ||
+            valorOrigen.Value <= 0)
+        {
+            return new ResultadoEquivalencia<
+                List<ConversionEquivalenciaDto>>
+            {
+                Exitoso = false,
+
+                Error =
+                    $"El alimento '{origen.Alimento.Nombre}' no posee un valor válido de {grupo.Criterio}.",
+
+                TipoError =
+                    TipoErrorEquivalencia.Validacion
+            };
+        }
+
+
+        // ======================================
+        // CONVERSIONES
+        // ======================================
 
         var conversiones =
-     grupo.Equivalencias
-         .Where(e =>
-             e.Activa
-             &&
-             e.Alimento.Activo
-             &&
-             e.AlimentoId != alimentoOrigenId
-         )
-         .Select(e =>
-             new ConversionEquivalenciaDto
-             {
-                 AlimentoId =
-                     e.AlimentoId,
+            new List<ConversionEquivalenciaDto>();
 
-                 Alimento =
-                     e.Alimento.Nombre,
 
-                 Cantidad =
-                     CalculadoraEquivalencias
-                         .CalcularCantidadDestino(
-                             cantidad,
-                             origen.CantidadEquivalente,
-                             e.CantidadEquivalente
-                         ),
+        foreach (var destino in
+                 grupo.Equivalencias
+                     .Where(e =>
+                         e.Activa
+                         &&
+                         e.Alimento.Activo
+                         &&
+                         e.AlimentoId !=
+                         alimentoOrigenId
+                     ))
+        {
+            // ==================================
+            // VALIDAR CANTIDAD BASE DESTINO
+            // ==================================
 
-                 UnidadMedida =
-                     e.UnidadMedida.ToString()
-             }
-         )
-         .OrderBy(e => e.Alimento)
-         .ToList();
+            if (destino.Alimento.CantidadBase <= 0)
+            {
+                continue;
+            }
 
+
+            // ==================================
+            // VALIDAR NUTRIENTE DESTINO
+            // ==================================
+
+            var valorDestino =
+                CalculadoraEquivalencias
+                    .ObtenerValorCriterio(
+                        destino.Alimento,
+                        grupo.Criterio
+                    );
+
+
+            /*
+             * Si un alimento tiene información
+             * nutricional incompleta, no rompemos
+             * todas las conversiones.
+             *
+             * Simplemente no lo ofrecemos.
+             */
+
+            if (!valorDestino.HasValue ||
+                valorDestino.Value <= 0)
+            {
+                continue;
+            }
+
+
+            // ==================================
+            // CALCULAR AUTOMÁTICAMENTE
+            // ==================================
+
+            var cantidadDestino =
+                CalculadoraEquivalencias
+                    .CalcularCantidadDestino(
+                        cantidad,
+                        origen.Alimento,
+                        destino.Alimento,
+                        grupo.Criterio
+                    );
+
+
+            conversiones.Add(
+                new ConversionEquivalenciaDto
+                {
+                    AlimentoId =
+                        destino.AlimentoId,
+
+                    Alimento =
+                        destino.Alimento.Nombre,
+
+                    Cantidad =
+                        cantidadDestino,
+
+                    UnidadMedida =
+                        destino.Alimento
+                            .UnidadBase
+                            .ToString()
+                }
+            );
+        }
+
+
+        // ======================================
+        // RESULTADO
+        // ======================================
 
         return new ResultadoEquivalencia<
             List<ConversionEquivalenciaDto>>
         {
             Exitoso = true,
 
-            Datos = conversiones,
+            Datos =
+                conversiones
+                    .OrderBy(c =>
+                        c.Alimento
+                    )
+                    .ToList(),
 
             TipoError =
                 TipoErrorEquivalencia.Ninguno
         };
     }
-
 
     // ==========================================
     // MAPPERS
@@ -758,15 +983,23 @@ public class EquivalenciaService : IEquivalenciaService
     {
         return new GrupoEquivalenciaDetalleDto
         {
-            Id = grupo.Id,
+            Id =
+                grupo.Id,
 
-            Nombre = grupo.Nombre,
+            Nombre =
+                grupo.Nombre,
 
-            Descripcion = grupo.Descripcion,
+            Descripcion =
+                grupo.Descripcion,
 
-            Activo = grupo.Activo,
+            Criterio =
+                grupo.Criterio.ToString(),
 
-            FechaCreacion = grupo.FechaCreacion,
+            Activo =
+                grupo.Activo,
+
+            FechaCreacion =
+                grupo.FechaCreacion,
 
             Equivalencias =
                 grupo.Equivalencias?
@@ -777,7 +1010,9 @@ public class EquivalenciaService : IEquivalenciaService
                             ?? string.Empty
                         )
                     )
-                    .OrderBy(e => e.Alimento)
+                    .OrderBy(e =>
+                        e.Alimento
+                    )
                     .ToList()
                 ?? new()
         };
@@ -791,7 +1026,8 @@ public class EquivalenciaService : IEquivalenciaService
     {
         return new EquivalenciaAlimentoDto
         {
-            Id = equivalencia.Id,
+            Id =
+                equivalencia.Id,
 
             AlimentoId =
                 equivalencia.AlimentoId,
@@ -799,17 +1035,17 @@ public class EquivalenciaService : IEquivalenciaService
             Alimento =
                 alimento,
 
-            CantidadEquivalente =
-                equivalencia.CantidadEquivalente,
-
-            UnidadMedida =
-                equivalencia.UnidadMedida.ToString(),
+            
 
             Activa =
                 equivalencia.Activa
         };
     }
 
+
+    // ==========================================
+    // ERRORES
+    // ==========================================
 
     private static ResultadoEquivalencia<
         GrupoEquivalenciaDetalleDto>
@@ -831,11 +1067,14 @@ public class EquivalenciaService : IEquivalenciaService
         return new ResultadoEquivalencia<
             GrupoEquivalenciaDetalleDto>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
-            Error = error,
+            Error =
+                error,
 
-            TipoError = tipo
+            TipoError =
+                tipo
         };
     }
 
@@ -849,11 +1088,14 @@ public class EquivalenciaService : IEquivalenciaService
         return new ResultadoEquivalencia<
             EquivalenciaAlimentoDto>
         {
-            Exitoso = false,
+            Exitoso =
+                false,
 
-            Error = error,
+            Error =
+                error,
 
-            TipoError = tipo
+            TipoError =
+                tipo
         };
     }
 }

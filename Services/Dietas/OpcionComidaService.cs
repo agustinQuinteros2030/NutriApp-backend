@@ -514,15 +514,15 @@ public class OpcionComidaService : IOpcionComidaService
     // ==========================================
 
     public async Task<
-        ResultadoDieta<ItemOpcionComidaDto>>
-        CrearItemAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int comidaId,
-            int seccionId,
-            int opcionId,
-            CrearItemOpcionComidaDto dto)
+     ResultadoDieta<ItemOpcionComidaDto>>
+     CrearItemAsync(
+         int nutricionistaId,
+         int pacienteId,
+         int dietaId,
+         int comidaId,
+         int seccionId,
+         int opcionId,
+         CrearItemOpcionComidaDto dto)
     {
         var opcion =
             await _context
@@ -561,7 +561,8 @@ public class OpcionComidaService : IOpcionComidaService
                     &&
                     o.SeccionComida
                         .Comida.Dieta
-                        .Paciente.NutricionistaId ==
+                        .Paciente
+                        .NutricionistaId ==
                     nutricionistaId
                 );
 
@@ -633,6 +634,20 @@ public class OpcionComidaService : IOpcionComidaService
         }
 
 
+        // ======================================
+        // VALIDAR UNIDAD BASE DEL ALIMENTO
+        // ======================================
+
+        if (dto.UnidadMedida !=
+            alimento.UnidadBase)
+        {
+            return Error<ItemOpcionComidaDto>(
+                $"La unidad del ítem debe ser '{alimento.UnidadBase}' para el alimento '{alimento.Nombre}'.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
         var item =
             new ItemOpcionComida
             {
@@ -683,7 +698,6 @@ public class OpcionComidaService : IOpcionComidaService
     // ==========================================
     // EDITAR ITEM
     // ==========================================
-
     public async Task<
         ResultadoDieta<ItemOpcionComidaDto>>
         EditarItemAsync(
@@ -815,6 +829,20 @@ public class OpcionComidaService : IOpcionComidaService
         }
 
 
+        // ======================================
+        // VALIDAR UNIDAD BASE DEL ALIMENTO
+        // ======================================
+
+        if (dto.UnidadMedida !=
+            alimento.UnidadBase)
+        {
+            return Error<ItemOpcionComidaDto>(
+                $"La unidad del ítem debe ser '{alimento.UnidadBase}' para el alimento '{alimento.Nombre}'.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
         item.AlimentoId =
             alimento.Id;
 
@@ -849,6 +877,191 @@ public class OpcionComidaService : IOpcionComidaService
                 TipoErrorDieta.Ninguno
         };
     }
+
+    // ==========================================
+    // ELIMINAR OPCIÓN
+    // ==========================================
+
+    public async Task<ResultadoDieta<bool>>
+        EliminarOpcionAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId,
+            int seccionId,
+            int opcionId)
+    {
+        var opcion =
+            await _context
+                .OpcionesSeccionesComidas
+                .Include(o =>
+                    o.SeccionComida
+                )
+                    .ThenInclude(s =>
+                        s.Comida
+                    )
+                        .ThenInclude(c =>
+                            c.Dieta
+                        )
+                .FirstOrDefaultAsync(o =>
+                    o.Id == opcionId
+                    &&
+                    o.SeccionComidaId == seccionId
+                    &&
+                    o.SeccionComida.ComidaId == comidaId
+                    &&
+                    o.SeccionComida.Comida.DietaId == dietaId
+                    &&
+                    o.SeccionComida.Comida.Dieta.PacienteId ==
+                    pacienteId
+                    &&
+                    o.SeccionComida.Comida.Dieta
+                        .Paciente.NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (opcion is null)
+        {
+            return Error<bool>(
+                "Opción no encontrada.",
+                TipoErrorDieta.NoEncontrado
+            );
+        }
+
+
+        if (opcion.SeccionComida
+                .Comida
+                .Dieta
+                .Estado ==
+            EstadoDieta.Archivada)
+        {
+            return Error<bool>(
+                "No se puede modificar una dieta archivada.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
+        _context.OpcionesSeccionesComidas
+            .Remove(opcion);
+
+
+        await _context.SaveChangesAsync();
+
+
+        return new ResultadoDieta<bool>
+        {
+            Exitoso = true,
+            Datos = true,
+            TipoError = TipoErrorDieta.Ninguno
+        };
+    }
+
+    // ==========================================
+    // ELIMINAR ITEM
+    // ==========================================
+
+    public async Task<ResultadoDieta<bool>>
+        EliminarItemAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId,
+            int seccionId,
+            int opcionId,
+            int itemId)
+    {
+        var item =
+            await _context.ItemsOpcionesComidas
+                .Include(i =>
+                    i.OpcionSeccionComida
+                )
+                    .ThenInclude(o =>
+                        o.SeccionComida
+                    )
+                        .ThenInclude(s =>
+                            s.Comida
+                        )
+                            .ThenInclude(c =>
+                                c.Dieta
+                            )
+                .FirstOrDefaultAsync(i =>
+                    i.Id == itemId
+                    &&
+                    i.OpcionSeccionComidaId ==
+                    opcionId
+                    &&
+                    i.OpcionSeccionComida
+                        .SeccionComidaId ==
+                    seccionId
+                    &&
+                    i.OpcionSeccionComida
+                        .SeccionComida
+                        .ComidaId ==
+                    comidaId
+                    &&
+                    i.OpcionSeccionComida
+                        .SeccionComida
+                        .Comida
+                        .DietaId ==
+                    dietaId
+                    &&
+                    i.OpcionSeccionComida
+                        .SeccionComida
+                        .Comida
+                        .Dieta
+                        .PacienteId ==
+                    pacienteId
+                    &&
+                    i.OpcionSeccionComida
+                        .SeccionComida
+                        .Comida
+                        .Dieta
+                        .Paciente
+                        .NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (item is null)
+        {
+            return Error<bool>(
+                "Ítem no encontrado.",
+                TipoErrorDieta.NoEncontrado
+            );
+        }
+
+
+        if (item.OpcionSeccionComida
+                .SeccionComida
+                .Comida
+                .Dieta
+                .Estado ==
+            EstadoDieta.Archivada)
+        {
+            return Error<bool>(
+                "No se puede modificar una dieta archivada.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+
+        _context.ItemsOpcionesComidas
+            .Remove(item);
+
+
+        await _context.SaveChangesAsync();
+
+
+        return new ResultadoDieta<bool>
+        {
+            Exitoso = true,
+            Datos = true,
+            TipoError = TipoErrorDieta.Ninguno
+        };
+    }
+
 
 
     // ==========================================

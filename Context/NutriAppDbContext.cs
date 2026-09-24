@@ -599,10 +599,7 @@ public class NutriAppDbContext
             .HasPrecision(10, 2);
 
 
-        modelBuilder.Entity<EquivalenciaAlimento>()
-            .Property(e => e.CantidadEquivalente)
-            .HasPrecision(10, 2);
-
+       
 
         modelBuilder.Entity<ItemOpcionComida>()
             .Property(i => i.Cantidad)
@@ -619,6 +616,26 @@ public class NutriAppDbContext
         .HasPrecision(18, 2);
 
 
+        modelBuilder.Entity<RegistroDiarioPaciente>()
+    .Property(r => r.CinturaCm)
+    .HasPrecision(6, 2);
+
+        modelBuilder.Entity<RegistroDiarioPaciente>()
+            .Property(r => r.CaderaCm)
+            .HasPrecision(6, 2);
+
+        modelBuilder.Entity<RegistroDiarioPaciente>()
+            .Property(r => r.GemeloCm)
+            .HasPrecision(6, 2);
+
+        modelBuilder.Entity<RegistroDiarioPaciente>()
+            .Property(r => r.CuelloCm)
+            .HasPrecision(6, 2);
+
+
+
+
+
         modelBuilder
     .Entity<SeguimientoSemanalPaciente>()
     .Property(s =>
@@ -630,10 +647,13 @@ public class NutriAppDbContext
     );
     }
 
-
     private static void ConfigurarSeguimiento(
     ModelBuilder modelBuilder)
     {
+        // ==========================================
+        // REGISTRO DIARIO
+        // ==========================================
+
         modelBuilder
             .Entity<RegistroDiarioPaciente>()
             .HasOne(r =>
@@ -666,6 +686,15 @@ public class NutriAppDbContext
             )
             .IsUnique();
 
+
+        modelBuilder
+            .Entity<RegistroDiarioPaciente>()
+            .Property(r =>
+                r.Observaciones
+            )
+            .HasMaxLength(1000);
+
+
         // ==========================================
         // SEGUIMIENTO SEMANAL
         // ==========================================
@@ -686,14 +715,6 @@ public class NutriAppDbContext
             );
 
 
-        /*
-         * Un paciente solamente puede completar
-         * un seguimiento para cada semana.
-         *
-         * FechaInicioSemana funciona como
-         * identificador lógico de la semana.
-         */
-
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
             .HasIndex(s =>
@@ -705,6 +726,7 @@ public class NutriAppDbContext
             )
             .IsUnique();
     }
+
 
     private static void ConfigurarTurnos(
     ModelBuilder modelBuilder)
@@ -831,8 +853,5 @@ public class NutriAppDbContext
             }
         );
     }
-
-
-
 
 }

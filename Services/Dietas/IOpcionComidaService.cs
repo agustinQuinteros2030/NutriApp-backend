@@ -71,4 +71,26 @@ public interface IOpcionComidaService
             int itemId,
             EditarItemOpcionComidaDto dto
         );
+
+
+    Task<ResultadoDieta<bool>>
+    EliminarOpcionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId
+    );
+
+    Task<ResultadoDieta<bool>>
+        EliminarItemAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId,
+            int comidaId,
+            int seccionId,
+            int opcionId,
+            int itemId
+        );
 }

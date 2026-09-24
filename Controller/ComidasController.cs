@@ -241,4 +241,48 @@ public class ComidasController : ControllerBase
                 )
         };
     }
+
+    [HttpDelete("{comidaId:int}")]
+    public async Task<IActionResult> EliminarComida(
+    int pacienteId,
+    int dietaId,
+    int comidaId)
+    {
+        var resultado =
+            await _comidaService
+                .EliminarComidaAsync(
+                    ObtenerUsuarioIdActual(),
+                    pacienteId,
+                    dietaId,
+                    comidaId
+                );
+
+
+        return ConvertirResultado(resultado);
+    }
+
+
+    [HttpDelete(
+    "{comidaId:int}/secciones/{seccionId:int}"
+)]
+    public async Task<IActionResult> EliminarSeccion(
+    int pacienteId,
+    int dietaId,
+    int comidaId,
+    int seccionId)
+    {
+        var resultado =
+            await _comidaService
+                .EliminarSeccionAsync(
+                    ObtenerUsuarioIdActual(),
+                    pacienteId,
+                    dietaId,
+                    comidaId,
+                    seccionId
+                );
+
+
+        return ConvertirResultado(resultado);
+    }
+
 }

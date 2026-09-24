@@ -122,6 +122,31 @@ public class OpcionesComidaController : ControllerBase
     }
 
 
+
+    [HttpDelete("{opcionId:int}")]
+    public async Task<IActionResult> EliminarOpcion(
+    int pacienteId,
+    int dietaId,
+    int comidaId,
+    int seccionId,
+    int opcionId)
+    {
+        var resultado =
+            await _opcionService
+                .EliminarOpcionAsync(
+                    ObtenerUsuarioIdActual(),
+                    pacienteId,
+                    dietaId,
+                    comidaId,
+                    seccionId,
+                    opcionId
+                );
+
+
+        return ConvertirResultado(resultado);
+    }
+
+
     // ==========================================
     // ITEMS
     // ==========================================
@@ -178,8 +203,32 @@ public class OpcionesComidaController : ControllerBase
 
         return ConvertirResultado(resultado);
     }
+    [HttpDelete(
+    "{opcionId:int}/items/{itemId:int}"
+)]
+    public async Task<IActionResult> EliminarItem(
+    int pacienteId,
+    int dietaId,
+    int comidaId,
+    int seccionId,
+    int opcionId,
+    int itemId)
+    {
+        var resultado =
+            await _opcionService
+                .EliminarItemAsync(
+                    ObtenerUsuarioIdActual(),
+                    pacienteId,
+                    dietaId,
+                    comidaId,
+                    seccionId,
+                    opcionId,
+                    itemId
+                );
 
 
+        return ConvertirResultado(resultado);
+    }
     // ==========================================
     // JWT
     // ==========================================

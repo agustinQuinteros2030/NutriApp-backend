@@ -154,27 +154,6 @@ public class EquivalenciasController : ControllerBase
     }
 
 
-    [HttpPut(
-        "grupos/{grupoId:int}/alimentos/{equivalenciaId:int}"
-    )]
-    public async Task<IActionResult>
-        EditarEquivalencia(
-            int grupoId,
-            int equivalenciaId,
-            EditarEquivalenciaAlimentoDto dto)
-    {
-        var resultado =
-            await _equivalenciaService
-                .EditarEquivalenciaAsync(
-                    ObtenerUsuarioIdActual(),
-                    grupoId,
-                    equivalenciaId,
-                    dto
-                );
-
-
-        return ConvertirResultado(resultado);
-    }
 
 
     [HttpPatch(

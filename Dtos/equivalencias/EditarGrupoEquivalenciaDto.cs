@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-
-namespace NutriApi.DTOs.Equivalencias;
+using NutriApp.Enums.Alimentos;
 
 public class EditarGrupoEquivalenciaDto
 {
@@ -10,4 +9,6 @@ public class EditarGrupoEquivalenciaDto
 
     [MaxLength(500)]
     public string? Descripcion { get; set; }
+
+    public CriterioEquivalencia Criterio { get; set; }
 }

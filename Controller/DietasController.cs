@@ -151,6 +151,27 @@ public class DietasController : ControllerBase
 
 
     // ==========================================
+    // ELIMINAR
+    // ==========================================
+
+    [HttpDelete("{dietaId:int}")]
+    public async Task<IActionResult> Eliminar(
+        int pacienteId,
+        int dietaId)
+    {
+        var resultado =
+            await _dietaService.EliminarAsync(
+                ObtenerUsuarioIdActual(),
+                pacienteId,
+                dietaId
+            );
+
+
+        return ConvertirResultado(resultado);
+    }
+
+
+    // ==========================================
     // JWT
     // ==========================================
 

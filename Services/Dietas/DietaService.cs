@@ -662,6 +662,94 @@ public class DietaService : IDietaService
     }
 
 
+
+    // ==========================================
+    // ELIMINAR
+    // ==========================================
+
+    public async Task<ResultadoDieta<bool>>
+        EliminarAsync(
+            int nutricionistaId,
+            int pacienteId,
+            int dietaId)
+    {
+        var dieta =
+            await _context.Dietas
+                .FirstOrDefaultAsync(d =>
+                    d.Id ==
+                    dietaId
+                    &&
+                    d.PacienteId ==
+                    pacienteId
+                    &&
+                    d.Paciente
+                        .NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (dieta is null)
+        {
+            return new ResultadoDieta<bool>
+            {
+                Exitoso =
+                    false,
+
+                Error =
+                    "Dieta no encontrada.",
+
+                TipoError =
+                    TipoErrorDieta.NoEncontrado
+            };
+        }
+
+
+        /*
+         * Solamente permitimos eliminar
+         * dietas que todavía están en borrador.
+         *
+         * Una dieta activa o archivada forma
+         * parte del historial del paciente.
+         */
+
+        if (dieta.Estado !=
+            EstadoDieta.Borrador)
+        {
+            return new ResultadoDieta<bool>
+            {
+                Exitoso =
+                    false,
+
+                Error =
+                    "Solo se pueden eliminar dietas en estado borrador.",
+
+                TipoError =
+                    TipoErrorDieta.Validacion
+            };
+        }
+
+
+        _context.Dietas
+            .Remove(dieta);
+
+
+        await _context.SaveChangesAsync();
+
+
+        return new ResultadoDieta<bool>
+        {
+            Exitoso =
+                true,
+
+            Datos =
+                true,
+
+            TipoError =
+                TipoErrorDieta.Ninguno
+        };
+    }
+
+
     // ==========================================
     // MAPPER
     // ==========================================
