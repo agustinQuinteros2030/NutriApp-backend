@@ -694,7 +694,6 @@ public class NutriAppDbContext
             )
             .HasMaxLength(1000);
 
-
         // ==========================================
         // SEGUIMIENTO SEMANAL
         // ==========================================
@@ -715,6 +714,14 @@ public class NutriAppDbContext
             );
 
 
+        /*
+         * Un paciente solamente puede completar
+         * un seguimiento para cada semana.
+         *
+         * FechaInicioSemana funciona como
+         * identificador lógico de la semana.
+         */
+
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
             .HasIndex(s =>
@@ -725,6 +732,41 @@ public class NutriAppDbContext
                 }
             )
             .IsUnique();
+
+
+        // ==========================================
+        // LONGITUDES DE TEXTO
+        // ==========================================
+
+        modelBuilder
+            .Entity<SeguimientoSemanalPaciente>()
+            .Property(s =>
+                s.DetalleDigestiones
+            )
+            .HasMaxLength(
+                1500
+            );
+
+
+        modelBuilder
+            .Entity<SeguimientoSemanalPaciente>()
+            .Property(s =>
+                s.DetalleMolestiaFisica
+            )
+            .HasMaxLength(
+                1500
+            );
+
+
+        modelBuilder
+            .Entity<SeguimientoSemanalPaciente>()
+            .Property(s =>
+                s.RevisionNutricionista
+            )
+            .HasMaxLength(
+                3000
+            );
+
     }
 
 

@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using NutriApi.Configuracion;
 using NutriApi.DTOs.Pagos;
 
 using NutriApp.Data;
@@ -205,10 +205,10 @@ public class PagoPacienteService
     // ==========================================
 
     public async Task<
-        ResultadoPago<EstadoPagoPacienteDto>>
-        ObtenerEstadoAsync(
-            int nutricionistaId,
-            int pacienteId)
+      ResultadoPago<EstadoPagoPacienteDto>>
+      ObtenerEstadoAsync(
+          int nutricionistaId,
+          int pacienteId)
     {
         var pacienteExiste =
             await PacientePerteneceAsync(
@@ -269,9 +269,27 @@ public class PagoPacienteService
         }
 
 
+        // ==========================================
+        // FECHA LOCAL
+        // ==========================================
+
+        var zonaHoraria =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                ConfiguracionSeguimientoSemanal
+                    .ZonaHorariaId
+            );
+
+
+        var fechaLocal =
+            TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                zonaHoraria
+            );
+
+
         var hoy =
             DateOnly.FromDateTime(
-                DateTime.UtcNow
+                fechaLocal
             );
 
 
@@ -361,8 +379,6 @@ public class PagoPacienteService
                 TipoErrorPago.Ninguno
         };
     }
-
-
     // ==========================================
     // EDITAR PAGO
     // ==========================================
@@ -478,13 +494,51 @@ public class PagoPacienteService
     // ==========================================
     // VALIDACIÓN
     // ==========================================
-
     private static string?
         ValidarPago(
             DateOnly fechaPago,
             DateOnly proximoVencimiento,
             decimal? monto)
     {
+        // ==========================================
+        // FECHA LOCAL
+        // ==========================================
+
+        var zonaHoraria =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                ConfiguracionSeguimientoSemanal
+                    .ZonaHorariaId
+            );
+
+
+        var fechaLocal =
+            TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                zonaHoraria
+            );
+
+
+        var hoy =
+            DateOnly.FromDateTime(
+                fechaLocal
+            );
+
+
+        // ==========================================
+        // FECHA DE PAGO
+        // ==========================================
+
+        if (fechaPago > hoy)
+        {
+            return
+                "La fecha de pago no puede ser futura.";
+        }
+
+
+        // ==========================================
+        // PRÓXIMO VENCIMIENTO
+        // ==========================================
+
         if (proximoVencimiento <=
             fechaPago)
         {
@@ -492,6 +546,10 @@ public class PagoPacienteService
                 "El próximo vencimiento debe ser posterior a la fecha de pago.";
         }
 
+
+        // ==========================================
+        // MONTO
+        // ==========================================
 
         if (monto.HasValue &&
             monto.Value <= 0)
@@ -503,7 +561,6 @@ public class PagoPacienteService
 
         return null;
     }
-
 
     // ==========================================
     // MAPPER

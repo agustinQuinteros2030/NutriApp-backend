@@ -1,49 +1,42 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-
 using NutriApi.Configuracion;
-
 using NutriApi.Inicializadores;
-
 using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
 using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
-
 using NutriApi.Services.Equivalencias;
 using NutriApi.Services.MiPerfil;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Notificaciones;
 using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
+using NutriApi.Services.Pdf;
 using NutriApi.Services.PlanPaciente;
 using NutriApi.Services.RecuperacionPassword;
 using NutriApi.Services.RegistroDiario;
 using NutriApi.Services.SeguimientoSemanal;
 using NutriApi.Services.Turnos;
 using NutriApp.Data;
-using System.Security.Claims;
-using System.Threading.RateLimiting;
+using QuestPDF.Infrastructure;
 
+var builder = WebApplication.CreateBuilder(args);
 
-var builder =
-    WebApplication.CreateBuilder(args);
-
+QuestPDF.Settings.License = LicenseType.Community;
 
 // =====================================
 // CONFIGURACIÓN DE EMAIL
 // =====================================
 
-builder.Services.Configure<EmailOpciones>(
-    builder.Configuration.GetSection(
-        EmailOpciones.Seccion
-    )
-);
-
+builder.Services.Configure<EmailOpciones>(builder.Configuration.GetSection(EmailOpciones.Seccion));
 
 // =====================================
 // CONTROLLERS
@@ -51,6 +44,7 @@ builder.Services.Configure<EmailOpciones>(
 
 builder.Services.AddControllers();
 
+builder.Services.AddProblemDetails();
 
 // =====================================
 // OPEN API
@@ -58,95 +52,68 @@ builder.Services.AddControllers();
 
 builder.Services.AddOpenApi();
 
-
 // =====================================
 // BASE DE DATOS - SUPABASE
 // =====================================
 
 var connectionString =
-    builder.Configuration.GetConnectionString(
-        "DefaultConnection"
-    )
-    ?? throw new InvalidOperationException(
-        "No se encontró DefaultConnection."
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("No se encontró DefaultConnection.");
+
+builder.Services.AddDbContext<NutriAppDbContext>(options =>
+{
+    options.UseNpgsql(
+        connectionString,
+        npgsqlOptions =>
+        {
+            npgsqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorCodesToAdd: null
+            );
+        }
     );
-
-
-builder.Services.AddDbContext<NutriAppDbContext>(
-    options =>
-    {
-        options.UseNpgsql(
-            connectionString,
-            npgsqlOptions =>
-            {
-                npgsqlOptions.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay:
-                        TimeSpan.FromSeconds(5),
-                    errorCodesToAdd: null
-                );
-            }
-        );
-    }
-);
-
+});
 
 // =====================================
 // IDENTITY
 // =====================================
 
-builder.Services
-    .AddIdentity<
-        UsuarioAplicacion,
-        IdentityRole<int>
-    >(options =>
+builder
+    .Services.AddIdentity<UsuarioAplicacion, IdentityRole<int>>(options =>
     {
         // -----------------------------
         // USUARIO
         // -----------------------------
 
-        options.User.RequireUniqueEmail =
-            true;
-
+        options.User.RequireUniqueEmail = true;
 
         // -----------------------------
         // PASSWORD
         // -----------------------------
 
-        options.Password.RequiredLength =
-            8;
+        options.Password.RequiredLength = 8;
 
-        options.Password.RequireDigit =
-            true;
+        options.Password.RequireDigit = true;
 
-        options.Password.RequireLowercase =
-            true;
+        options.Password.RequireLowercase = true;
 
-        options.Password.RequireUppercase =
-            true;
+        options.Password.RequireUppercase = true;
 
-        options.Password.RequireNonAlphanumeric =
-            false;
-
+        options.Password.RequireNonAlphanumeric = false;
 
         // -----------------------------
         // BLOQUEO DE CUENTA
         // -----------------------------
 
-        options.Lockout.AllowedForNewUsers =
-            true;
+        options.Lockout.AllowedForNewUsers = true;
 
-        options.Lockout.MaxFailedAccessAttempts =
-            5;
+        options.Lockout.MaxFailedAccessAttempts = 5;
 
-        options.Lockout.DefaultLockoutTimeSpan =
-            TimeSpan.FromMinutes(15);
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
     })
-    .AddEntityFrameworkStores<
-        NutriAppDbContext
-    >()
+    .AddEntityFrameworkStores<NutriAppDbContext>()
     .AddDefaultTokenProviders();
-
 
 // =====================================
 // TOKENS DE IDENTITY
@@ -162,15 +129,10 @@ builder.Services
 // Ambos utilizan password reset tokens.
 // =====================================
 
-builder.Services.Configure<
-    DataProtectionTokenProviderOptions>(
-    options =>
-    {
-        options.TokenLifespan =
-            TimeSpan.FromHours(24);
-    }
-);
-
+builder.Services.Configure<DataProtectionTokenProviderOptions>(options =>
+{
+    options.TokenLifespan = TimeSpan.FromHours(24);
+});
 
 // =====================================
 // JWT
@@ -178,39 +140,24 @@ builder.Services.Configure<
 
 var jwtKey =
     builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException(
-        "No se encontró Jwt:Key."
-    );
-
+    ?? throw new InvalidOperationException("No se encontró Jwt:Key.");
 
 var jwtIssuer =
     builder.Configuration["Jwt:Issuer"]
-    ?? throw new InvalidOperationException(
-        "No se encontró Jwt:Issuer."
-    );
-
+    ?? throw new InvalidOperationException("No se encontró Jwt:Issuer.");
 
 var jwtAudience =
     builder.Configuration["Jwt:Audience"]
-    ?? throw new InvalidOperationException(
-        "No se encontró Jwt:Audience."
-    );
+    ?? throw new InvalidOperationException("No se encontró Jwt:Audience.");
 
-
-builder.Services
-    .AddAuthentication(options =>
+builder
+    .Services.AddAuthentication(options =>
     {
-        options.DefaultAuthenticateScheme =
-            JwtBearerDefaults
-                .AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
-        options.DefaultChallengeScheme =
-            JwtBearerDefaults
-                .AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 
-        options.DefaultScheme =
-            JwtBearerDefaults
-                .AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
     })
     .AddJwtBearer(options =>
     {
@@ -218,191 +165,137 @@ builder.Services
         // VALIDACIÓN NORMAL DEL JWT
         // =====================================
 
-        options.TokenValidationParameters =
-            new TokenValidationParameters
-            {
-                ValidateIssuer =
-                    true,
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
 
-                ValidateAudience =
-                    true,
+            ValidateAudience = true,
 
-                ValidateLifetime =
-                    true,
+            ValidateLifetime = true,
 
-                ValidateIssuerSigningKey =
-                    true,
+            ValidateIssuerSigningKey = true,
 
-                ValidIssuer =
-                    jwtIssuer,
+            ValidIssuer = jwtIssuer,
 
-                ValidAudience =
-                    jwtAudience,
+            ValidAudience = jwtAudience,
 
-                IssuerSigningKey =
-                    new SymmetricSecurityKey(
-                        Convert.FromBase64String(
-                            jwtKey
-                        )
-                    ),
+            IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(jwtKey)),
 
-                ClockSkew =
-                    TimeSpan.Zero
-            };
-
+            ClockSkew = TimeSpan.Zero,
+        };
 
         // =====================================
         // VALIDACIÓN DEL USUARIO
         // =====================================
 
-        options.Events =
-            new JwtBearerEvents
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = async context =>
             {
-                OnTokenValidated =
-                    async context =>
-                    {
-                        // -------------------------
-                        // USER ID DEL TOKEN
-                        // -------------------------
+                // -------------------------
+                // USER ID DEL TOKEN
+                // -------------------------
 
-                        var usuarioId =
-                            context.Principal?
-                                .FindFirst(
-                                    ClaimTypes
-                                        .NameIdentifier
-                                )?
-                                .Value;
+                var usuarioId = context.Principal?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+                // -------------------------
+                // SECURITY STAMP DEL TOKEN
+                // -------------------------
 
-                        // -------------------------
-                        // SECURITY STAMP DEL TOKEN
-                        // -------------------------
+                var stampToken = context.Principal?.FindFirst("security_stamp")?.Value;
 
-                        var stampToken =
-                            context.Principal?
-                                .FindFirst(
-                                    "security_stamp"
-                                )?
-                                .Value;
+                if (string.IsNullOrWhiteSpace(usuarioId) || string.IsNullOrWhiteSpace(stampToken))
+                {
+                    context.Fail("Token inválido.");
 
+                    return;
+                }
 
-                        if (string.IsNullOrWhiteSpace(
-                                usuarioId)
-                            ||
-                            string.IsNullOrWhiteSpace(
-                                stampToken))
-                        {
-                            context.Fail(
-                                "Token inválido."
-                            );
+                // -------------------------
+                // USER MANAGER
+                // -------------------------
 
-                            return;
-                        }
+                var userManager = context.HttpContext.RequestServices.GetRequiredService<
+                    UserManager<UsuarioAplicacion>
+                >();
 
+                // -------------------------
+                // USUARIO ACTUAL
+                // -------------------------
 
-                        // -------------------------
-                        // USER MANAGER
-                        // -------------------------
+                var usuario = await userManager.FindByIdAsync(usuarioId);
 
-                        var userManager =
-                            context
-                                .HttpContext
-                                .RequestServices
-                                .GetRequiredService<
-                                    UserManager<
-                                        UsuarioAplicacion
-                                    >
-                                >();
+                if (usuario is null)
+                {
+                    context.Fail("Usuario inválido.");
 
+                    return;
+                }
 
-                        // -------------------------
-                        // USUARIO ACTUAL
-                        // -------------------------
+                // -------------------------
+                // USUARIO DESACTIVADO
+                // -------------------------
 
-                        var usuario =
-                            await userManager
-                                .FindByIdAsync(
-                                    usuarioId
-                                );
+                /*
+                 * Esto hace que desactivar
+                 * una cuenta invalide también
+                 * los JWT existentes.
+                 */
 
+                if (!usuario.Activo)
+                {
+                    context.Fail("Usuario desactivado.");
 
-                        if (usuario is null)
-                        {
-                            context.Fail(
-                                "Usuario inválido."
-                            );
+                    return;
+                }
 
-                            return;
-                        }
+                // -------------------------
+                // SECURITY STAMP ACTUAL
+                // -------------------------
 
+                var stampActual = await userManager.GetSecurityStampAsync(usuario);
 
-                        // -------------------------
-                        // USUARIO DESACTIVADO
-                        // -------------------------
+                /*
+                 * JWT:
+                 * security_stamp = ABC
+                 *
+                 * Identity actual:
+                 * security_stamp = XYZ
+                 *
+                 * Si no coinciden, hubo un
+                 * cambio de seguridad.
+                 *
+                 * Ejemplo:
+                 * cambio/reset de contraseña.
+                 */
 
-                        /*
-                         * Esto hace que desactivar
-                         * una cuenta invalide también
-                         * los JWT existentes.
-                         */
+                if (!string.Equals(stampToken, stampActual, StringComparison.Ordinal))
+                {
+                    context.Fail("Token revocado.");
 
-                        if (!usuario.Activo)
-                        {
-                            context.Fail(
-                                "Usuario desactivado."
-                            );
-
-                            return;
-                        }
-
-
-                        // -------------------------
-                        // SECURITY STAMP ACTUAL
-                        // -------------------------
-
-                        var stampActual =
-                            await userManager
-                                .GetSecurityStampAsync(
-                                    usuario
-                                );
-
-
-                        /*
-                         * JWT:
-                         * security_stamp = ABC
-                         *
-                         * Identity actual:
-                         * security_stamp = XYZ
-                         *
-                         * Si no coinciden, hubo un
-                         * cambio de seguridad.
-                         *
-                         * Ejemplo:
-                         * cambio/reset de contraseña.
-                         */
-
-                        if (!string.Equals(
-                                stampToken,
-                                stampActual,
-                                StringComparison
-                                    .Ordinal))
-                        {
-                            context.Fail(
-                                "Token revocado."
-                            );
-
-                            return;
-                        }
-                    }
-            };
+                    return;
+                }
+            },
+        };
     });
 
 // =====================================
 // AUTORIZACIÓN
 // =====================================
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    /*
+     * Todos los endpoints requieren un
+     * usuario autenticado por defecto.
+     *
+     * Solamente quedan públicos aquellos
+     * marcados explícitamente con
+     * [AllowAnonymous].
+     */
 
+    options.FallbackPolicy = new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build();
+});
 
 // =====================================
 // RATE LIMITING
@@ -424,58 +317,34 @@ builder.Services.AddAuthorization();
 // 5 requests / minuto / IP
 // =====================================
 
-builder.Services.AddRateLimiter(
-    options =>
-    {
-        options.RejectionStatusCode =
-            StatusCodes
-                .Status429TooManyRequests;
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
+    options.AddPolicy(
+        "AuthSensitive",
+        httpContext =>
+        {
+            var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
 
-        options.AddPolicy(
-            "AuthSensitive",
-            httpContext =>
-            {
-                var ip =
-                    httpContext
-                        .Connection
-                        .RemoteIpAddress?
-                        .ToString()
-                    ?? "unknown";
+            return RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: ip,
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = 5,
 
+                    Window = TimeSpan.FromMinutes(1),
 
-                return RateLimitPartition
-                    .GetFixedWindowLimiter(
-                        partitionKey:
-                            ip,
+                    QueueLimit = 0,
 
-                        factory:
-                            _ =>
-                                new FixedWindowRateLimiterOptions
-                                {
-                                    PermitLimit =
-                                        5,
+                    QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
 
-                                    Window =
-                                        TimeSpan
-                                            .FromMinutes(1),
-
-                                    QueueLimit =
-                                        0,
-
-                                    QueueProcessingOrder =
-                                        QueueProcessingOrder
-                                            .OldestFirst,
-
-                                    AutoReplenishment =
-                                        true
-                                }
-                    );
-            }
-        );
-    }
-);
-
+                    AutoReplenishment = true,
+                }
+            );
+        }
+    );
+});
 
 // =====================================
 // SERVICIOS
@@ -485,250 +354,176 @@ builder.Services.AddRateLimiter(
 // AUTENTICACIÓN
 // -----------------------------
 
-builder.Services.AddScoped<
-    ITokenService,
-    TokenService
->();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
-builder.Services.AddScoped<
-    IAuthService,
-    AuthService
->();
-
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // -----------------------------
 // EMAIL
 // -----------------------------
 
-
-
-
 // -----------------------------
 // PACIENTES
 // -----------------------------
 
-builder.Services.AddScoped<
-    IPacienteService,
-    PacienteService
->();
-
+builder.Services.AddScoped<IPacienteService, PacienteService>();
 
 // -----------------------------
 // CATEGORÍAS DE ALIMENTOS
 // -----------------------------
 
-builder.Services.AddScoped<
-    ICategoriaAlimentoService,
-    CategoriaAlimentoService
->();
-
+builder.Services.AddScoped<ICategoriaAlimentoService, CategoriaAlimentoService>();
 
 // -----------------------------
 // ALIMENTOS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IAlimentoService,
-    AlimentoService
->();
-
+builder.Services.AddScoped<IAlimentoService, AlimentoService>();
 
 // -----------------------------
 // EQUIVALENCIAS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IEquivalenciaService,
-    EquivalenciaService
->();
-
+builder.Services.AddScoped<IEquivalenciaService, EquivalenciaService>();
 
 // -----------------------------
 // DIETAS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IDietaService,
-    DietaService
->();
-
+builder.Services.AddScoped<IDietaService, DietaService>();
 
 // -----------------------------
 // COMIDAS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IComidaService,
-    ComidaService
->();
-
+builder.Services.AddScoped<IComidaService, ComidaService>();
 
 // -----------------------------
 // OPCIONES / ITEMS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IOpcionComidaService,
-    OpcionComidaService
->();
-
+builder.Services.AddScoped<IOpcionComidaService, OpcionComidaService>();
 
 // -----------------------------
 // ALTERNATIVAS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IAlternativaItemComidaService,
-    AlternativaItemComidaService
->();
-
+builder.Services.AddScoped<IAlternativaItemComidaService, AlternativaItemComidaService>();
 
 // -----------------------------
 // NOTAS DE PACIENTES
 // -----------------------------
 
-builder.Services.AddScoped<
-    INotaPacienteService,
-    NotaPacienteService
->();
-
+builder.Services.AddScoped<INotaPacienteService, NotaPacienteService>();
 
 // -----------------------------
 // COMPLEMENTOS DE DIETA
 // -----------------------------
 
-builder.Services.AddScoped<
-    IComplementoDietaService,
-    ComplementoDietaService
->();
-
+builder.Services.AddScoped<IComplementoDietaService, ComplementoDietaService>();
 
 // -----------------------------
 // PAGOS
 // -----------------------------
 
-builder.Services.AddScoped<
-    IPagoPacienteService,
-    PagoPacienteService
->();
-
+builder.Services.AddScoped<IPagoPacienteService, PagoPacienteService>();
 
 // -----------------------------
 // PLAN DEL PACIENTE
 // -----------------------------
 
-builder.Services.AddScoped<
-    IPlanPacienteService,
-    PlanPacienteService
->();
-
+builder.Services.AddScoped<IPlanPacienteService, PlanPacienteService>();
 
 // -----------------------------
 // ACTIVACIÓN DE CUENTA
 // -----------------------------
 
-builder.Services.AddScoped<
-    IActivacionCuentaService,
-    ActivacionCuentaService
->();
-
+builder.Services.AddScoped<IActivacionCuentaService, ActivacionCuentaService>();
 
 // -----------------------------
 // PERFIL DEL PACIENTE
 // -----------------------------
 
-builder.Services.AddScoped<
-    IPerfilPacienteService,
-    PerfilPacienteService
->();
-
+builder.Services.AddScoped<IPerfilPacienteService, PerfilPacienteService>();
 
 // -----------------------------
 // REGISTRO DIARIO DEL PACIENTE
 // -----------------------------
 
-builder.Services.AddScoped<
-    IRegistroDiarioService,
-    RegistroDiarioService
->();
-
+builder.Services.AddScoped<IRegistroDiarioService, RegistroDiarioService>();
 
 // -----------------------------
 // SEGUIMIENTO SEMANAL
 // -----------------------------
 
-builder.Services.AddScoped<
-    ISeguimientoSemanalService,
-    SeguimientoSemanalService
->();
-
+builder.Services.AddScoped<ISeguimientoSemanalService, SeguimientoSemanalService>();
 
 // -----------------------------
 // RECUPERACIÓN DE PASSWORD
 // -----------------------------
 
-builder.Services.AddScoped<
-    IRecuperacionPasswordService,
-    RecuperacionPasswordService
->();
+builder.Services.AddScoped<IRecuperacionPasswordService, RecuperacionPasswordService>();
 
+// -----------------------------
+// CONFIGURACIÓN DE APLICACIÓN
+// -----------------------------
 
 builder.Services.Configure<AplicacionOpciones>(
-    builder.Configuration.GetSection(
-        AplicacionOpciones.Seccion
-    )
+    builder.Configuration.GetSection(AplicacionOpciones.Seccion)
 );
-
 
 // -----------------------------
 // DASHBOARD NUTRICIONISTA
 // -----------------------------
 
-builder.Services.AddScoped<
-    IDashboardNutricionistaService,
-    DashboardNutricionistaService
->();
+builder.Services.AddScoped<IDashboardNutricionistaService, DashboardNutricionistaService>();
 
+// -----------------------------
+// NOTIFICACIONES
+// -----------------------------
 
-builder.Services.AddScoped<
-    INotificacionService,
-    NotificacionService>();
+builder.Services.AddScoped<INotificacionService, NotificacionService>();
 
+// -----------------------------
+// TURNOS
+// -----------------------------
 
-builder.Services.AddScoped<
-    ITurnoService,
-    TurnoService>();
+builder.Services.AddScoped<ITurnoService, TurnoService>();
 
+// -----------------------------
+// DIETAPDF
+//
+builder.Services.AddScoped<IDietaPdfService, DietaPdfService>();
 
 // =====================================
 // CORS
 // =====================================
 
+var allowedOrigins =
+    builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+    ?? Array.Empty<string>();
+
+if (allowedOrigins.Length == 0)
+{
+    throw new InvalidOperationException("No se configuraron orígenes permitidos para CORS.");
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(
-        "FrontendLocal",
+        "Frontend",
         policy =>
         {
-            policy
-                .WithOrigins(
-                    "http://localhost:5173",
-                    "http://127.0.0.1:5173"
-                )
-                .AllowAnyHeader()
-                .AllowAnyMethod();
+            policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod();
         }
     );
 });
-
 
 // =====================================
 // BUILD
 // =====================================
 
-var app =
-    builder.Build();
-
+var app = builder.Build();
 
 // =====================================
 // ROLES INICIALES
@@ -736,22 +531,27 @@ var app =
 
 try
 {
-    await InicializadorRoles
-        .InicializarAsync(
-            app.Services
-        );
+    await InicializadorRoles.InicializarAsync(app.Services);
 }
 catch (Exception ex)
 {
-    Console.WriteLine(
-        "No se pudieron inicializar los roles."
-    );
+    Console.WriteLine("No se pudieron inicializar los roles.");
 
-    Console.WriteLine(
-        ex.ToString()
-    );
+    Console.WriteLine(ex.ToString());
+
+    /*
+     * En desarrollo permitimos continuar para
+     * poder diagnosticar el problema.
+     *
+     * En producción no queremos que la API
+     * arranque sin sus roles básicos.
+     */
+
+    if (!app.Environment.IsDevelopment())
+    {
+        throw;
+    }
 }
-
 
 // =====================================
 // USUARIOS DE PRUEBA
@@ -762,27 +562,19 @@ if (app.Environment.IsDevelopment())
 {
     try
     {
-        await InicializadorUsuariosPrueba
-            .InicializarAsync(
-                app.Services,
-                app.Configuration
-            );
+        await InicializadorUsuariosPrueba.InicializarAsync(app.Services, app.Configuration);
     }
     catch (Exception ex)
     {
-        Console.WriteLine(
-            "No se pudieron inicializar los usuarios de prueba."
-        );
+        Console.WriteLine("No se pudieron inicializar los usuarios de prueba.");
 
-        Console.WriteLine(
-            ex.ToString()
-        );
+        Console.WriteLine(ex.ToString());
     }
 }
 
-
 // =====================================
 // OPEN API
+// SOLO DESARROLLO
 // =====================================
 
 if (app.Environment.IsDevelopment())
@@ -790,13 +582,32 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-
 // =====================================
 // PIPELINE HTTP
 // =====================================
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    /*
+     * Evita devolver excepciones internas
+     * directamente al cliente.
+     */
 
+    app.UseExceptionHandler();
+
+    /*
+     * Fuerza políticas HSTS para navegadores
+     * en entornos que no sean Development.
+     */
+
+    app.UseHsts();
+}
+
+// -----------------------------
+// HTTPS
+// -----------------------------
+
+app.UseHttpsRedirection();
 
 // -----------------------------
 // ROUTING
@@ -804,15 +615,11 @@ app.UseHttpsRedirection();
 
 app.UseRouting();
 
-
 // -----------------------------
 // CORS
 // -----------------------------
 
-app.UseCors(
-    "FrontendLocal"
-);
-
+app.UseCors("Frontend");
 
 // -----------------------------
 // RATE LIMITING
@@ -820,13 +627,11 @@ app.UseCors(
 
 app.UseRateLimiter();
 
-
 // -----------------------------
 // AUTENTICACIÓN
 // -----------------------------
 
 app.UseAuthentication();
-
 
 // -----------------------------
 // AUTORIZACIÓN
@@ -834,12 +639,10 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-
 // -----------------------------
 // CONTROLLERS
 // -----------------------------
 
 app.MapControllers();
-
 
 app.Run();

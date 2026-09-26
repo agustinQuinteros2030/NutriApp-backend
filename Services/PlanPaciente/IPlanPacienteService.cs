@@ -7,4 +7,11 @@ public interface IPlanPacienteService
     Task<MiPlanDto?> ObtenerMiPlanAsync(
         int pacienteId
     );
+
+    Task<MiPlanDto?>
+    ObtenerPlanPorDietaAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
 }

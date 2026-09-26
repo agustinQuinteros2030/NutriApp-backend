@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
+using NutriApi.Configuracion;
 using NutriApi.DTOs.RegistroDiario;
 
 using NutriApp.Data;
@@ -28,11 +28,11 @@ public class RegistroDiarioService
     // ==========================================
 
     public async Task<
-        ResultadoRegistroDiario<
-            RegistroDiarioPacienteDto>>
-        GuardarPropioAsync(
-            int pacienteId,
-            GuardarRegistroDiarioDto dto)
+      ResultadoRegistroDiario<
+          RegistroDiarioPacienteDto>>
+      GuardarPropioAsync(
+          int pacienteId,
+          GuardarRegistroDiarioDto dto)
     {
         var pacienteExiste =
             await _context.Pacientes
@@ -54,6 +54,42 @@ public class RegistroDiarioService
         }
 
 
+        // ==========================================
+        // VALIDAR FECHA
+        // ==========================================
+
+        if (dto.Fecha ==
+            default)
+        {
+            return Error<
+                RegistroDiarioPacienteDto>(
+                "La fecha es obligatoria.",
+                TipoErrorRegistroDiario
+                    .Validacion
+            );
+        }
+
+
+        var hoy =
+            ObtenerFechaLocalActual();
+
+
+        if (dto.Fecha >
+            hoy)
+        {
+            return Error<
+                RegistroDiarioPacienteDto>(
+                "No se pueden registrar datos para una fecha futura.",
+                TipoErrorRegistroDiario
+                    .Validacion
+            );
+        }
+
+
+        // ==========================================
+        // VALIDAR DATOS
+        // ==========================================
+
         var errorValidacion =
             Validar(
                 dto
@@ -71,6 +107,10 @@ public class RegistroDiarioService
         }
 
 
+        // ==========================================
+        // BUSCAR REGISTRO EXISTENTE
+        // ==========================================
+
         var registro =
             await _context
                 .RegistrosDiariosPacientes
@@ -82,17 +122,6 @@ public class RegistroDiarioService
                     dto.Fecha
                 );
 
-
-        /*
-         * Un paciente tiene como máximo
-         * un registro por fecha.
-         *
-         * Si no existe:
-         *     creamos.
-         *
-         * Si existe:
-         *     actualizamos.
-         */
 
         if (registro is null)
         {
@@ -163,8 +192,52 @@ public class RegistroDiarioService
         }
 
 
-        await _context
-            .SaveChangesAsync();
+        // ==========================================
+        // GUARDAR
+        // ==========================================
+
+        try
+        {
+            await _context
+                .SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            /*
+             * Protección adicional ante dos requests
+             * simultáneos para la misma fecha.
+             *
+             * La base de datos también tiene índice UNIQUE:
+             *
+             * PacienteId + Fecha
+             */
+
+            var existeAhora =
+                await _context
+                    .RegistrosDiariosPacientes
+                    .AsNoTracking()
+                    .AnyAsync(r =>
+                        r.PacienteId ==
+                        pacienteId
+                        &&
+                        r.Fecha ==
+                        dto.Fecha
+                    );
+
+
+            if (existeAhora)
+            {
+                return Error<
+                    RegistroDiarioPacienteDto>(
+                    "El registro de esa fecha fue modificado simultáneamente. Intentá nuevamente.",
+                    TipoErrorRegistroDiario
+                        .Validacion
+                );
+            }
+
+
+            throw;
+        }
 
 
         return Exito(
@@ -173,7 +246,6 @@ public class RegistroDiarioService
             )
         );
     }
-
 
     // ==========================================
     // PACIENTE - HISTORIAL PROPIO
@@ -409,6 +481,83 @@ public class RegistroDiarioService
         };
     }
 
+    // ==========================================
+    // NUTRICIONISTA - REGISTRO POR FECHA
+    // ==========================================
+
+    public async Task<
+        ResultadoRegistroDiario<
+            RegistroDiarioPacienteDto>>
+        ObtenerPacientePorFechaAsync(
+            int nutricionistaId,
+            int pacienteId,
+            DateOnly fecha)
+    {
+        // ======================================
+        // OWNERSHIP
+        // ======================================
+
+        var pacientePertenece =
+            await _context.Pacientes
+                .AsNoTracking()
+                .AnyAsync(p =>
+                    p.Id ==
+                    pacienteId
+                    &&
+                    p.NutricionistaId ==
+                    nutricionistaId
+                );
+
+
+        if (!pacientePertenece)
+        {
+            return Error<
+                RegistroDiarioPacienteDto>(
+                "Paciente no encontrado.",
+                TipoErrorRegistroDiario
+                    .NoEncontrado
+            );
+        }
+
+
+        // ======================================
+        // BUSCAR REGISTRO
+        // ======================================
+
+        var registro =
+            await _context
+                .RegistrosDiariosPacientes
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r =>
+                    r.PacienteId ==
+                    pacienteId
+                    &&
+                    r.Fecha ==
+                    fecha
+                );
+
+
+        if (registro is null)
+        {
+            return Error<
+                RegistroDiarioPacienteDto>(
+                "No existe un registro para esa fecha.",
+                TipoErrorRegistroDiario
+                    .NoEncontrado
+            );
+        }
+
+
+        return Exito(
+            Mapear(
+                registro
+            )
+        );
+    }
+
+
+
+
 
     // ==========================================
     // VALIDACIÓN
@@ -553,4 +702,31 @@ public class RegistroDiarioService
                 tipo
         };
     }
+
+    private static DateOnly
+    ObtenerFechaLocalActual()
+    {
+        var zonaHoraria =
+            TimeZoneInfo
+                .FindSystemTimeZoneById(
+                    ConfiguracionSeguimientoSemanal
+                        .ZonaHorariaId
+                );
+
+
+        var fechaLocal =
+            TimeZoneInfo
+                .ConvertTimeFromUtc(
+                    DateTime.UtcNow,
+                    zonaHoraria
+                );
+
+
+        return DateOnly
+            .FromDateTime(
+                fechaLocal
+            );
+    }
+
+
 }

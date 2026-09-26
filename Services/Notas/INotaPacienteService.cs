@@ -1,6 +1,5 @@
 ﻿using NutriApi.DTOs.Notas;
-
-namespace NutriApi.Services.Notas;
+using NutriApi.Services.Notas;
 
 public interface INotaPacienteService
 {

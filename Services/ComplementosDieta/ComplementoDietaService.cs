@@ -1,112 +1,70 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using NutriApi.DTOs.Dietas;
-
 using NutriApp.Data;
 using NutriApp.Enums;
 using NutriApp.Models.Dietas;
 
 namespace NutriApi.Services.Dietas;
 
-public class ComplementoDietaService
-    : IComplementoDietaService
+public class ComplementoDietaService : IComplementoDietaService
 {
     private readonly NutriAppDbContext _context;
 
-
-    public ComplementoDietaService(
-        NutriAppDbContext context)
+    public ComplementoDietaService(NutriAppDbContext context)
     {
         _context = context;
     }
-
 
     // ==========================================
     // OBTENER HIDRATACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<HidratacionDietaDto?>>
-        ObtenerHidratacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId)
+    public async Task<ResultadoDieta<HidratacionDietaDto?>> ObtenerHidratacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    )
     {
-        var dietaExiste =
-            await ExisteDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dietaExiste = await ExisteDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (!dietaExiste)
         {
-            return Error<HidratacionDietaDto?>(
-                "Dieta no encontrada.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<HidratacionDietaDto?>("Dieta no encontrada.", TipoErrorDieta.NoEncontrado);
         }
 
+        var hidratacion = await _context
+            .HidratacionesDietas.AsNoTracking()
+            .FirstOrDefaultAsync(h => h.DietaId == dietaId);
 
-        var hidratacion =
-            await _context.HidratacionesDietas
-                .AsNoTracking()
-                .FirstOrDefaultAsync(h =>
-                    h.DietaId ==
-                    dietaId
-                );
-
-
-        return new ResultadoDieta<
-            HidratacionDietaDto?>
+        return new ResultadoDieta<HidratacionDietaDto?>
         {
             Exitoso = true,
 
-            Datos =
-                hidratacion is null
-                    ? null
-                    : MapearHidratacion(
-                        hidratacion
-                    ),
+            Datos = hidratacion is null ? null : MapearHidratacion(hidratacion),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // GUARDAR HIDRATACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<HidratacionDietaDto>>
-        GuardarHidratacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            GuardarHidratacionDietaDto dto)
+    public async Task<ResultadoDieta<HidratacionDietaDto>> GuardarHidratacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        GuardarHidratacionDietaDto dto
+    )
     {
-        var dieta =
-            await ObtenerDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dieta = await ObtenerDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (dieta is null)
         {
-            return Error<HidratacionDietaDto>(
-                "Dieta no encontrada.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<HidratacionDietaDto>("Dieta no encontrada.", TipoErrorDieta.NoEncontrado);
         }
 
-
-        if (dieta.Estado ==
-            EstadoDieta.Archivada)
+        if (dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<HidratacionDietaDto>(
                 "No se puede modificar una dieta archivada.",
@@ -114,9 +72,7 @@ public class ComplementoDietaService
             );
         }
 
-
-        if (dto.MililitrosDiarios.HasValue &&
-            dto.MililitrosDiarios.Value <= 0)
+        if (dto.MililitrosDiarios.HasValue && dto.MililitrosDiarios.Value <= 0)
         {
             return Error<HidratacionDietaDto>(
                 "Los mililitros diarios deben ser mayores a cero.",
@@ -124,9 +80,7 @@ public class ComplementoDietaService
             );
         }
 
-
-        if (dto.VasosDiarios.HasValue &&
-            dto.VasosDiarios.Value <= 0)
+        if (dto.VasosDiarios.HasValue && dto.VasosDiarios.Value <= 0)
         {
             return Error<HidratacionDietaDto>(
                 "Los vasos diarios deben ser mayores a cero.",
@@ -134,91 +88,57 @@ public class ComplementoDietaService
             );
         }
 
-
-        var hidratacion =
-            await _context.HidratacionesDietas
-                .FirstOrDefaultAsync(h =>
-                    h.DietaId ==
-                    dietaId
-                );
-
+        var hidratacion = await _context.HidratacionesDietas.FirstOrDefaultAsync(h =>
+            h.DietaId == dietaId
+        );
 
         if (hidratacion is null)
         {
-            hidratacion =
-                new HidratacionDieta
-                {
-                    DietaId =
-                        dietaId,
+            hidratacion = new HidratacionDieta
+            {
+                DietaId = dietaId,
 
-                    MililitrosDiarios =
-                        dto.MililitrosDiarios,
+                MililitrosDiarios = dto.MililitrosDiarios,
 
-                    VasosDiarios =
-                        dto.VasosDiarios,
+                VasosDiarios = dto.VasosDiarios,
 
-                    Observaciones =
-                        Limpiar(
-                            dto.Observaciones
-                        )
-                };
+                Observaciones = Limpiar(dto.Observaciones),
+            };
 
-
-            _context.HidratacionesDietas
-                .Add(hidratacion);
+            _context.HidratacionesDietas.Add(hidratacion);
         }
         else
         {
-            hidratacion.MililitrosDiarios =
-                dto.MililitrosDiarios;
+            hidratacion.MililitrosDiarios = dto.MililitrosDiarios;
 
-            hidratacion.VasosDiarios =
-                dto.VasosDiarios;
+            hidratacion.VasosDiarios = dto.VasosDiarios;
 
-            hidratacion.Observaciones =
-                Limpiar(
-                    dto.Observaciones
-                );
+            hidratacion.Observaciones = Limpiar(dto.Observaciones);
         }
-
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoDieta<
-            HidratacionDietaDto>
+        return new ResultadoDieta<HidratacionDietaDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearHidratacion(
-                    hidratacion
-                ),
+            Datos = MapearHidratacion(hidratacion),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // OBTENER SUPLEMENTACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<SuplementacionDietaDto?>>
-        ObtenerSuplementacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId)
+    public async Task<ResultadoDieta<SuplementacionDietaDto?>> ObtenerSuplementacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    )
     {
-        var dietaExiste =
-            await ExisteDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dietaExiste = await ExisteDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (!dietaExiste)
         {
@@ -228,56 +148,33 @@ public class ComplementoDietaService
             );
         }
 
+        var suplementacion = await _context
+            .SuplementacionesDietas.AsNoTracking()
+            .Include(s => s.Items)
+            .FirstOrDefaultAsync(s => s.DietaId == dietaId);
 
-        var suplementacion =
-            await _context.SuplementacionesDietas
-                .AsNoTracking()
-                .Include(s =>
-                    s.Items
-                )
-                .FirstOrDefaultAsync(s =>
-                    s.DietaId ==
-                    dietaId
-                );
-
-
-        return new ResultadoDieta<
-            SuplementacionDietaDto?>
+        return new ResultadoDieta<SuplementacionDietaDto?>
         {
             Exitoso = true,
 
-            Datos =
-                suplementacion is null
-                    ? null
-                    : MapearSuplementacion(
-                        suplementacion
-                    ),
+            Datos = suplementacion is null ? null : MapearSuplementacion(suplementacion),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // GUARDAR SUPLEMENTACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<SuplementacionDietaDto>>
-        GuardarSuplementacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            GuardarSuplementacionDietaDto dto)
+    public async Task<ResultadoDieta<SuplementacionDietaDto>> GuardarSuplementacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        GuardarSuplementacionDietaDto dto
+    )
     {
-        var dieta =
-            await ObtenerDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dieta = await ObtenerDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (dieta is null)
         {
@@ -287,9 +184,7 @@ public class ComplementoDietaService
             );
         }
 
-
-        if (dieta.Estado ==
-            EstadoDieta.Archivada)
+        if (dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<SuplementacionDietaDto>(
                 "No se puede modificar una dieta archivada.",
@@ -297,83 +192,50 @@ public class ComplementoDietaService
             );
         }
 
-
-        var suplementacion =
-            await _context.SuplementacionesDietas
-                .Include(s =>
-                    s.Items
-                )
-                .FirstOrDefaultAsync(s =>
-                    s.DietaId ==
-                    dietaId
-                );
-
+        var suplementacion = await _context
+            .SuplementacionesDietas.Include(s => s.Items)
+            .FirstOrDefaultAsync(s => s.DietaId == dietaId);
 
         if (suplementacion is null)
         {
-            suplementacion =
-                new SuplementacionDieta
-                {
-                    DietaId =
-                        dietaId,
+            suplementacion = new SuplementacionDieta
+            {
+                DietaId = dietaId,
 
-                    ObservacionesGenerales =
-                        Limpiar(
-                            dto.ObservacionesGenerales
-                        )
-                };
+                ObservacionesGenerales = Limpiar(dto.ObservacionesGenerales),
+            };
 
-
-            _context.SuplementacionesDietas
-                .Add(suplementacion);
+            _context.SuplementacionesDietas.Add(suplementacion);
         }
         else
         {
-            suplementacion.ObservacionesGenerales =
-                Limpiar(
-                    dto.ObservacionesGenerales
-                );
+            suplementacion.ObservacionesGenerales = Limpiar(dto.ObservacionesGenerales);
         }
-
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoDieta<
-            SuplementacionDietaDto>
+        return new ResultadoDieta<SuplementacionDietaDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearSuplementacion(
-                    suplementacion
-                ),
+            Datos = MapearSuplementacion(suplementacion),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // AGREGAR ITEM SUPLEMENTACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<ItemSuplementacionDto>>
-        AgregarItemSuplementacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            CrearItemSuplementacionDto dto)
+    public async Task<ResultadoDieta<ItemSuplementacionDto>> AgregarItemSuplementacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        CrearItemSuplementacionDto dto
+    )
     {
-        var dieta =
-            await ObtenerDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dieta = await ObtenerDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (dieta is null)
         {
@@ -383,9 +245,7 @@ public class ComplementoDietaService
             );
         }
 
-
-        if (dieta.Estado ==
-            EstadoDieta.Archivada)
+        if (dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<ItemSuplementacionDto>(
                 "No se puede modificar una dieta archivada.",
@@ -393,130 +253,75 @@ public class ComplementoDietaService
             );
         }
 
-
-        var errorValidacion =
-            ValidarItem(
-                dto.Nombre,
-                dto.Cantidad,
-                dto.Orden
-            );
-
+        var errorValidacion = ValidarItem(dto.Nombre, dto.Cantidad, dto.Orden);
 
         if (errorValidacion is not null)
         {
-            return Error<ItemSuplementacionDto>(
-                errorValidacion,
-                TipoErrorDieta.Validacion
-            );
+            return Error<ItemSuplementacionDto>(errorValidacion, TipoErrorDieta.Validacion);
         }
-
 
         /*
          * Si todavía no existe el contenedor
          * de suplementación, lo creamos.
          */
 
-        var suplementacion =
-            await _context.SuplementacionesDietas
-                .FirstOrDefaultAsync(s =>
-                    s.DietaId ==
-                    dietaId
-                );
-
+        var suplementacion = await _context.SuplementacionesDietas.FirstOrDefaultAsync(s =>
+            s.DietaId == dietaId
+        );
 
         if (suplementacion is null)
         {
-            suplementacion =
-                new SuplementacionDieta
-                {
-                    DietaId =
-                        dietaId
-                };
+            suplementacion = new SuplementacionDieta { DietaId = dietaId };
 
-
-            _context.SuplementacionesDietas
-                .Add(suplementacion);
-
+            _context.SuplementacionesDietas.Add(suplementacion);
 
             await _context.SaveChangesAsync();
         }
 
+        var item = new ItemSuplementacion
+        {
+            SuplementacionDietaId = suplementacion.Id,
 
-        var item =
-            new ItemSuplementacion
-            {
-                SuplementacionDietaId =
-                    suplementacion.Id,
+            Nombre = dto.Nombre.Trim(),
 
-                Nombre =
-                    dto.Nombre.Trim(),
+            Cantidad = dto.Cantidad,
 
-                Cantidad =
-                    dto.Cantidad,
+            Unidad = Limpiar(dto.Unidad),
 
-                Unidad =
-                    Limpiar(
-                        dto.Unidad
-                    ),
+            Momento = Limpiar(dto.Momento),
 
-                Momento =
-                    Limpiar(
-                        dto.Momento
-                    ),
+            Indicaciones = Limpiar(dto.Indicaciones),
 
-                Indicaciones =
-                    Limpiar(
-                        dto.Indicaciones
-                    ),
+            Orden = dto.Orden,
+        };
 
-                Orden =
-                    dto.Orden
-            };
-
-
-        _context.ItemsSuplementacion
-            .Add(item);
-
+        _context.ItemsSuplementacion.Add(item);
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoDieta<
-            ItemSuplementacionDto>
+        return new ResultadoDieta<ItemSuplementacionDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearItem(
-                    item
-                ),
+            Datos = MapearItem(item),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // EDITAR ITEM SUPLEMENTACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<ItemSuplementacionDto>>
-        EditarItemSuplementacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int itemId,
-            EditarItemSuplementacionDto dto)
+    public async Task<ResultadoDieta<ItemSuplementacionDto>> EditarItemSuplementacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int itemId,
+        EditarItemSuplementacionDto dto
+    )
     {
-        var dieta =
-            await ObtenerDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dieta = await ObtenerDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (dieta is null)
         {
@@ -526,9 +331,7 @@ public class ComplementoDietaService
             );
         }
 
-
-        if (dieta.Estado ==
-            EstadoDieta.Archivada)
+        if (dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<ItemSuplementacionDto>(
                 "No se puede modificar una dieta archivada.",
@@ -536,43 +339,21 @@ public class ComplementoDietaService
             );
         }
 
-
-        var errorValidacion =
-            ValidarItem(
-                dto.Nombre,
-                dto.Cantidad,
-                dto.Orden
-            );
-
+        var errorValidacion = ValidarItem(dto.Nombre, dto.Cantidad, dto.Orden);
 
         if (errorValidacion is not null)
         {
-            return Error<ItemSuplementacionDto>(
-                errorValidacion,
-                TipoErrorDieta.Validacion
-            );
+            return Error<ItemSuplementacionDto>(errorValidacion, TipoErrorDieta.Validacion);
         }
-
 
         /*
          * La consulta exige que el item pertenezca
          * a la suplementación de ESTA dieta.
          */
 
-        var item =
-            await _context.ItemsSuplementacion
-                .Include(i =>
-                    i.SuplementacionDieta
-                )
-                .FirstOrDefaultAsync(i =>
-                    i.Id ==
-                    itemId
-                    &&
-                    i.SuplementacionDieta
-                        .DietaId ==
-                    dietaId
-                );
-
+        var item = await _context
+            .ItemsSuplementacion.Include(i => i.SuplementacionDieta)
+            .FirstOrDefaultAsync(i => i.Id == itemId && i.SuplementacionDieta.DietaId == dietaId);
 
         if (item is null)
         {
@@ -582,82 +363,49 @@ public class ComplementoDietaService
             );
         }
 
+        item.Nombre = dto.Nombre.Trim();
 
-        item.Nombre =
-            dto.Nombre.Trim();
+        item.Cantidad = dto.Cantidad;
 
-        item.Cantidad =
-            dto.Cantidad;
+        item.Unidad = Limpiar(dto.Unidad);
 
-        item.Unidad =
-            Limpiar(
-                dto.Unidad
-            );
+        item.Momento = Limpiar(dto.Momento);
 
-        item.Momento =
-            Limpiar(
-                dto.Momento
-            );
+        item.Indicaciones = Limpiar(dto.Indicaciones);
 
-        item.Indicaciones =
-            Limpiar(
-                dto.Indicaciones
-            );
-
-        item.Orden =
-            dto.Orden;
-
+        item.Orden = dto.Orden;
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoDieta<
-            ItemSuplementacionDto>
+        return new ResultadoDieta<ItemSuplementacionDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearItem(
-                    item
-                ),
+            Datos = MapearItem(item),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // ELIMINAR ITEM SUPLEMENTACIÓN
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<bool>>
-        EliminarItemSuplementacionAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int itemId)
+    public async Task<ResultadoDieta<bool>> EliminarItemSuplementacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int itemId
+    )
     {
-        var dieta =
-            await ObtenerDietaAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId
-            );
-
+        var dieta = await ObtenerDietaAsync(nutricionistaId, pacienteId, dietaId);
 
         if (dieta is null)
         {
-            return Error<bool>(
-                "Dieta no encontrada.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<bool>("Dieta no encontrada.", TipoErrorDieta.NoEncontrado);
         }
 
-
-        if (dieta.Estado ==
-            EstadoDieta.Archivada)
+        if (dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<bool>(
                 "No se puede modificar una dieta archivada.",
@@ -665,37 +413,18 @@ public class ComplementoDietaService
             );
         }
 
-
-        var item =
-            await _context.ItemsSuplementacion
-                .Include(i =>
-                    i.SuplementacionDieta
-                )
-                .FirstOrDefaultAsync(i =>
-                    i.Id ==
-                    itemId
-                    &&
-                    i.SuplementacionDieta
-                        .DietaId ==
-                    dietaId
-                );
-
+        var item = await _context
+            .ItemsSuplementacion.Include(i => i.SuplementacionDieta)
+            .FirstOrDefaultAsync(i => i.Id == itemId && i.SuplementacionDieta.DietaId == dietaId);
 
         if (item is null)
         {
-            return Error<bool>(
-                "Suplemento no encontrado.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<bool>("Suplemento no encontrado.", TipoErrorDieta.NoEncontrado);
         }
 
-
-        _context.ItemsSuplementacion
-            .Remove(item);
-
+        _context.ItemsSuplementacion.Remove(item);
 
         await _context.SaveChangesAsync();
-
 
         return new ResultadoDieta<bool>
         {
@@ -703,227 +432,145 @@ public class ComplementoDietaService
 
             Datos = true,
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // OWNERSHIP DIETA
     // ==========================================
 
-    private async Task<Dieta?>
-        ObtenerDietaAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId)
+    private async Task<Dieta?> ObtenerDietaAsync(int nutricionistaId, int pacienteId, int dietaId)
     {
-        return await _context.Dietas
-            .FirstOrDefaultAsync(d =>
-                d.Id ==
-                dietaId
-                &&
-                d.PacienteId ==
-                pacienteId
-                &&
-                d.Paciente
-                    .NutricionistaId ==
-                nutricionistaId
-            );
+        return await _context.Dietas.FirstOrDefaultAsync(d =>
+            d.Id == dietaId
+            && d.PacienteId == pacienteId
+            && d.Paciente.NutricionistaId == nutricionistaId
+        );
     }
 
-
-    private async Task<bool>
-        ExisteDietaAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId)
+    private async Task<bool> ExisteDietaAsync(int nutricionistaId, int pacienteId, int dietaId)
     {
-        return await _context.Dietas
-            .AsNoTracking()
+        return await _context
+            .Dietas.AsNoTracking()
             .AnyAsync(d =>
-                d.Id ==
-                dietaId
-                &&
-                d.PacienteId ==
-                pacienteId
-                &&
-                d.Paciente
-                    .NutricionistaId ==
-                nutricionistaId
+                d.Id == dietaId
+                && d.PacienteId == pacienteId
+                && d.Paciente.NutricionistaId == nutricionistaId
             );
     }
-
 
     // ==========================================
     // VALIDACIÓN ITEM
     // ==========================================
 
-    private static string?
-        ValidarItem(
-            string nombre,
-            decimal? cantidad,
-            int orden)
+    private static string? ValidarItem(string nombre, decimal? cantidad, int orden)
     {
-        if (string.IsNullOrWhiteSpace(
-            nombre))
+        if (string.IsNullOrWhiteSpace(nombre))
         {
-            return
-                "El nombre del suplemento es obligatorio.";
+            return "El nombre del suplemento es obligatorio.";
         }
 
-
-        if (cantidad.HasValue &&
-            cantidad.Value <= 0)
+        if (cantidad.HasValue && cantidad.Value <= 0)
         {
-            return
-                "La cantidad debe ser mayor a cero.";
+            return "La cantidad debe ser mayor a cero.";
         }
 
-
-        if (orden < 1 ||
-            orden > 100)
+        if (orden < 1 || orden > 100)
         {
-            return
-                "El orden debe estar entre 1 y 100.";
+            return "El orden debe estar entre 1 y 100.";
         }
-
 
         return null;
     }
-
 
     // ==========================================
     // MAPPERS
     // ==========================================
 
-    private static HidratacionDietaDto
-        MapearHidratacion(
-            HidratacionDieta hidratacion)
+    private static HidratacionDietaDto MapearHidratacion(HidratacionDieta hidratacion)
     {
         return new HidratacionDietaDto
         {
-            Id =
-                hidratacion.Id,
+            Id = hidratacion.Id,
 
-            DietaId =
-                hidratacion.DietaId,
+            DietaId = hidratacion.DietaId,
 
-            MililitrosDiarios =
-                hidratacion.MililitrosDiarios,
+            MililitrosDiarios = hidratacion.MililitrosDiarios,
 
-            VasosDiarios =
-                hidratacion.VasosDiarios,
+            VasosDiarios = hidratacion.VasosDiarios,
 
-            Observaciones =
-                hidratacion.Observaciones
+            Observaciones = hidratacion.Observaciones,
         };
     }
 
-
-    private static SuplementacionDietaDto
-        MapearSuplementacion(
-            SuplementacionDieta suplementacion)
+    private static SuplementacionDietaDto MapearSuplementacion(SuplementacionDieta suplementacion)
     {
         return new SuplementacionDietaDto
         {
-            Id =
-                suplementacion.Id,
+            Id = suplementacion.Id,
 
-            DietaId =
-                suplementacion.DietaId,
+            DietaId = suplementacion.DietaId,
 
-            ObservacionesGenerales =
-                suplementacion
-                    .ObservacionesGenerales,
+            ObservacionesGenerales = suplementacion.ObservacionesGenerales,
 
-            Items =
-                suplementacion.Items
-                    .OrderBy(i =>
-                        i.Orden
-                    )
-                    .ThenBy(i =>
-                        i.Id
-                    )
-                    .Select(i =>
-                        MapearItem(i)
-                    )
-                    .ToList()
+            Items = suplementacion
+                .Items.OrderBy(i => i.Orden)
+                .ThenBy(i => i.Id)
+                .Select(i => MapearItem(i))
+                .ToList(),
         };
     }
 
-
-    private static ItemSuplementacionDto
-        MapearItem(
-            ItemSuplementacion item)
+    private static ItemSuplementacionDto MapearItem(ItemSuplementacion item)
     {
         return new ItemSuplementacionDto
         {
-            Id =
-                item.Id,
+            Id = item.Id,
 
-            SuplementacionDietaId =
-                item.SuplementacionDietaId,
+            SuplementacionDietaId = item.SuplementacionDietaId,
 
-            Nombre =
-                item.Nombre,
+            Nombre = item.Nombre,
 
-            Cantidad =
-                item.Cantidad,
+            Cantidad = item.Cantidad,
 
-            Unidad =
-                item.Unidad,
+            Unidad = item.Unidad,
 
-            Momento =
-                item.Momento,
+            Momento = item.Momento,
 
-            Indicaciones =
-                item.Indicaciones,
+            Indicaciones = item.Indicaciones,
 
-            Orden =
-                item.Orden
+            Orden = item.Orden,
         };
     }
-
 
     // ==========================================
     // STRING HELPER
     // ==========================================
 
-    private static string?
-        Limpiar(
-            string? valor)
+    private static string? Limpiar(string? valor)
     {
-        if (string.IsNullOrWhiteSpace(
-            valor))
+        if (string.IsNullOrWhiteSpace(valor))
         {
             return null;
         }
 
-
         return valor.Trim();
     }
-
 
     // ==========================================
     // ERROR
     // ==========================================
 
-    private static ResultadoDieta<T>
-        Error<T>(
-            string mensaje,
-            TipoErrorDieta tipo)
+    private static ResultadoDieta<T> Error<T>(string mensaje, TipoErrorDieta tipo)
     {
         return new ResultadoDieta<T>
         {
             Exitoso = false,
 
-            Error =
-                mensaje,
+            Error = mensaje,
 
-            TipoError =
-                tipo
+            TipoError = tipo,
         };
     }
 }

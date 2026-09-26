@@ -110,11 +110,11 @@ public class ActivacionCuentaService
     // ==========================================
 
     public async Task<
-        ResultadoActivacionCuenta<
-            ActivacionCuentaGeneradaDto>>
-        GenerarActivacionAsync(
-            int nutricionistaId,
-            int pacienteId)
+     ResultadoActivacionCuenta<
+         ActivacionCuentaGeneradaDto>>
+     GenerarActivacionAsync(
+         int nutricionistaId,
+         int pacienteId)
     {
         var paciente =
             await ObtenerPacientePropioAsync(
@@ -134,6 +134,21 @@ public class ActivacionCuentaService
                 "Paciente no encontrado.",
                 TipoErrorActivacionCuenta
                     .NoEncontrado
+            );
+        }
+
+
+        // ======================================
+        // CUENTA ACTIVA
+        // ======================================
+
+        if (!paciente.Activo)
+        {
+            return Error<
+                ActivacionCuentaGeneradaDto>(
+                "La cuenta del paciente se encuentra desactivada.",
+                TipoErrorActivacionCuenta
+                    .Validacion
             );
         }
 
@@ -164,16 +179,6 @@ public class ActivacionCuentaService
         // EMAIL
         // ======================================
 
-        /*
-         * Aunque ya no enviamos un email,
-         * el email sigue formando parte del
-         * enlace de activación.
-         *
-         * ActivarCuentaAsync posteriormente
-         * utiliza este email para localizar
-         * al usuario mediante Identity.
-         */
-
         if (string.IsNullOrWhiteSpace(
             paciente.Email))
         {
@@ -190,18 +195,8 @@ public class ActivacionCuentaService
         // FRONTEND URL
         // ======================================
 
-        /*
-         * Por ahora seguimos reutilizando
-         * EmailOpciones.FrontendUrl.
-         *
-         * Esto evita modificar configuración
-         * adicional innecesariamente.
-         *
-         * Más adelante podemos moverlo a una
-         * configuración general de la aplicación.
-         */
-
-        if (string.IsNullOrWhiteSpace(_aplicacionOpciones.FrontendUrl))
+        if (string.IsNullOrWhiteSpace(
+            _aplicacionOpciones.FrontendUrl))
         {
             return Error<
                 ActivacionCuentaGeneradaDto>(
@@ -216,31 +211,12 @@ public class ActivacionCuentaService
         // TOKEN IDENTITY
         // ======================================
 
-        /*
-         * Identity genera el token real.
-         *
-         * NO construimos tokens manualmente.
-         */
-
         var tokenIdentity =
             await _userManager
                 .GeneratePasswordResetTokenAsync(
                     paciente
                 );
 
-
-        /*
-         * Los tokens de Identity pueden contener
-         * caracteres problemáticos para una URL.
-         *
-         * Por eso convertimos:
-         *
-         * token Identity
-         *      ↓
-         * UTF8
-         *      ↓
-         * Base64Url
-         */
 
         var tokenCodificado =
             WebEncoders
@@ -285,24 +261,6 @@ public class ActivacionCuentaService
         // RESPUESTA
         // ======================================
 
-        /*
-         * IMPORTANTE:
-         *
-         * Ahora el token sí vuelve al frontend,
-         * pero únicamente dentro del enlace
-         * generado para un nutricionista
-         * autenticado y propietario del paciente.
-         *
-         * El frontend NO debe persistir este
-         * enlace en localStorage/sessionStorage.
-         *
-         * Su única finalidad es:
-         *
-         * - copiarlo;
-         * - abrir WhatsApp;
-         * - enviarlo manualmente al paciente.
-         */
-
         return new ResultadoActivacionCuenta<
             ActivacionCuentaGeneradaDto>
         {
@@ -337,15 +295,14 @@ public class ActivacionCuentaService
         };
     }
 
-
     // ==========================================
     // ACTIVAR CUENTA
     // ==========================================
 
     public async Task<
-        ResultadoActivacionCuenta<bool>>
-        ActivarCuentaAsync(
-            ActivarCuentaDto dto)
+     ResultadoActivacionCuenta<bool>>
+     ActivarCuentaAsync(
+         ActivarCuentaDto dto)
     {
         if (string.IsNullOrWhiteSpace(
             dto.Email))
@@ -380,9 +337,9 @@ public class ActivacionCuentaService
         }
 
 
-        /*
-         * Buscamos por Identity.
-         */
+        // ======================================
+        // USUARIO
+        // ======================================
 
         var usuario =
             await _userManager
@@ -395,7 +352,7 @@ public class ActivacionCuentaService
          * Además de existir, debe ser Paciente.
          *
          * Un nutricionista no puede usar este
-         * flujo para resetear su contraseña.
+         * flujo para modificar su contraseña.
          */
 
         if (usuario is not Paciente paciente)
@@ -407,6 +364,29 @@ public class ActivacionCuentaService
             );
         }
 
+
+        // ======================================
+        // CUENTA ACTIVA
+        // ======================================
+
+        /*
+         * No revelamos mediante el endpoint público
+         * que la cuenta está desactivada.
+         */
+
+        if (!paciente.Activo)
+        {
+            return Error<bool>(
+                "Los datos de activación no son válidos.",
+                TipoErrorActivacionCuenta
+                    .TokenInvalido
+            );
+        }
+
+
+        // ======================================
+        // CUENTA YA ACTIVADA
+        // ======================================
 
         var cuentaActivada =
             await _userManager
@@ -424,6 +404,10 @@ public class ActivacionCuentaService
             );
         }
 
+
+        // ======================================
+        // TOKEN
+        // ======================================
 
         string tokenIdentity;
 
@@ -453,11 +437,9 @@ public class ActivacionCuentaService
         }
 
 
-        /*
-         * ResetPasswordAsync funciona también
-         * para establecer la primera contraseña
-         * de un usuario creado sin password.
-         */
+        // ======================================
+        // ESTABLECER PRIMERA CONTRASEÑA
+        // ======================================
 
         var resultado =
             await _userManager
@@ -470,16 +452,17 @@ public class ActivacionCuentaService
 
         if (!resultado.Succeeded)
         {
-            /*
-             * Token inválido / expirado.
-             */
+            var tokenIncorrecto =
+                resultado.Errors.Any(e =>
+                    e.Code.Contains(
+                        "Token",
+                        StringComparison
+                            .OrdinalIgnoreCase
+                    )
+                );
 
-            if (resultado.Errors.Any(e =>
-                e.Code.Contains(
-                    "Token",
-                    StringComparison
-                        .OrdinalIgnoreCase
-                )))
+
+            if (tokenIncorrecto)
             {
                 return Error<bool>(
                     "El enlace de activación no es válido o ha expirado.",
@@ -488,16 +471,6 @@ public class ActivacionCuentaService
                 );
             }
 
-
-            /*
-             * Si el problema fue la contraseña,
-             * devolvemos los errores de Identity.
-             *
-             * Ej:
-             * - requiere mayúscula
-             * - requiere número
-             * - longitud mínima
-             */
 
             var errores =
                 resultado.Errors
@@ -538,7 +511,6 @@ public class ActivacionCuentaService
                     .Ninguno
         };
     }
-
 
     // ==========================================
     // OWNERSHIP

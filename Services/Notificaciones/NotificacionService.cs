@@ -204,14 +204,18 @@ public class NotificacionService
     // ==========================================
 
     public async Task
-        CrearAsync(
-            int usuarioId,
-            TipoNotificacion tipo,
-            string titulo,
-            string mensaje,
-            string? recursoTipo = null,
-            int? recursoId = null)
+      CrearAsync(
+          int usuarioId,
+          TipoNotificacion tipo,
+          string titulo,
+          string mensaje,
+          string? recursoTipo = null,
+          int? recursoId = null)
     {
+        // ==========================================
+        // USUARIO
+        // ==========================================
+
         if (usuarioId <= 0)
         {
             throw new ArgumentException(
@@ -220,6 +224,23 @@ public class NotificacionService
             );
         }
 
+
+        // ==========================================
+        // TIPO
+        // ==========================================
+
+        if (!Enum.IsDefined(tipo))
+        {
+            throw new ArgumentException(
+                "El tipo de notificación no es válido.",
+                nameof(tipo)
+            );
+        }
+
+
+        // ==========================================
+        // TÍTULO
+        // ==========================================
 
         if (string.IsNullOrWhiteSpace(
             titulo))
@@ -231,6 +252,23 @@ public class NotificacionService
         }
 
 
+        var tituloLimpio =
+            titulo.Trim();
+
+
+        if (tituloLimpio.Length > 150)
+        {
+            throw new ArgumentException(
+                "El título de la notificación no puede superar los 150 caracteres.",
+                nameof(titulo)
+            );
+        }
+
+
+        // ==========================================
+        // MENSAJE
+        // ==========================================
+
         if (string.IsNullOrWhiteSpace(
             mensaje))
         {
@@ -240,6 +278,84 @@ public class NotificacionService
             );
         }
 
+
+        var mensajeLimpio =
+            mensaje.Trim();
+
+
+        if (mensajeLimpio.Length > 500)
+        {
+            throw new ArgumentException(
+                "El mensaje de la notificación no puede superar los 500 caracteres.",
+                nameof(mensaje)
+            );
+        }
+
+
+        // ==========================================
+        // RECURSO
+        // ==========================================
+
+        string? recursoTipoLimpio =
+            string.IsNullOrWhiteSpace(
+                recursoTipo)
+                ? null
+                : recursoTipo.Trim();
+
+
+        if (recursoTipoLimpio is not null
+            &&
+            recursoTipoLimpio.Length > 100)
+        {
+            throw new ArgumentException(
+                "El tipo de recurso no puede superar los 100 caracteres.",
+                nameof(recursoTipo)
+            );
+        }
+
+
+        if (recursoId.HasValue
+            &&
+            recursoId.Value <= 0)
+        {
+            throw new ArgumentException(
+                "El identificador del recurso no es válido.",
+                nameof(recursoId)
+            );
+        }
+
+
+        /*
+         * Evitamos estados inconsistentes:
+         *
+         * RecursoTipo = null
+         * RecursoId = 25
+         *
+         * o:
+         *
+         * RecursoTipo = "Turno"
+         * RecursoId = null
+         */
+
+        if (
+            (recursoTipoLimpio is null
+                &&
+             recursoId.HasValue)
+            ||
+            (recursoTipoLimpio is not null
+                &&
+             !recursoId.HasValue)
+        )
+        {
+            throw new ArgumentException(
+                "El tipo de recurso y su identificador deben informarse juntos."
+            );
+        }
+
+
+        // ==========================================
+        // NOTIFICACIÓN
+        // ==========================================
 
         var notificacion =
             new Notificacion
@@ -251,10 +367,10 @@ public class NotificacionService
                     tipo,
 
                 Titulo =
-                    titulo.Trim(),
+                    tituloLimpio,
 
                 Mensaje =
-                    mensaje.Trim(),
+                    mensajeLimpio,
 
                 Leida =
                     false,
@@ -263,10 +379,7 @@ public class NotificacionService
                     DateTime.UtcNow,
 
                 RecursoTipo =
-                    string.IsNullOrWhiteSpace(
-                        recursoTipo)
-                        ? null
-                        : recursoTipo.Trim(),
+                    recursoTipoLimpio,
 
                 RecursoId =
                     recursoId

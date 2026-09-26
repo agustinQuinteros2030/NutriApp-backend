@@ -16,7 +16,7 @@ public class EditarAlimentoDto
 
     [Range(
         typeof(decimal),
-        "0.01",
+        "0",
         "999999",
         ParseLimitsInInvariantCulture = true,
         ConvertValueInInvariantCulture = true

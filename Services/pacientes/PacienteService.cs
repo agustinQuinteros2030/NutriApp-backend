@@ -458,10 +458,10 @@ public class PacienteService : IPacienteService
     // ==========================================
 
     public async Task<ResultadoPaciente<bool>>
-        CambiarEstadoAsync(
-            int nutricionistaId,
-            int pacienteId,
-            bool activo)
+     CambiarEstadoAsync(
+         int nutricionistaId,
+         int pacienteId,
+         bool activo)
     {
         var paciente =
             await _context.Pacientes
@@ -485,20 +485,61 @@ public class PacienteService : IPacienteService
         }
 
 
-        paciente.Activo = activo;
+        /*
+         * Si el estado ya es el solicitado,
+         * no hacemos ninguna modificación.
+         *
+         * Evitamos invalidar JWT innecesariamente.
+         */
 
-        await _context.SaveChangesAsync();
+        if (paciente.Activo == activo)
+        {
+            return new ResultadoPaciente<bool>
+            {
+                Exitoso = true,
+                Datos = true,
+                TipoError =
+                    TipoErrorPaciente.Ninguno
+            };
+        }
+
+
+        paciente.Activo =
+            activo;
+
+
+        /*
+         * Rotamos el SecurityStamp cada vez que
+         * cambia el estado de la cuenta.
+         *
+         * Esto invalida todos los JWT emitidos
+         * anteriormente, incluso si el paciente
+         * es reactivado posteriormente.
+         */
+
+        var resultado =
+            await _userManager
+                .UpdateSecurityStampAsync(
+                    paciente
+                );
+
+
+        if (!resultado.Succeeded)
+        {
+            throw new InvalidOperationException(
+                "No se pudo actualizar el estado de seguridad del paciente."
+            );
+        }
 
 
         return new ResultadoPaciente<bool>
         {
             Exitoso = true,
             Datos = true,
-            TipoError = TipoErrorPaciente.Ninguno
+            TipoError =
+                TipoErrorPaciente.Ninguno
         };
     }
-
-
     // ==========================================
     // HELPERS
     // ==========================================

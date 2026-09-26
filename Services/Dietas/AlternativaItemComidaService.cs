@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using NutriApi.Calculos;
 using NutriApi.DTOs.Dietas;
-
 using NutriApp.Data;
 using NutriApp.Enums;
 using NutriApp.Enums.Alimentos;
@@ -11,46 +9,39 @@ using NutriApp.Models.Dietas;
 
 namespace NutriApi.Services.Dietas;
 
-public class AlternativaItemComidaService
-    : IAlternativaItemComidaService
+public class AlternativaItemComidaService : IAlternativaItemComidaService
 {
     private readonly NutriAppDbContext _context;
 
-
-    public AlternativaItemComidaService(
-        NutriAppDbContext context)
+    public AlternativaItemComidaService(NutriAppDbContext context)
     {
         _context = context;
     }
-
 
     // ==========================================
     // AGREGAR ALTERNATIVA
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<AlternativaItemComidaDto>>
-        AgregarAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int comidaId,
-            int seccionId,
-            int opcionId,
-            int itemId,
-            AgregarAlternativaItemComidaDto dto)
+    public async Task<ResultadoDieta<AlternativaItemComidaDto>> AgregarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId,
+        int itemId,
+        AgregarAlternativaItemComidaDto dto
+    )
     {
-        var item =
-            await ObtenerItemAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                itemId
-            );
-
+        var item = await ObtenerItemAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            itemId
+        );
 
         if (item is null)
         {
@@ -60,17 +51,11 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // DIETA ARCHIVADA
         // ======================================
 
-        if (item.OpcionSeccionComida
-                .SeccionComida
-                .Comida
-                .Dieta
-                .Estado ==
-            EstadoDieta.Archivada)
+        if (item.OpcionSeccionComida.SeccionComida.Comida.Dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<AlternativaItemComidaDto>(
                 "No se puede modificar una dieta archivada.",
@@ -78,13 +63,11 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // MISMO ALIMENTO
         // ======================================
 
-        if (item.AlimentoId ==
-            dto.AlimentoId)
+        if (item.AlimentoId == dto.AlimentoId)
         {
             return Error<AlternativaItemComidaDto>(
                 "El alimento alternativo no puede ser el mismo que el alimento original.",
@@ -92,22 +75,15 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // ALIMENTO ALTERNATIVO
         // ======================================
 
-        var alimentoAlternativo =
-            await _context.Alimentos
-                .AsNoTracking()
-                .FirstOrDefaultAsync(a =>
-                    a.Id ==
-                    dto.AlimentoId
-                    &&
-                    a.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var alimentoAlternativo = await _context
+            .Alimentos.AsNoTracking()
+            .FirstOrDefaultAsync(a =>
+                a.Id == dto.AlimentoId && a.NutricionistaId == nutricionistaId
+            );
 
         if (alimentoAlternativo is null)
         {
@@ -117,7 +93,6 @@ public class AlternativaItemComidaService
             );
         }
 
-
         if (!alimentoAlternativo.Activo)
         {
             return Error<AlternativaItemComidaDto>(
@@ -126,22 +101,15 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // GRUPO DE EQUIVALENCIA
         // ======================================
 
-        var grupo =
-            await _context.GruposEquivalencias
-                .AsNoTracking()
-                .FirstOrDefaultAsync(g =>
-                    g.Id ==
-                    dto.GrupoEquivalenciaId
-                    &&
-                    g.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var grupo = await _context
+            .GruposEquivalencias.AsNoTracking()
+            .FirstOrDefaultAsync(g =>
+                g.Id == dto.GrupoEquivalenciaId && g.NutricionistaId == nutricionistaId
+            );
 
         if (grupo is null)
         {
@@ -151,7 +119,6 @@ public class AlternativaItemComidaService
             );
         }
 
-
         if (!grupo.Activo)
         {
             return Error<AlternativaItemComidaDto>(
@@ -160,7 +127,6 @@ public class AlternativaItemComidaService
             );
         }
 
-
         if (!Enum.IsDefined(grupo.Criterio))
         {
             return Error<AlternativaItemComidaDto>(
@@ -168,7 +134,6 @@ public class AlternativaItemComidaService
                 TipoErrorDieta.Validacion
             );
         }
-
 
         // ======================================
         // PERTENENCIA DEL ALIMENTO ORIGINAL
@@ -191,20 +156,11 @@ public class AlternativaItemComidaService
          * Fideos pertenecen
          */
 
-        var equivalenciaOrigen =
-            await _context
-                .EquivalenciasAlimentos
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e =>
-                    e.GrupoEquivalenciaId ==
-                    grupo.Id
-                    &&
-                    e.AlimentoId ==
-                    item.AlimentoId
-                    &&
-                    e.Activa
-                );
-
+        var equivalenciaOrigen = await _context
+            .EquivalenciasAlimentos.AsNoTracking()
+            .FirstOrDefaultAsync(e =>
+                e.GrupoEquivalenciaId == grupo.Id && e.AlimentoId == item.AlimentoId && e.Activa
+            );
 
         if (equivalenciaOrigen is null)
         {
@@ -214,25 +170,17 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // PERTENENCIA DEL ALIMENTO ALTERNATIVO
         // ======================================
 
-        var equivalenciaAlternativa =
-            await _context
-                .EquivalenciasAlimentos
-                .AsNoTracking()
-                .FirstOrDefaultAsync(e =>
-                    e.GrupoEquivalenciaId ==
-                    grupo.Id
-                    &&
-                    e.AlimentoId ==
-                    alimentoAlternativo.Id
-                    &&
-                    e.Activa
-                );
-
+        var equivalenciaAlternativa = await _context
+            .EquivalenciasAlimentos.AsNoTracking()
+            .FirstOrDefaultAsync(e =>
+                e.GrupoEquivalenciaId == grupo.Id
+                && e.AlimentoId == alimentoAlternativo.Id
+                && e.Activa
+            );
 
         if (equivalenciaAlternativa is null)
         {
@@ -241,7 +189,6 @@ public class AlternativaItemComidaService
                 TipoErrorDieta.Validacion
             );
         }
-
 
         // ======================================
         // VALIDAR UNIDAD DEL ITEM
@@ -262,8 +209,7 @@ public class AlternativaItemComidaService
          * 2 Porciones -> no podemos inferir gramos.
          */
 
-        if (item.UnidadMedida !=
-            item.Alimento.UnidadBase)
+        if (item.UnidadMedida != item.Alimento.UnidadBase)
         {
             return Error<AlternativaItemComidaDto>(
                 $"El alimento '{item.Alimento.Nombre}' debe utilizar la unidad base '{item.Alimento.UnidadBase}' para calcular equivalencias automáticamente.",
@@ -271,43 +217,28 @@ public class AlternativaItemComidaService
             );
         }
 
-
         // ======================================
         // VALIDAR CÁLCULO NUTRICIONAL
         // ======================================
 
-        var errorCalculo =
-            ValidarCalculoAutomatico(
-                item.Alimento,
-                alimentoAlternativo,
-                grupo.Criterio
-            );
-
+        var errorCalculo = ValidarCalculoAutomatico(
+            item.Alimento,
+            alimentoAlternativo,
+            grupo.Criterio
+        );
 
         if (errorCalculo is not null)
         {
-            return Error<AlternativaItemComidaDto>(
-                errorCalculo,
-                TipoErrorDieta.Validacion
-            );
+            return Error<AlternativaItemComidaDto>(errorCalculo, TipoErrorDieta.Validacion);
         }
-
 
         // ======================================
         // VER DUPLICADO
         // ======================================
 
-        var existente =
-            await _context
-                .AlternativasItemsComidas
-                .FirstOrDefaultAsync(a =>
-                    a.ItemOpcionComidaId ==
-                    itemId
-                    &&
-                    a.AlimentoId ==
-                    alimentoAlternativo.Id
-                );
-
+        var existente = await _context.AlternativasItemsComidas.FirstOrDefaultAsync(a =>
+            a.ItemOpcionComidaId == itemId && a.AlimentoId == alimentoAlternativo.Id
+        );
 
         /*
          * Existe un índice único:
@@ -328,81 +259,18 @@ public class AlternativaItemComidaService
                 );
             }
 
+            existente.Activa = true;
 
-            existente.Activa =
-                true;
+            existente.GrupoEquivalenciaId = grupo.Id;
 
-            existente.GrupoEquivalenciaId =
-                grupo.Id;
+            await _context.SaveChangesAsync();
 
-
-            await _context
-                .SaveChangesAsync();
-
-
-            return new ResultadoDieta<
-                AlternativaItemComidaDto>
+            return new ResultadoDieta<AlternativaItemComidaDto>
             {
-                Exitoso =
-                    true,
+                Exitoso = true,
 
-                Datos =
-                    CrearDto(
-                        existente.Id,
-                        item.Alimento,
-                        alimentoAlternativo,
-                        grupo.Id,
-                        grupo.Nombre,
-                        item.Cantidad,
-                        grupo.Criterio,
-                        true
-                    ),
-
-                TipoError =
-                    TipoErrorDieta.Ninguno
-            };
-        }
-
-
-        // ======================================
-        // CREAR ALTERNATIVA
-        // ======================================
-
-        var alternativa =
-            new AlternativaItemComida
-            {
-                ItemOpcionComidaId =
-                    itemId,
-
-                AlimentoId =
-                    alimentoAlternativo.Id,
-
-                GrupoEquivalenciaId =
-                    grupo.Id,
-
-                Activa =
-                    true
-            };
-
-
-        _context
-            .AlternativasItemsComidas
-            .Add(alternativa);
-
-
-        await _context
-            .SaveChangesAsync();
-
-
-        return new ResultadoDieta<
-            AlternativaItemComidaDto>
-        {
-            Exitoso =
-                true,
-
-            Datos =
-                CrearDto(
-                    alternativa.Id,
+                Datos = CrearDto(
+                    existente.Id,
                     item.Alimento,
                     alimentoAlternativo,
                     grupo.Id,
@@ -412,96 +280,105 @@ public class AlternativaItemComidaService
                     true
                 ),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+                TipoError = TipoErrorDieta.Ninguno,
+            };
+        }
+
+        // ======================================
+        // CREAR ALTERNATIVA
+        // ======================================
+
+        var alternativa = new AlternativaItemComida
+        {
+            ItemOpcionComidaId = itemId,
+
+            AlimentoId = alimentoAlternativo.Id,
+
+            GrupoEquivalenciaId = grupo.Id,
+
+            Activa = true,
+        };
+
+        _context.AlternativasItemsComidas.Add(alternativa);
+
+        await _context.SaveChangesAsync();
+
+        return new ResultadoDieta<AlternativaItemComidaDto>
+        {
+            Exitoso = true,
+
+            Datos = CrearDto(
+                alternativa.Id,
+                item.Alimento,
+                alimentoAlternativo,
+                grupo.Id,
+                grupo.Nombre,
+                item.Cantidad,
+                grupo.Criterio,
+                true
+            ),
+
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // LISTAR ALTERNATIVAS
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<List<AlternativaItemComidaDto>>>
-        ObtenerTodasAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int comidaId,
-            int seccionId,
-            int opcionId,
-            int itemId,
-            bool incluirInactivas)
+    public async Task<ResultadoDieta<List<AlternativaItemComidaDto>>> ObtenerTodasAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId,
+        int itemId,
+        bool incluirInactivas
+    )
     {
-        var item =
-            await ObtenerItemAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                itemId
-            );
-
+        var item = await ObtenerItemAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            itemId
+        );
 
         if (item is null)
         {
-            return Error<
-                List<AlternativaItemComidaDto>>(
+            return Error<List<AlternativaItemComidaDto>>(
                 "Ítem no encontrado.",
                 TipoErrorDieta.NoEncontrado
             );
         }
 
-
-        var query =
-            _context
-                .AlternativasItemsComidas
-                .AsNoTracking()
-                .Include(a =>
-                    a.Alimento
-                )
-                .Include(a =>
-                    a.GrupoEquivalencia
-                )
-                .Where(a =>
-                    a.ItemOpcionComidaId ==
-                    itemId
-                );
-
+        var query = _context
+            .AlternativasItemsComidas.AsNoTracking()
+            .Include(a => a.Alimento)
+            .Include(a => a.GrupoEquivalencia)
+            .Where(a => a.ItemOpcionComidaId == itemId);
 
         if (!incluirInactivas)
         {
-            query =
-                query.Where(a =>
-                    a.Activa
-                );
+            query = query.Where(a => a.Activa);
         }
 
-
-        var alternativas =
-            await query
-                .ToListAsync();
-
+        var alternativas = await query.ToListAsync();
 
         if (alternativas.Count == 0)
         {
-            return new ResultadoDieta<
-                List<AlternativaItemComidaDto>>
+            return new ResultadoDieta<List<AlternativaItemComidaDto>>
             {
-                Exitoso =
-                    true,
+                Exitoso = true,
 
-                Datos =
-                    new(),
+                Datos = new(),
 
-                TipoError =
-                    TipoErrorDieta.Ninguno
+                TipoError = TipoErrorDieta.Ninguno,
             };
         }
-
 
         // ======================================
         // PERTENENCIAS A GRUPOS
@@ -516,49 +393,24 @@ public class AlternativaItemComidaService
          * esa alternativa deja de ofrecerse.
          */
 
-        var gruposIds =
-            alternativas
-                .Select(a =>
-                    a.GrupoEquivalenciaId
-                )
-                .Distinct()
-                .ToList();
+        var gruposIds = alternativas.Select(a => a.GrupoEquivalenciaId).Distinct().ToList();
 
+        var alimentosIds = alternativas
+            .Select(a => a.AlimentoId)
+            .Append(item.AlimentoId)
+            .Distinct()
+            .ToList();
 
-        var alimentosIds =
-            alternativas
-                .Select(a =>
-                    a.AlimentoId
-                )
-                .Append(
-                    item.AlimentoId
-                )
-                .Distinct()
-                .ToList();
+        var equivalencias = await _context
+            .EquivalenciasAlimentos.AsNoTracking()
+            .Where(e =>
+                gruposIds.Contains(e.GrupoEquivalenciaId)
+                && alimentosIds.Contains(e.AlimentoId)
+                && e.Activa
+            )
+            .ToListAsync();
 
-
-        var equivalencias =
-            await _context
-                .EquivalenciasAlimentos
-                .AsNoTracking()
-                .Where(e =>
-                    gruposIds.Contains(
-                        e.GrupoEquivalenciaId
-                    )
-                    &&
-                    alimentosIds.Contains(
-                        e.AlimentoId
-                    )
-                    &&
-                    e.Activa
-                )
-                .ToListAsync();
-
-
-        var resultado =
-            new List<
-                AlternativaItemComidaDto>();
-
+        var resultado = new List<AlternativaItemComidaDto>();
 
         // ======================================
         // UNIDAD DEL ALIMENTO ORIGINAL
@@ -574,58 +426,37 @@ public class AlternativaItemComidaService
          * automáticamente.
          */
 
-        if (item.UnidadMedida !=
-            item.Alimento.UnidadBase)
+        if (item.UnidadMedida != item.Alimento.UnidadBase)
         {
-            return new ResultadoDieta<
-                List<AlternativaItemComidaDto>>
+            return new ResultadoDieta<List<AlternativaItemComidaDto>>
             {
-                Exitoso =
-                    true,
+                Exitoso = true,
 
-                Datos =
-                    resultado,
+                Datos = resultado,
 
-                TipoError =
-                    TipoErrorDieta.Ninguno
+                TipoError = TipoErrorDieta.Ninguno,
             };
         }
 
-
-        foreach (var alternativa
-                 in alternativas)
+        foreach (var alternativa in alternativas)
         {
             // ==================================
             // VALIDAR MEMBRESÍA ORIGEN
             // ==================================
 
-            var origen =
-                equivalencias
-                    .FirstOrDefault(e =>
-                        e.GrupoEquivalenciaId ==
-                        alternativa
-                            .GrupoEquivalenciaId
-                        &&
-                        e.AlimentoId ==
-                        item.AlimentoId
-                    );
-
+            var origen = equivalencias.FirstOrDefault(e =>
+                e.GrupoEquivalenciaId == alternativa.GrupoEquivalenciaId
+                && e.AlimentoId == item.AlimentoId
+            );
 
             // ==================================
             // VALIDAR MEMBRESÍA DESTINO
             // ==================================
 
-            var destino =
-                equivalencias
-                    .FirstOrDefault(e =>
-                        e.GrupoEquivalenciaId ==
-                        alternativa
-                            .GrupoEquivalenciaId
-                        &&
-                        e.AlimentoId ==
-                        alternativa.AlimentoId
-                    );
-
+            var destino = equivalencias.FirstOrDefault(e =>
+                e.GrupoEquivalenciaId == alternativa.GrupoEquivalenciaId
+                && e.AlimentoId == alternativa.AlimentoId
+            );
 
             /*
              * Si alguna membresía fue desactivada
@@ -633,33 +464,24 @@ public class AlternativaItemComidaService
              * no ofrecemos esa alternativa.
              */
 
-            if (origen is null ||
-                destino is null)
+            if (origen is null || destino is null)
             {
                 continue;
             }
-
 
             // ==================================
             // GRUPO VÁLIDO
             // ==================================
 
-            if (!alternativa
-                    .GrupoEquivalencia
-                    .Activo)
+            if (!alternativa.GrupoEquivalencia.Activo)
             {
                 continue;
             }
 
-
-            if (!Enum.IsDefined(
-                    alternativa
-                        .GrupoEquivalencia
-                        .Criterio))
+            if (!Enum.IsDefined(alternativa.GrupoEquivalencia.Criterio))
             {
                 continue;
             }
-
 
             // ==================================
             // ALIMENTO ACTIVO
@@ -670,20 +492,15 @@ public class AlternativaItemComidaService
                 continue;
             }
 
-
             // ==================================
             // VALIDAR MACROS
             // ==================================
 
-            var errorCalculo =
-                ValidarCalculoAutomatico(
-                    item.Alimento,
-                    alternativa.Alimento,
-                    alternativa
-                        .GrupoEquivalencia
-                        .Criterio
-                );
-
+            var errorCalculo = ValidarCalculoAutomatico(
+                item.Alimento,
+                alternativa.Alimento,
+                alternativa.GrupoEquivalencia.Criterio
+            );
 
             if (errorCalculo is not null)
             {
@@ -699,7 +516,6 @@ public class AlternativaItemComidaService
                 continue;
             }
 
-
             // ==================================
             // CALCULAR
             // ==================================
@@ -709,84 +525,57 @@ public class AlternativaItemComidaService
                     alternativa.Id,
                     item.Alimento,
                     alternativa.Alimento,
-                    alternativa
-                        .GrupoEquivalenciaId,
-                    alternativa
-                        .GrupoEquivalencia
-                        .Nombre,
+                    alternativa.GrupoEquivalenciaId,
+                    alternativa.GrupoEquivalencia.Nombre,
                     item.Cantidad,
-                    alternativa
-                        .GrupoEquivalencia
-                        .Criterio,
+                    alternativa.GrupoEquivalencia.Criterio,
                     alternativa.Activa
                 )
             );
         }
 
-
-        return new ResultadoDieta<
-            List<AlternativaItemComidaDto>>
+        return new ResultadoDieta<List<AlternativaItemComidaDto>>
         {
-            Exitoso =
-                true,
+            Exitoso = true,
 
-            Datos =
-                resultado
-                    .OrderBy(a =>
-                        a.Alimento
-                    )
-                    .ToList(),
+            Datos = resultado.OrderBy(a => a.Alimento).ToList(),
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // ACTIVAR / DESACTIVAR
     // ==========================================
 
-    public async Task<
-        ResultadoDieta<bool>>
-        CambiarEstadoAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int comidaId,
-            int seccionId,
-            int opcionId,
-            int itemId,
-            int alternativaId,
-            bool activa)
+    public async Task<ResultadoDieta<bool>> CambiarEstadoAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId,
+        int itemId,
+        int alternativaId,
+        bool activa
+    )
     {
-        var item =
-            await ObtenerItemAsync(
-                nutricionistaId,
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                itemId
-            );
-
+        var item = await ObtenerItemAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            itemId
+        );
 
         if (item is null)
         {
-            return Error<bool>(
-                "Ítem no encontrado.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<bool>("Ítem no encontrado.", TipoErrorDieta.NoEncontrado);
         }
 
-
-        if (item.OpcionSeccionComida
-                .SeccionComida
-                .Comida
-                .Dieta
-                .Estado ==
-            EstadoDieta.Archivada)
+        if (item.OpcionSeccionComida.SeccionComida.Comida.Dieta.Estado == EstadoDieta.Archivada)
         {
             return Error<bool>(
                 "No se puede modificar una dieta archivada.",
@@ -794,205 +583,118 @@ public class AlternativaItemComidaService
             );
         }
 
-
-        var alternativa =
-            await _context
-                .AlternativasItemsComidas
-                .FirstOrDefaultAsync(a =>
-                    a.Id ==
-                    alternativaId
-                    &&
-                    a.ItemOpcionComidaId ==
-                    itemId
-                );
-
+        var alternativa = await _context.AlternativasItemsComidas.FirstOrDefaultAsync(a =>
+            a.Id == alternativaId && a.ItemOpcionComidaId == itemId
+        );
 
         if (alternativa is null)
         {
-            return Error<bool>(
-                "Alternativa no encontrada.",
-                TipoErrorDieta.NoEncontrado
-            );
+            return Error<bool>("Alternativa no encontrada.", TipoErrorDieta.NoEncontrado);
         }
 
+        alternativa.Activa = activa;
 
-        alternativa.Activa =
-            activa;
-
-
-        await _context
-            .SaveChangesAsync();
-
+        await _context.SaveChangesAsync();
 
         return new ResultadoDieta<bool>
         {
-            Exitoso =
-                true,
+            Exitoso = true,
 
-            Datos =
-                true,
+            Datos = true,
 
-            TipoError =
-                TipoErrorDieta.Ninguno
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
-
 
     // ==========================================
     // OBTENER ITEM + OWNERSHIP COMPLETO
     // ==========================================
 
-    private async Task<ItemOpcionComida?>
-        ObtenerItemAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int dietaId,
-            int comidaId,
-            int seccionId,
-            int opcionId,
-            int itemId)
+    private async Task<ItemOpcionComida?> ObtenerItemAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId,
+        int itemId
+    )
     {
         return await _context
-            .ItemsOpcionesComidas
-            .Include(i =>
-                i.Alimento
-            )
-            .Include(i =>
-                i.OpcionSeccionComida
-            )
-                .ThenInclude(o =>
-                    o.SeccionComida
-                )
-                    .ThenInclude(s =>
-                        s.Comida
-                    )
-                        .ThenInclude(c =>
-                            c.Dieta
-                        )
-                            .ThenInclude(d =>
-                                d.Paciente
-                            )
+            .ItemsOpcionesComidas.Include(i => i.Alimento)
+            .Include(i => i.OpcionSeccionComida)
+                .ThenInclude(o => o.SeccionComida)
+                    .ThenInclude(s => s.Comida)
+                        .ThenInclude(c => c.Dieta)
+                            .ThenInclude(d => d.Paciente)
             .FirstOrDefaultAsync(i =>
-                i.Id ==
-                itemId
-                &&
-                i.OpcionSeccionComidaId ==
-                opcionId
-                &&
-                i.OpcionSeccionComida
-                    .SeccionComidaId ==
-                seccionId
-                &&
-                i.OpcionSeccionComida
-                    .SeccionComida
-                    .ComidaId ==
-                comidaId
-                &&
-                i.OpcionSeccionComida
-                    .SeccionComida
-                    .Comida
-                    .DietaId ==
-                dietaId
-                &&
-                i.OpcionSeccionComida
-                    .SeccionComida
-                    .Comida
-                    .Dieta
-                    .PacienteId ==
-                pacienteId
-                &&
-                i.OpcionSeccionComida
-                    .SeccionComida
-                    .Comida
-                    .Dieta
-                    .Paciente
-                    .NutricionistaId ==
-                nutricionistaId
+                i.Id == itemId
+                && i.OpcionSeccionComidaId == opcionId
+                && i.OpcionSeccionComida.SeccionComidaId == seccionId
+                && i.OpcionSeccionComida.SeccionComida.ComidaId == comidaId
+                && i.OpcionSeccionComida.SeccionComida.Comida.DietaId == dietaId
+                && i.OpcionSeccionComida.SeccionComida.Comida.Dieta.PacienteId == pacienteId
+                && i.OpcionSeccionComida.SeccionComida.Comida.Dieta.Paciente.NutricionistaId
+                    == nutricionistaId
             );
     }
-
 
     // ==========================================
     // VALIDAR CÁLCULO AUTOMÁTICO
     // ==========================================
 
-    private static string?
-        ValidarCalculoAutomatico(
-            Alimento alimentoOrigen,
-            Alimento alimentoDestino,
-            CriterioEquivalencia criterio)
+    private static string? ValidarCalculoAutomatico(
+        Alimento alimentoOrigen,
+        Alimento alimentoDestino,
+        CriterioEquivalencia criterio
+    )
     {
         if (!Enum.IsDefined(criterio))
         {
-            return
-                "El criterio de equivalencia no es válido.";
+            return "El criterio de equivalencia no es válido.";
         }
-
 
         if (alimentoOrigen.CantidadBase <= 0)
         {
-            return
-                $"El alimento '{alimentoOrigen.Nombre}' no posee una cantidad base válida.";
+            return $"El alimento '{alimentoOrigen.Nombre}' no posee una cantidad base válida.";
         }
-
 
         if (alimentoDestino.CantidadBase <= 0)
         {
-            return
-                $"El alimento '{alimentoDestino.Nombre}' no posee una cantidad base válida.";
+            return $"El alimento '{alimentoDestino.Nombre}' no posee una cantidad base válida.";
         }
 
+        var valorOrigen = CalculadoraEquivalencias.ObtenerValorCriterio(alimentoOrigen, criterio);
 
-        var valorOrigen =
-            CalculadoraEquivalencias
-                .ObtenerValorCriterio(
-                    alimentoOrigen,
-                    criterio
-                );
+        var valorDestino = CalculadoraEquivalencias.ObtenerValorCriterio(alimentoDestino, criterio);
 
-
-        var valorDestino =
-            CalculadoraEquivalencias
-                .ObtenerValorCriterio(
-                    alimentoDestino,
-                    criterio
-                );
-
-
-        if (!valorOrigen.HasValue ||
-            valorOrigen.Value <= 0)
+        if (!valorOrigen.HasValue || valorOrigen.Value <= 0)
         {
-            return
-                $"El alimento '{alimentoOrigen.Nombre}' no posee un valor válido de {criterio}.";
+            return $"El alimento '{alimentoOrigen.Nombre}' no posee un valor válido de {criterio}.";
         }
 
-
-        if (!valorDestino.HasValue ||
-            valorDestino.Value <= 0)
+        if (!valorDestino.HasValue || valorDestino.Value <= 0)
         {
-            return
-                $"El alimento '{alimentoDestino.Nombre}' no posee un valor válido de {criterio}.";
+            return $"El alimento '{alimentoDestino.Nombre}' no posee un valor válido de {criterio}.";
         }
-
 
         return null;
     }
-
 
     // ==========================================
     // CÁLCULO DE ALTERNATIVA
     // ==========================================
 
-    private static AlternativaItemComidaDto
-        CrearDto(
-            int id,
-            Alimento alimentoOrigen,
-            Alimento alimentoDestino,
-            int grupoId,
-            string grupo,
-            decimal cantidadOriginal,
-            CriterioEquivalencia criterio,
-            bool activa)
+    private static AlternativaItemComidaDto CrearDto(
+        int id,
+        Alimento alimentoOrigen,
+        Alimento alimentoDestino,
+        int grupoId,
+        string grupo,
+        decimal cantidadOriginal,
+        CriterioEquivalencia criterio,
+        bool activa
+    )
     {
         /*
          * Ya NO utilizamos:
@@ -1011,15 +713,12 @@ public class AlternativaItemComidaService
          * criterio del grupo.
          */
 
-        var cantidadCalculada =
-            CalculadoraEquivalencias
-                .CalcularCantidadDestino(
-                    cantidadOriginal,
-                    alimentoOrigen,
-                    alimentoDestino,
-                    criterio
-                );
-
+        var cantidadCalculada = CalculadoraEquivalencias.CalcularCantidadDestino(
+            cantidadOriginal,
+            alimentoOrigen,
+            alimentoDestino,
+            criterio
+        );
 
         /*
          * Como la cantidad calculada queda expresada
@@ -1028,92 +727,61 @@ public class AlternativaItemComidaService
          * sus calorías y macronutrientes.
          */
 
-        var resultadoNutricional =
-            CalculadoraNutricional
-                .Calcular(
-                    cantidadCalculada,
-                    alimentoDestino.CantidadBase,
-                    alimentoDestino.Calorias,
-                    alimentoDestino.Proteinas,
-                    alimentoDestino.Carbohidratos,
-                    alimentoDestino.Grasas
-                );
+        var resultadoNutricional = CalculadoraNutricional.Calcular(
+            cantidadCalculada,
+            alimentoDestino.CantidadBase,
+            alimentoDestino.Calorias,
+            alimentoDestino.Proteinas,
+            alimentoDestino.Carbohidratos,
+            alimentoDestino.Grasas
+        );
 
+        var nutricion = new NutricionCalculadaDto
+        {
+            Calorias = resultadoNutricional.Calorias,
 
-        var nutricion =
-            new NutricionCalculadaDto
-            {
-                Calorias =
-                    resultadoNutricional
-                        .Calorias,
+            Proteinas = resultadoNutricional.Proteinas,
 
-                Proteinas =
-                    resultadoNutricional
-                        .Proteinas,
+            Carbohidratos = resultadoNutricional.Carbohidratos,
 
-                Carbohidratos =
-                    resultadoNutricional
-                        .Carbohidratos,
-
-                Grasas =
-                    resultadoNutricional
-                        .Grasas
-            };
-
+            Grasas = resultadoNutricional.Grasas,
+        };
 
         return new AlternativaItemComidaDto
         {
-            Id =
-                id,
+            Id = id,
 
-            AlimentoId =
-                alimentoDestino.Id,
+            AlimentoId = alimentoDestino.Id,
 
-            Alimento =
-                alimentoDestino.Nombre,
+            Alimento = alimentoDestino.Nombre,
 
-            GrupoEquivalenciaId =
-                grupoId,
+            GrupoEquivalenciaId = grupoId,
 
-            GrupoEquivalencia =
-                grupo,
+            GrupoEquivalencia = grupo,
 
-            CantidadCalculada =
-                cantidadCalculada,
+            CantidadCalculada = cantidadCalculada,
 
-            UnidadMedida =
-                alimentoDestino
-                    .UnidadBase
-                    .ToString(),
+            UnidadMedida = alimentoDestino.UnidadBase.ToString(),
 
-            Activa =
-                activa,
+            Activa = activa,
 
-            Nutricion =
-                nutricion
+            Nutricion = nutricion,
         };
     }
-
 
     // ==========================================
     // ERROR
     // ==========================================
 
-    private static ResultadoDieta<T>
-        Error<T>(
-            string mensaje,
-            TipoErrorDieta tipo)
+    private static ResultadoDieta<T> Error<T>(string mensaje, TipoErrorDieta tipo)
     {
         return new ResultadoDieta<T>
         {
-            Exitoso =
-                false,
+            Exitoso = false,
 
-            Error =
-                mensaje,
+            Error = mensaje,
 
-            TipoError =
-                tipo
+            TipoError = tipo,
         };
     }
 }

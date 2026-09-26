@@ -101,6 +101,48 @@ public class RegistrosDiariosController
     }
 
 
+
+    // ==========================================
+    // NUTRICIONISTA - REGISTRO POR FECHA
+    // ==========================================
+
+    [Authorize(
+        Roles =
+            Roles.Nutricionista
+    )]
+    [HttpGet(
+        "pacientes/{pacienteId:int}/registros-diarios/{fecha}"
+    )]
+    public async Task<IActionResult>
+        ObtenerPacientePorFecha(
+            int pacienteId,
+            DateOnly fecha)
+    {
+        var nutricionistaId =
+            ObtenerUsuarioId();
+
+
+        if (!nutricionistaId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+
+        var resultado =
+            await _service
+                .ObtenerPacientePorFechaAsync(
+                    nutricionistaId.Value,
+                    pacienteId,
+                    fecha
+                );
+
+
+        return Responder(
+            resultado
+        );
+    }
+
+
     // ==========================================
     // PACIENTE - UNA FECHA
     // ==========================================

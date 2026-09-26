@@ -1,77 +1,40 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using NutriApi.DTOs.Dashboard;
-
 using NutriApp.Data;
 using NutriApp.Enums;
 
 namespace NutriApi.Services.Dashboard;
 
-public class DashboardNutricionistaService
-    : IDashboardNutricionistaService
+public class DashboardNutricionistaService : IDashboardNutricionistaService
 {
-    private readonly NutriAppDbContext
-        _context;
+    private readonly NutriAppDbContext _context;
 
+    private const int DiasProximosVencimientos = 7;
 
-    private const int
-        DiasProximosVencimientos =
-            7;
-
-
-    public DashboardNutricionistaService(
-        NutriAppDbContext context)
+    public DashboardNutricionistaService(NutriAppDbContext context)
     {
-        _context =
-            context;
+        _context = context;
     }
 
-
-    public async Task<DashboardNutricionistaDto>
-        ObtenerAsync(
-            int nutricionistaId)
+    public async Task<DashboardNutricionistaDto> ObtenerAsync(int nutricionistaId)
     {
-        var hoy =
-            ObtenerFechaActualArgentina();
+        var hoy = ObtenerFechaActualArgentina();
 
-
-        var limiteProximosVencimientos =
-            hoy.AddDays(
-                DiasProximosVencimientos
-            );
-
+        var limiteProximosVencimientos = hoy.AddDays(DiasProximosVencimientos);
 
         // ======================================
         // PACIENTES
         // ======================================
 
-        var pacientesQuery =
-            _context.Pacientes
-                .AsNoTracking()
-                .Where(p =>
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
+        var pacientesQuery = _context
+            .Pacientes.AsNoTracking()
+            .Where(p => p.NutricionistaId == nutricionistaId);
 
+        var totalPacientes = await pacientesQuery.CountAsync();
 
-        var totalPacientes =
-            await pacientesQuery
-                .CountAsync();
+        var pacientesActivos = await pacientesQuery.CountAsync(p => p.Activo);
 
-
-        var pacientesActivos =
-            await pacientesQuery
-                .CountAsync(p =>
-                    p.Activo
-                );
-
-
-        var pacientesInactivos =
-            await pacientesQuery
-                .CountAsync(p =>
-                    !p.Activo
-                );
-
+        var pacientesInactivos = await pacientesQuery.CountAsync(p => !p.Activo);
 
         /*
          * Los pacientes son creados inicialmente
@@ -81,50 +44,22 @@ public class DashboardNutricionistaService
          * el paciente activa la cuenta.
          */
 
-        var pendientesActivacion =
-            await pacientesQuery
-                .CountAsync(p =>
-                    p.PasswordHash == null
-                );
-
-
+        var pendientesActivacion = await pacientesQuery.CountAsync(p =>
+            p.Activo && p.PasswordHash == null
+        );
         // ======================================
         // DIETAS
         // ======================================
 
-        var dietasQuery =
-            _context.Dietas
-                .AsNoTracking()
-                .Where(d =>
-                    d.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
+        var dietasQuery = _context
+            .Dietas.AsNoTracking()
+            .Where(d => d.Paciente.NutricionistaId == nutricionistaId);
 
+        var dietasBorrador = await dietasQuery.CountAsync(d => d.Estado == EstadoDieta.Borrador);
 
-        var dietasBorrador =
-            await dietasQuery
-                .CountAsync(d =>
-                    d.Estado ==
-                    EstadoDieta.Borrador
-                );
+        var dietasActivas = await dietasQuery.CountAsync(d => d.Estado == EstadoDieta.Activa);
 
-
-        var dietasActivas =
-            await dietasQuery
-                .CountAsync(d =>
-                    d.Estado ==
-                    EstadoDieta.Activa
-                );
-
-
-        var dietasArchivadas =
-            await dietasQuery
-                .CountAsync(d =>
-                    d.Estado ==
-                    EstadoDieta.Archivada
-                );
-
+        var dietasArchivadas = await dietasQuery.CountAsync(d => d.Estado == EstadoDieta.Archivada);
 
         // ======================================
         // SEGUIMIENTOS PENDIENTES
@@ -138,26 +73,15 @@ public class DashboardNutricionistaService
          * del nutricionista autenticado.
          */
 
-        var seguimientosPendientesQuery =
-            _context
-                .SeguimientosSemanalesPacientes
-                .AsNoTracking()
-                .Where(s =>
-                    s.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                    &&
-                    s.Paciente.Activo
-                    &&
-                    s.FechaRevisionNutricionista ==
-                    null
-                );
+        var seguimientosPendientesQuery = _context
+            .SeguimientosSemanalesPacientes.AsNoTracking()
+            .Where(s =>
+                s.Paciente.NutricionistaId == nutricionistaId
+                && s.Paciente.Activo
+                && s.FechaRevisionNutricionista == null
+            );
 
-
-        var cantidadSeguimientosPendientes =
-            await seguimientosPendientesQuery
-                .CountAsync();
-
+        var cantidadSeguimientosPendientes = await seguimientosPendientesQuery.CountAsync();
 
         /*
          * Para la lista del dashboard mostramos
@@ -166,38 +90,24 @@ public class DashboardNutricionistaService
          * El contador sí contiene TODOS.
          */
 
-        var seguimientosPendientes =
-            await seguimientosPendientesQuery
-                .OrderBy(s =>
-                    s.FechaRespuesta
-                )
-                .Take(5)
-                .Select(s =>
-                    new SeguimientoPendienteDashboardDto
-                    {
-                        SeguimientoId =
-                            s.Id,
+        var seguimientosPendientes = await seguimientosPendientesQuery
+            .OrderBy(s => s.FechaRespuesta)
+            .Take(5)
+            .Select(s => new SeguimientoPendienteDashboardDto
+            {
+                SeguimientoId = s.Id,
 
-                        PacienteId =
-                            s.PacienteId,
+                PacienteId = s.PacienteId,
 
-                        NombrePaciente =
-                            s.Paciente.Nombre +
-                            " " +
-                            s.Paciente.Apellido,
+                NombrePaciente = s.Paciente.Nombre + " " + s.Paciente.Apellido,
 
-                        FechaInicioSemana =
-                            s.FechaInicioSemana,
+                FechaInicioSemana = s.FechaInicioSemana,
 
-                        FechaFinSemana =
-                            s.FechaFinSemana,
+                FechaFinSemana = s.FechaFinSemana,
 
-                        FechaRespuesta =
-                            s.FechaRespuesta
-                    }
-                )
-                .ToListAsync();
-
+                FechaRespuesta = s.FechaRespuesta,
+            })
+            .ToListAsync();
 
         // ======================================
         // ÚLTIMO PAGO POR PACIENTE
@@ -213,68 +123,38 @@ public class DashboardNutricionistaService
          * ProximoVencimiento.
          */
 
-        var ultimosPagos =
-            await _context
-                .PagosPacientes
-                .AsNoTracking()
-                .Where(p =>
-                    p.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                    &&
-                    p.Paciente.Activo
-                )
-                .GroupBy(p =>
-                    p.PacienteId
-                )
-                .Select(grupo =>
-                    grupo
-                        .OrderByDescending(p =>
-                            p.FechaPago
-                        )
-                        .ThenByDescending(p =>
-                            p.Id
-                        )
-                        .Select(p =>
-                            new
-                            {
-                                p.PacienteId,
+        var ultimosPagos = await _context
+            .PagosPacientes.AsNoTracking()
+            .Where(p => p.Paciente.NutricionistaId == nutricionistaId && p.Paciente.Activo)
+            .GroupBy(p => p.PacienteId)
+            .Select(grupo =>
+                grupo
+                    .OrderByDescending(p => p.FechaPago)
+                    .ThenByDescending(p => p.Id)
+                    .Select(p => new
+                    {
+                        p.PacienteId,
 
-                                NombrePaciente =
-                                    p.Paciente.Nombre +
-                                    " " +
-                                    p.Paciente.Apellido,
+                        NombrePaciente = p.Paciente.Nombre + " " + p.Paciente.Apellido,
 
-                                UltimoPago =
-                                    p.FechaPago,
+                        UltimoPago = p.FechaPago,
 
-                                p.ProximoVencimiento
-                            }
-                        )
-                        .First()
-                )
-                .ToListAsync();
-
+                        p.ProximoVencimiento,
+                    })
+                    .First()
+            )
+            .ToListAsync();
 
         // ======================================
         // COBROS VENCIDOS
         // ======================================
 
-        var cobrosVencidosTodos =
-            ultimosPagos
-                .Where(p =>
-                    p.ProximoVencimiento <
-                    hoy
-                )
-                .OrderBy(p =>
-                    p.ProximoVencimiento
-                )
-                .ToList();
+        var cobrosVencidosTodos = ultimosPagos
+            .Where(p => p.ProximoVencimiento < hoy)
+            .OrderBy(p => p.ProximoVencimiento)
+            .ToList();
 
-
-        var cantidadCobrosVencidos =
-            cobrosVencidosTodos.Count;
-
+        var cantidadCobrosVencidos = cobrosVencidosTodos.Count;
 
         /*
          * Igual que seguimientos:
@@ -283,32 +163,21 @@ public class DashboardNutricionistaService
          * detalle  -> primeros 5
          */
 
-        var cobrosVencidos =
-            cobrosVencidosTodos
-                .Take(5)
-                .Select(p =>
-                    new CobroVencidoDashboardDto
-                    {
-                        PacienteId =
-                            p.PacienteId,
+        var cobrosVencidos = cobrosVencidosTodos
+            .Take(5)
+            .Select(p => new CobroVencidoDashboardDto
+            {
+                PacienteId = p.PacienteId,
 
-                        NombrePaciente =
-                            p.NombrePaciente,
+                NombrePaciente = p.NombrePaciente,
 
-                        UltimoPago =
-                            p.UltimoPago,
+                UltimoPago = p.UltimoPago,
 
-                        ProximoVencimiento =
-                            p.ProximoVencimiento,
+                ProximoVencimiento = p.ProximoVencimiento,
 
-                        DiasVencido =
-                            hoy.DayNumber -
-                            p.ProximoVencimiento
-                                .DayNumber
-                    }
-                )
-                .ToList();
-
+                DiasVencido = hoy.DayNumber - p.ProximoVencimiento.DayNumber,
+            })
+            .ToList();
 
         // ======================================
         // COBROS PRÓXIMOS A VENCER
@@ -324,89 +193,53 @@ public class DashboardNutricionistaService
          * Un vencimiento de hoy NO está vencido.
          */
 
-        var cobrosProximosTodos =
-            ultimosPagos
-                .Where(p =>
-                    p.ProximoVencimiento >=
-                    hoy
-                    &&
-                    p.ProximoVencimiento <=
-                    limiteProximosVencimientos
-                )
-                .OrderBy(p =>
-                    p.ProximoVencimiento
-                )
-                .ToList();
+        var cobrosProximosTodos = ultimosPagos
+            .Where(p =>
+                p.ProximoVencimiento >= hoy && p.ProximoVencimiento <= limiteProximosVencimientos
+            )
+            .OrderBy(p => p.ProximoVencimiento)
+            .ToList();
 
+        var cantidadCobrosProximos = cobrosProximosTodos.Count;
 
-        var cantidadCobrosProximos =
-            cobrosProximosTodos.Count;
+        var cobrosProximos = cobrosProximosTodos
+            .Take(5)
+            .Select(p => new CobroProximoDashboardDto
+            {
+                PacienteId = p.PacienteId,
 
+                NombrePaciente = p.NombrePaciente,
 
-        var cobrosProximos =
-            cobrosProximosTodos
-                .Take(5)
-                .Select(p =>
-                    new CobroProximoDashboardDto
-                    {
-                        PacienteId =
-                            p.PacienteId,
+                UltimoPago = p.UltimoPago,
 
-                        NombrePaciente =
-                            p.NombrePaciente,
+                ProximoVencimiento = p.ProximoVencimiento,
 
-                        UltimoPago =
-                            p.UltimoPago,
-
-                        ProximoVencimiento =
-                            p.ProximoVencimiento,
-
-                        DiasParaVencimiento =
-                            p.ProximoVencimiento
-                                .DayNumber -
-                            hoy.DayNumber
-                    }
-                )
-                .ToList();
-
+                DiasParaVencimiento = p.ProximoVencimiento.DayNumber - hoy.DayNumber,
+            })
+            .ToList();
 
         // ======================================
         // PACIENTES RECIENTES
         // ======================================
 
-        var pacientesRecientes =
-            await pacientesQuery
-                .OrderByDescending(p =>
-                    p.FechaCreacion
-                )
-                .Take(5)
-                .Select(p =>
-                    new PacienteRecienteDashboardDto
-                    {
-                        Id =
-                            p.Id,
+        var pacientesRecientes = await pacientesQuery
+            .OrderByDescending(p => p.FechaCreacion)
+            .Take(5)
+            .Select(p => new PacienteRecienteDashboardDto
+            {
+                Id = p.Id,
 
-                        NombreCompleto =
-                            p.Nombre +
-                            " " +
-                            p.Apellido,
+                NombreCompleto = p.Nombre + " " + p.Apellido,
 
-                        Email =
-                            p.Email
-                            ?? string.Empty,
+                Email = p.Email ?? string.Empty,
 
-                        Activo =
-                            p.Activo,
+                Activo = p.Activo,
 
-                        CuentaActivada =
-                            p.PasswordHash != null,
+                CuentaActivada = p.PasswordHash != null,
 
-                        FechaCreacion =
-                            p.FechaCreacion
-                    }
-                )
-                .ToListAsync();
-
+                FechaCreacion = p.FechaCreacion,
+            })
+            .ToListAsync();
 
         // ======================================
         // RESPUESTA
@@ -418,102 +251,67 @@ public class DashboardNutricionistaService
             // PACIENTES
             // ------------------------------
 
-            TotalPacientes =
-                totalPacientes,
+            TotalPacientes = totalPacientes,
 
-            PacientesActivos =
-                pacientesActivos,
+            PacientesActivos = pacientesActivos,
 
-            PacientesInactivos =
-                pacientesInactivos,
+            PacientesInactivos = pacientesInactivos,
 
-            PacientesPendientesActivacion =
-                pendientesActivacion,
-
+            PacientesPendientesActivacion = pendientesActivacion,
 
             // ------------------------------
             // DIETAS
             // ------------------------------
 
-            DietasBorrador =
-                dietasBorrador,
+            DietasBorrador = dietasBorrador,
 
-            DietasActivas =
-                dietasActivas,
+            DietasActivas = dietasActivas,
 
-            DietasArchivadas =
-                dietasArchivadas,
-
+            DietasArchivadas = dietasArchivadas,
 
             // ------------------------------
             // SEGUIMIENTOS
             // ------------------------------
 
-            SeguimientosPendientesRevision =
-                cantidadSeguimientosPendientes,
+            SeguimientosPendientesRevision = cantidadSeguimientosPendientes,
 
-            SeguimientosPendientes =
-                seguimientosPendientes,
-
+            SeguimientosPendientes = seguimientosPendientes,
 
             // ------------------------------
             // COBROS
             // ------------------------------
 
-            CobrosVencidos =
-                cantidadCobrosVencidos,
+            CobrosVencidos = cantidadCobrosVencidos,
 
-            CobrosProximosAVencer =
-                cantidadCobrosProximos,
+            CobrosProximosAVencer = cantidadCobrosProximos,
 
-            CobrosVencidosDetalle =
-                cobrosVencidos,
+            CobrosVencidosDetalle = cobrosVencidos,
 
-            CobrosProximosAVencerDetalle =
-                cobrosProximos,
-
+            CobrosProximosAVencerDetalle = cobrosProximos,
 
             // ------------------------------
             // ACTIVIDAD
             // ------------------------------
 
-            PacientesRecientes =
-                pacientesRecientes
+            PacientesRecientes = pacientesRecientes,
         };
     }
-
 
     // ==========================================
     // FECHA LOCAL
     // ==========================================
 
-    private static DateOnly
-        ObtenerFechaActualArgentina()
+    private static DateOnly ObtenerFechaActualArgentina()
     {
         try
         {
-            var zonaHoraria =
-                TimeZoneInfo
-                    .FindSystemTimeZoneById(
-                        "America/Argentina/Buenos_Aires"
-                    );
+            var zonaHoraria = TimeZoneInfo.FindSystemTimeZoneById("America/Argentina/Buenos_Aires");
 
+            var fechaLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaHoraria);
 
-            var fechaLocal =
-                TimeZoneInfo
-                    .ConvertTimeFromUtc(
-                        DateTime.UtcNow,
-                        zonaHoraria
-                    );
-
-
-            return DateOnly
-                .FromDateTime(
-                    fechaLocal
-                );
+            return DateOnly.FromDateTime(fechaLocal);
         }
-        catch (
-            TimeZoneNotFoundException)
+        catch (TimeZoneNotFoundException)
         {
             /*
              * Fallback para evitar romper
@@ -521,20 +319,11 @@ public class DashboardNutricionistaService
              * reconoce el identificador IANA.
              */
 
-            return DateOnly
-                .FromDateTime(
-                    DateTime.UtcNow
-                        .AddHours(-3)
-                );
+            return DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-3));
         }
-        catch (
-            InvalidTimeZoneException)
+        catch (InvalidTimeZoneException)
         {
-            return DateOnly
-                .FromDateTime(
-                    DateTime.UtcNow
-                        .AddHours(-3)
-                );
+            return DateOnly.FromDateTime(DateTime.UtcNow.AddHours(-3));
         }
     }
 }

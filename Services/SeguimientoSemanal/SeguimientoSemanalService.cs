@@ -45,10 +45,10 @@ public class SeguimientoSemanalService
     // ==========================================
 
     public async Task<
-        ResultadoSeguimientoSemanal<
-            EstadoSeguimientoSemanalDto>>
-        ObtenerEstadoActualAsync(
-            int pacienteId)
+     ResultadoSeguimientoSemanal<
+         EstadoSeguimientoSemanalDto>>
+     ObtenerEstadoActualAsync(
+         int pacienteId)
     {
         var pacienteExiste =
             await _context.Pacientes
@@ -99,16 +99,22 @@ public class SeguimientoSemanalService
                 .FirstOrDefaultAsync();
 
 
+        var completado =
+            seguimiento is not null;
+
+
         var dto =
             new EstadoSeguimientoSemanalDto
             {
                 Disponible =
                     EstaDisponible(
                         hoy
-                    ),
+                    )
+                    &&
+                    !completado,
 
                 Completado =
-                    seguimiento is not null,
+                    completado,
 
                 FechaInicioSemana =
                     semana.Inicio,
@@ -125,8 +131,6 @@ public class SeguimientoSemanalService
             dto
         );
     }
-
-
     // ==========================================
     // PACIENTE - CREAR SEGUIMIENTO ACTUAL
     // ==========================================

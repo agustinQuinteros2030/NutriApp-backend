@@ -152,11 +152,11 @@ public class RecuperacionPasswordService
     // ==========================================
 
     public async Task<
-        ResultadoRecuperacionPassword<
-            RecuperacionPasswordPacienteGeneradaDto>>
-        GenerarParaPacienteAsync(
-            int nutricionistaId,
-            int pacienteId)
+      ResultadoRecuperacionPassword<
+          RecuperacionPasswordPacienteGeneradaDto>>
+      GenerarParaPacienteAsync(
+          int nutricionistaId,
+          int pacienteId)
     {
         // ======================================
         // PACIENTE + OWNERSHIP
@@ -176,6 +176,21 @@ public class RecuperacionPasswordService
                 "Paciente no encontrado.",
                 TipoErrorRecuperacionPassword
                     .NoEncontrado
+            );
+        }
+
+
+        // ======================================
+        // CUENTA ACTIVA
+        // ======================================
+
+        if (!paciente.Activo)
+        {
+            return Error<
+                RecuperacionPasswordPacienteGeneradaDto>(
+                "La cuenta del paciente se encuentra desactivada.",
+                TipoErrorRecuperacionPassword
+                    .Validacion
             );
         }
 
@@ -213,13 +228,6 @@ public class RecuperacionPasswordService
         // ======================================
         // EMAIL
         // ======================================
-
-        /*
-         * Aunque no enviamos email,
-         * seguimos utilizándolo para localizar
-         * posteriormente al usuario mediante
-         * Identity en RestablecerAsync.
-         */
 
         if (string.IsNullOrWhiteSpace(
             paciente.Email))
@@ -259,12 +267,6 @@ public class RecuperacionPasswordService
                     paciente
                 );
 
-
-        /*
-         * Convertimos el token generado por
-         * Identity a Base64URL para poder
-         * transportarlo dentro del enlace.
-         */
 
         var tokenCodificado =
             WebEncoders
@@ -309,19 +311,6 @@ public class RecuperacionPasswordService
         // RESPUESTA
         // ======================================
 
-        /*
-         * El enlace se devuelve únicamente
-         * al nutricionista autenticado dueño
-         * del paciente.
-         *
-         * El frontend podrá:
-         *
-         * - abrir WhatsApp;
-         * - copiar el enlace.
-         *
-         * No debe persistirlo.
-         */
-
         return Exito(
             new RecuperacionPasswordPacienteGeneradaDto
             {
@@ -343,15 +332,14 @@ public class RecuperacionPasswordService
         );
     }
 
-
     // ==========================================
     // RESTABLECER CONTRASEÑA
     // ==========================================
 
     public async Task<
-        ResultadoRecuperacionPassword<bool>>
-        RestablecerAsync(
-            RestablecerPasswordDto dto)
+     ResultadoRecuperacionPassword<bool>>
+     RestablecerAsync(
+         RestablecerPasswordDto dto)
     {
         if (string.IsNullOrWhiteSpace(
             dto.Email))
@@ -398,15 +386,34 @@ public class RecuperacionPasswordService
                 );
 
 
-        /*
-         * No revelamos si el email existe.
-         */
+        // ======================================
+        // ANTI-ENUMERACIÓN
+        // ======================================
 
         if (usuario is null)
         {
             return TokenInvalido();
         }
 
+
+        // ======================================
+        // CUENTA ACTIVA
+        // ======================================
+
+        /*
+         * No revelamos públicamente si la cuenta
+         * está desactivada.
+         */
+
+        if (!usuario.Activo)
+        {
+            return TokenInvalido();
+        }
+
+
+        // ======================================
+        // CUENTA YA ACTIVADA
+        // ======================================
 
         /*
          * Una cuenta todavía no activada
@@ -492,8 +499,7 @@ public class RecuperacionPasswordService
 
             /*
              * El resto normalmente corresponde
-             * a políticas de contraseña de
-             * Identity.
+             * a políticas de contraseña de Identity.
              */
 
             var errores =

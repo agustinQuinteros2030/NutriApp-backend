@@ -29,18 +29,22 @@ public class AuthController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("registro-nutricionista")]
+    [EnableRateLimiting("AuthSensitive")]
     public async Task<IActionResult>
-        RegistrarNutricionista(
-            RegistroNutricionistaDto dto)
+      RegistrarNutricionista(
+          RegistroNutricionistaDto dto)
     {
         var resultado =
             await _authService
-                .RegistrarNutricionistaAsync(dto);
+                .RegistrarNutricionistaAsync(
+                    dto
+                );
 
 
-        return ConvertirResultado(resultado);
+        return ConvertirResultado(
+            resultado
+        );
     }
-
 
     // =====================================
     // LOGIN

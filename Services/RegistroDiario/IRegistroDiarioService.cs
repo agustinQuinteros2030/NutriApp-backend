@@ -37,4 +37,14 @@ public interface IRegistroDiarioService
             int nutricionistaId,
             int pacienteId
         );
+
+
+    Task<
+    ResultadoRegistroDiario<
+        RegistroDiarioPacienteDto>>
+    ObtenerPacientePorFechaAsync(
+        int nutricionistaId,
+        int pacienteId,
+        DateOnly fecha
+    );
 }

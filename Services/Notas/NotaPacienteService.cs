@@ -23,7 +23,6 @@ public class NotaPacienteService
     // ==========================================
     // CREAR NOTA
     // ==========================================
-
     public async Task<
         ResultadoNotaPaciente<NotaPacienteDto>>
         CrearAsync(
@@ -51,17 +50,18 @@ public class NotaPacienteService
         }
 
 
-        var contenido =
-            dto.Contenido.Trim();
-
-
-        if (string.IsNullOrWhiteSpace(contenido))
+        if (string.IsNullOrWhiteSpace(
+            dto.Contenido))
         {
             return Error<NotaPacienteDto>(
                 "El contenido de la nota es obligatorio.",
                 TipoErrorNotaPaciente.Validacion
             );
         }
+
+
+        var contenido =
+            dto.Contenido.Trim();
 
 
         var nota =
@@ -101,7 +101,6 @@ public class NotaPacienteService
                 TipoErrorNotaPaciente.Ninguno
         };
     }
-
 
     // ==========================================
     // LISTAR NOTAS
@@ -261,12 +260,12 @@ public class NotaPacienteService
     // ==========================================
 
     public async Task<
-        ResultadoNotaPaciente<NotaPacienteDto>>
-        EditarAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int notaId,
-            EditarNotaPacienteDto dto)
+    ResultadoNotaPaciente<NotaPacienteDto>>
+    EditarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int notaId,
+        EditarNotaPacienteDto dto)
     {
         var nota =
             await _context.NotasPacientes
@@ -297,17 +296,18 @@ public class NotaPacienteService
         }
 
 
-        var contenido =
-            dto.Contenido.Trim();
-
-
-        if (string.IsNullOrWhiteSpace(contenido))
+        if (string.IsNullOrWhiteSpace(
+            dto.Contenido))
         {
             return Error<NotaPacienteDto>(
                 "El contenido de la nota es obligatorio.",
                 TipoErrorNotaPaciente.Validacion
             );
         }
+
+
+        var contenido =
+            dto.Contenido.Trim();
 
 
         nota.Contenido =
@@ -332,7 +332,6 @@ public class NotaPacienteService
                 TipoErrorNotaPaciente.Ninguno
         };
     }
-
 
     // ==========================================
     // MAPPER

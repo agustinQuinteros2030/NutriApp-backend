@@ -148,7 +148,7 @@ public class CategoriasAlimentosController
 
             _ =>
                 StatusCode(
-                    500,
+                     StatusCodes.Status500InternalServerError,
                     new
                     {
                         mensaje =

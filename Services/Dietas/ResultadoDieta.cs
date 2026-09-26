@@ -16,5 +16,5 @@ public enum TipoErrorDieta
     Ninguno = 0,
     Validacion = 1,
     NoEncontrado = 2,
-    ErrorInterno = 3
+    ErrorInterno = 3,
 }

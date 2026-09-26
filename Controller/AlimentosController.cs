@@ -196,7 +196,7 @@ public class AlimentosController : ControllerBase
 
             _ =>
                 StatusCode(
-                    500,
+                     StatusCodes.Status500InternalServerError,
                     new
                     {
                         mensaje =

@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace NutriApi.Controllers;
 
 [ApiController]
-[Authorize(Roles = "Paciente")]
+[Authorize(Roles = Roles.Paciente)]
 [Route("api/paciente")]
 public class MiPlanController
     : ControllerBase

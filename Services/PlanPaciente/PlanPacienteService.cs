@@ -948,4 +948,182 @@ public class PlanPacienteService
                     .ToList()
         };
     }
+
+    public async Task<MiPlanDto?>
+    ObtenerPlanPorDietaAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId)
+    {
+        var dieta =
+            await _context.Dietas
+                .AsNoTracking()
+
+                .Where(d =>
+                    d.Id ==
+                    dietaId
+                    &&
+                    d.PacienteId ==
+                    pacienteId
+                    &&
+                    d.Paciente
+                        .NutricionistaId ==
+                    nutricionistaId
+                )
+
+                // HIDRATACIÓN
+                .Include(d =>
+                    d.Hidratacion
+                )
+
+                // SUPLEMENTACIÓN
+                .Include(d =>
+                    d.Suplementacion
+                )
+                    .ThenInclude(s =>
+                        s.Items
+                    )
+
+                // ITEMS + ALIMENTOS
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alimento
+                                )
+
+                // ALTERNATIVAS + ALIMENTO
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alternativas
+                                )
+                                    .ThenInclude(a =>
+                                        a.Alimento
+                                    )
+
+                // ALTERNATIVAS + GRUPO
+                .Include(d =>
+                    d.Comidas
+                )
+                    .ThenInclude(c =>
+                        c.Secciones
+                    )
+                        .ThenInclude(s =>
+                            s.Opciones
+                        )
+                            .ThenInclude(o =>
+                                o.Items
+                            )
+                                .ThenInclude(i =>
+                                    i.Alternativas
+                                )
+                                    .ThenInclude(a =>
+                                        a.GrupoEquivalencia
+                                    )
+
+                .AsSplitQuery()
+
+                .FirstOrDefaultAsync();
+
+
+        if (dieta is null)
+        {
+            return null;
+        }
+
+
+        var todosLosItems =
+            dieta.Comidas
+                .SelectMany(c =>
+                    c.Secciones
+                )
+                .SelectMany(s =>
+                    s.Opciones
+                )
+                .SelectMany(o =>
+                    o.Items
+                )
+                .ToList();
+
+
+        var alternativasActivas =
+            todosLosItems
+                .SelectMany(i =>
+                    i.Alternativas
+                )
+                .Where(a =>
+                    a.Activa
+                )
+                .ToList();
+
+
+        var gruposIds =
+            alternativasActivas
+                .Select(a =>
+                    a.GrupoEquivalenciaId
+                )
+                .Distinct()
+                .ToList();
+
+
+        var alimentosIds =
+            todosLosItems
+                .Select(i =>
+                    i.AlimentoId
+                )
+                .Concat(
+                    alternativasActivas
+                        .Select(a =>
+                            a.AlimentoId
+                        )
+                )
+                .Distinct()
+                .ToList();
+
+
+        var equivalencias =
+            gruposIds.Count == 0
+                ? new List<EquivalenciaAlimento>()
+                : await _context
+                    .EquivalenciasAlimentos
+                    .AsNoTracking()
+                    .Where(e =>
+                        gruposIds.Contains(
+                            e.GrupoEquivalenciaId
+                        )
+                        &&
+                        alimentosIds.Contains(
+                            e.AlimentoId
+                        )
+                        &&
+                        e.Activa
+                    )
+                    .ToListAsync();
+
+
+        return MapearPlan(
+            dieta,
+            equivalencias
+        );
+    }
 }

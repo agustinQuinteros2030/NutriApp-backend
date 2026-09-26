@@ -230,7 +230,13 @@ public class TurnoService
                 TipoErrorTurno.NoEncontrado
             );
         }
-
+        if (!turno.Paciente.Activo)
+        {
+            return Error<TurnoDto>(
+                "No se pueden reprogramar turnos de un paciente inactivo.",
+                TipoErrorTurno.Validacion
+            );
+        }
 
         if (turno.Estado !=
             EstadoTurno.Programado)

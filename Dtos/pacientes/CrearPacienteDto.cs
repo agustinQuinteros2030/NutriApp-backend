@@ -32,6 +32,17 @@ public class CrearPacienteDto
 
     public decimal? PesoInicial { get; set; }
 
+
+    // Altura expresada en metros.
+    // Ejemplo: 1.80
+    [Range(
+        typeof(decimal),
+        "0.50",
+        "2.50",
+        ErrorMessage =
+            "La altura debe estar entre 0,50 y 2,50 metros."
+    )]
+
     public decimal? Altura { get; set; }
 
     public DateOnly? FechaInicio { get; set; }
