@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NutriApp.Models.Alimentos;
+using NutriApp.Models.ControlSeguimiento;
 using NutriApp.Models.Dietas;
 using NutriApp.Models.Notificaciones;
 using NutriApp.Models.Pacientes;
@@ -94,6 +95,12 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // =========================
     public DbSet<Turno> Turnos { get; set; }
 
+    // =========================
+    // CONTROL DE SEGUIMIENTO
+    // =========================
+
+    public DbSet<ControlSeguimientoPaciente> ControlesSeguimientoPacientes { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // MUY IMPORTANTE porque usamos Identity
@@ -116,6 +123,8 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
         ConfigurarTurnos(modelBuilder);
 
         ConfigurarPlantillasDietas(modelBuilder);
+
+        ConfigurarControlSeguimiento(modelBuilder);
     }
 
     private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
@@ -690,6 +699,58 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
             entity.HasIndex(p => p.NutricionistaId);
 
             entity.HasIndex(p => new { p.NutricionistaId, p.Nombre });
+        });
+    }
+
+    // ==========================================================
+    // CONTROL DE SEGUIMIENTO
+    // ==========================================================
+
+    private static void ConfigurarControlSeguimiento(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<ControlSeguimientoPaciente>(entity =>
+        {
+            entity.HasKey(c => c.Id);
+
+            // ======================================
+            // PACIENTE
+            // ======================================
+
+            entity
+                .HasOne<Paciente>()
+                .WithOne()
+                .HasForeignKey<ControlSeguimientoPaciente>(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            /*
+             * Un paciente solamente puede tener
+             * una configuración de seguimiento.
+             */
+            entity.HasIndex(c => c.PacienteId).IsUnique();
+
+            // ======================================
+            // CONFIGURACIÓN
+            // ======================================
+
+            entity.Property(c => c.Activo).IsRequired().HasDefaultValue(true);
+
+            entity.Property(c => c.FrecuenciaDias).IsRequired();
+
+            entity.Property(c => c.ProximoSeguimiento).IsRequired();
+
+            entity.Property(c => c.FechaCreacion).IsRequired();
+
+            // ======================================
+            // CONSULTAS DE DASHBOARD
+            // ======================================
+
+            /*
+             * Vamos a consultar muchísimo:
+             *
+             * WHERE Activo = true
+             * ORDER BY ProximoSeguimiento
+             */
+            entity.HasIndex(c => new { c.Activo, c.ProximoSeguimiento });
         });
     }
 }

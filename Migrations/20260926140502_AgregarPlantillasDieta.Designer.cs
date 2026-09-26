@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using NutriApp.Data;
@@ -11,9 +12,11 @@ using NutriApp.Data;
 namespace NutriApi.Migrations
 {
     [DbContext(typeof(NutriAppDbContext))]
-    partial class NutriAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260926140502_AgregarPlantillasDieta")]
+    partial class AgregarPlantillasDieta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -305,47 +308,6 @@ namespace NutriApi.Migrations
                     b.HasIndex("NutricionistaId");
 
                     b.ToTable("GruposEquivalencias");
-                });
-
-            modelBuilder.Entity("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("Activo")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<DateTime?>("FechaActualizacion")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("FechaCreacion")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("FrecuenciaDias")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PacienteId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateOnly>("ProximoSeguimiento")
-                        .HasColumnType("date");
-
-                    b.Property<DateOnly?>("UltimoSeguimiento")
-                        .HasColumnType("date");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PacienteId")
-                        .IsUnique();
-
-                    b.HasIndex("Activo", "ProximoSeguimiento");
-
-                    b.ToTable("ControlesSeguimientoPacientes");
                 });
 
             modelBuilder.Entity("NutriApp.Models.Dietas.AlternativaItemComida", b =>
@@ -1247,15 +1209,6 @@ namespace NutriApi.Migrations
                         .IsRequired();
 
                     b.Navigation("Nutricionista");
-                });
-
-            modelBuilder.Entity("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", b =>
-                {
-                    b.HasOne("NutriApp.Models.Usuarios.Paciente", null)
-                        .WithOne()
-                        .HasForeignKey("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", "PacienteId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("NutriApp.Models.Dietas.AlternativaItemComida", b =>

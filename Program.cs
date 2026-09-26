@@ -11,6 +11,7 @@ using NutriApi.Inicializadores;
 using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.ControlSeguimiento;
 using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
 using NutriApi.Services.Equivalencias;
@@ -21,6 +22,7 @@ using NutriApi.Services.Pacientes;
 using NutriApi.Services.Pagos;
 using NutriApi.Services.Pdf;
 using NutriApi.Services.PlanPaciente;
+using NutriApi.Services.PlantillasDietas;
 using NutriApi.Services.RecuperacionPassword;
 using NutriApi.Services.RegistroDiario;
 using NutriApi.Services.SeguimientoSemanal;
@@ -494,6 +496,18 @@ builder.Services.AddScoped<ITurnoService, TurnoService>();
 // DIETAPDF
 //
 builder.Services.AddScoped<IDietaPdfService, DietaPdfService>();
+
+// -----------------------------
+// PLANTILLAS DE DIETA
+// -----------------------------
+
+builder.Services.AddScoped<IPlantillaDietaService, PlantillaDietaService>();
+
+// -----------------------------
+// CONTROL DE SEGUIMIENTO
+// -----------------------------
+
+builder.Services.AddScoped<IControlSeguimientoService, ControlSeguimientoService>();
 
 // =====================================
 // CORS
