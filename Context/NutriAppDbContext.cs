@@ -1,26 +1,21 @@
-﻿
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
 using NutriApp.Models.Alimentos;
 using NutriApp.Models.Dietas;
 using NutriApp.Models.Notificaciones;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Pagos;
+using NutriApp.Models.PlantillasDietas;
 using NutriApp.Models.Seguimiento;
 using NutriApp.Models.Usuarios;
 
 namespace NutriApp.Data;
 
-public class NutriAppDbContext
-    : IdentityDbContext<UsuarioAplicacion, IdentityRole<int>, int>
+public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRole<int>, int>
 {
     public NutriAppDbContext(DbContextOptions<NutriAppDbContext> options)
-        : base(options)
-    {
-    }
-
+        : base(options) { }
 
     // =========================
     // USUARIOS
@@ -30,7 +25,6 @@ public class NutriAppDbContext
 
     public DbSet<Paciente> Pacientes { get; set; }
 
-
     // =========================
     // PACIENTES
     // =========================
@@ -38,7 +32,6 @@ public class NutriAppDbContext
     public DbSet<PerfilPaciente> PerfilesPacientes { get; set; }
 
     public DbSet<NotaPaciente> NotasPacientes { get; set; }
-
 
     // =========================
     // ALIMENTOS
@@ -51,7 +44,6 @@ public class NutriAppDbContext
     public DbSet<GrupoEquivalencia> GruposEquivalencias { get; set; }
 
     public DbSet<EquivalenciaAlimento> EquivalenciasAlimentos { get; set; }
-
 
     // =========================
     // DIETAS
@@ -81,30 +73,31 @@ public class NutriAppDbContext
     // SEGUIMIENTO
     // =========================
 
-    public DbSet<RegistroDiarioPaciente>
-        RegistrosDiariosPacientes
-    { get; set; }
+    public DbSet<RegistroDiarioPaciente> RegistrosDiariosPacientes { get; set; }
 
+    public DbSet<SeguimientoSemanalPaciente> SeguimientosSemanalesPacientes { get; set; }
 
-    public DbSet<SeguimientoSemanalPaciente>
-    SeguimientosSemanalesPacientes
-    { get; set; }
+    // =========================
+    // NOTIFICACIONES
+    // =========================
 
+    public DbSet<Notificacion> Notificaciones { get; set; }
 
+    // =========================
+    // PLANTILLAS DE DIETA
+    // =========================
 
+    public DbSet<PlantillaDieta> PlantillasDietas { get; set; }
 
-    public DbSet<Notificacion> Notificaciones
-    {
-        get;
-        set;
-    }
-
+    // =========================
+    // TURNOS
+    // =========================
     public DbSet<Turno> Turnos { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // MUY IMPORTANTE porque usamos Identity
         base.OnModelCreating(modelBuilder);
-
 
         ConfigurarUsuarios(modelBuilder);
 
@@ -119,7 +112,10 @@ public class NutriAppDbContext
         ConfigurarSeguimiento(modelBuilder);
 
         ConfigurarNotificaciones(modelBuilder);
+
         ConfigurarTurnos(modelBuilder);
+
+        ConfigurarPlantillasDietas(modelBuilder);
     }
 
     private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
@@ -128,118 +124,67 @@ public class NutriAppDbContext
         // NOTIFICACIONES
         // ==========================================
 
-        modelBuilder.Entity<Notificacion>(
-            entity =>
-            {
-                entity.HasKey(n =>
-                    n.Id
-                );
+        modelBuilder.Entity<Notificacion>(entity =>
+        {
+            entity.HasKey(n => n.Id);
 
+            // ======================================
+            // USUARIO
+            // ======================================
 
-                // ======================================
-                // USUARIO
-                // ======================================
+            entity
+                .HasOne(n => n.Usuario)
+                .WithMany()
+                .HasForeignKey(n => n.UsuarioId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-                entity.HasOne(n =>
-                        n.Usuario
-                    )
-                    .WithMany()
-                    .HasForeignKey(n =>
-                        n.UsuarioId
-                    )
-                    .OnDelete(
-                        DeleteBehavior.Cascade
-                    );
+            // ======================================
+            // CONTENIDO
+            // ======================================
 
+            entity.Property(n => n.Titulo).IsRequired().HasMaxLength(150);
 
-                // ======================================
-                // CONTENIDO
-                // ======================================
+            entity.Property(n => n.Mensaje).IsRequired().HasMaxLength(500);
 
-                entity.Property(n =>
-                        n.Titulo
-                    )
-                    .IsRequired()
-                    .HasMaxLength(150);
+            entity.Property(n => n.RecursoTipo).HasMaxLength(100);
 
+            // ======================================
+            // ENUM
+            // ======================================
 
-                entity.Property(n =>
-                        n.Mensaje
-                    )
-                    .IsRequired()
-                    .HasMaxLength(500);
+            entity.Property(n => n.Tipo).IsRequired();
 
+            // ======================================
+            // ESTADO
+            // ======================================
 
-                entity.Property(n =>
-                        n.RecursoTipo
-                    )
-                    .HasMaxLength(100);
+            entity.Property(n => n.Leida).IsRequired().HasDefaultValue(false);
 
+            entity.Property(n => n.FechaCreacion).IsRequired();
 
-                // ======================================
-                // ENUM
-                // ======================================
+            // ======================================
+            // ÍNDICES
+            // ======================================
 
-                entity.Property(n =>
-                        n.Tipo
-                    )
-                    .IsRequired();
+            /*
+             * Consulta principal:
+             *
+             * "dame las notificaciones de este
+             * usuario ordenadas por fecha".
+             */
 
+            entity.HasIndex(n => new { n.UsuarioId, n.FechaCreacion });
 
-                // ======================================
-                // ESTADO
-                // ======================================
+            /*
+             * Muy utilizado para:
+             *
+             * "¿cuántas notificaciones no leídas
+             * tiene este usuario?"
+             */
 
-                entity.Property(n =>
-                        n.Leida
-                    )
-                    .IsRequired()
-                    .HasDefaultValue(false);
-
-
-                entity.Property(n =>
-                        n.FechaCreacion
-                    )
-                    .IsRequired();
-
-
-                // ======================================
-                // ÍNDICES
-                // ======================================
-
-                /*
-                 * Consulta principal:
-                 *
-                 * "dame las notificaciones de este
-                 * usuario ordenadas por fecha".
-                 */
-
-                entity.HasIndex(n =>
-                    new
-                    {
-                        n.UsuarioId,
-                        n.FechaCreacion
-                    });
-
-
-                /*
-                 * Muy utilizado para:
-                 *
-                 * "¿cuántas notificaciones no leídas
-                 * tiene este usuario?"
-                 */
-
-                entity.HasIndex(n =>
-                    new
-                    {
-                        n.UsuarioId,
-                        n.Leida
-                    });
-            }
-        );
-
+            entity.HasIndex(n => new { n.UsuarioId, n.Leida });
+        });
     }
-
 
     // ==========================================================
     // USUARIOS
@@ -247,22 +192,22 @@ public class NutriAppDbContext
 
     private static void ConfigurarUsuarios(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<UsuarioAplicacion>()
+        modelBuilder
+            .Entity<UsuarioAplicacion>()
             .HasDiscriminator<string>("TipoUsuario")
             .HasValue<UsuarioAplicacion>("Usuario")
             .HasValue<Nutricionista>("Nutricionista")
             .HasValue<Paciente>("Paciente");
 
-
         // Nutricionista 1 ---- N Pacientes
 
-        modelBuilder.Entity<Paciente>()
+        modelBuilder
+            .Entity<Paciente>()
             .HasOne(p => p.Nutricionista)
             .WithMany(n => n.Pacientes)
             .HasForeignKey(p => p.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
     }
-
 
     // ==========================================================
     // PACIENTES
@@ -272,61 +217,44 @@ public class NutriAppDbContext
     {
         // Paciente 1 ---- 1 PerfilPaciente
 
-        modelBuilder.Entity<PerfilPaciente>()
+        modelBuilder
+            .Entity<PerfilPaciente>()
             .HasOne(pp => pp.Paciente)
             .WithOne(p => p.Perfil)
             .HasForeignKey<PerfilPaciente>(pp => pp.PacienteId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
-        modelBuilder.Entity<PerfilPaciente>()
-            .HasIndex(pp => pp.PacienteId)
-            .IsUnique();
-
+        modelBuilder.Entity<PerfilPaciente>().HasIndex(pp => pp.PacienteId).IsUnique();
 
         // Paciente 1 ---- N Notas
 
-        modelBuilder.Entity<NotaPaciente>()
+        modelBuilder
+            .Entity<NotaPaciente>()
             .HasOne(n => n.Paciente)
             .WithMany(p => p.Notas)
             .HasForeignKey(n => n.PacienteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Nutricionista 1 ---- N Notas
 
-        modelBuilder.Entity<NotaPaciente>()
+        modelBuilder
+            .Entity<NotaPaciente>()
             .HasOne(n => n.Nutricionista)
             .WithMany(n => n.NotasPacientes)
             .HasForeignKey(n => n.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        modelBuilder
+            .Entity<PagoPaciente>()
+            .HasOne(p => p.Paciente)
+            .WithMany(p => p.Pagos)
+            .HasForeignKey(p => p.PacienteId)
+            .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<PagoPaciente>()
-    .HasOne(p =>
-        p.Paciente
-    )
-    .WithMany(p =>
-        p.Pagos
-    )
-    .HasForeignKey(p =>
-        p.PacienteId
-    )
-    .OnDelete(
-        DeleteBehavior.Restrict
-    );
-
-
-        modelBuilder.Entity<PagoPaciente>()
-            .HasIndex(p =>
-                new
-                {
-                    p.PacienteId,
-                    p.ProximoVencimiento
-                }
-            );
+        modelBuilder
+            .Entity<PagoPaciente>()
+            .HasIndex(p => new { p.PacienteId, p.ProximoVencimiento });
     }
-
 
     // ==========================================================
     // ALIMENTOS
@@ -336,92 +264,80 @@ public class NutriAppDbContext
     {
         // Nutricionista 1 ---- N Categorias
 
-        modelBuilder.Entity<CategoriaAlimento>()
+        modelBuilder
+            .Entity<CategoriaAlimento>()
             .HasOne(c => c.Nutricionista)
             .WithMany(n => n.CategoriasAlimentos)
             .HasForeignKey(c => c.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Categoria 1 ---- N Alimentos
 
-        modelBuilder.Entity<Alimento>()
+        modelBuilder
+            .Entity<Alimento>()
             .HasOne(a => a.Categoria)
             .WithMany(c => c.Alimentos)
             .HasForeignKey(a => a.CategoriaAlimentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Nutricionista 1 ---- N Alimentos
 
-        modelBuilder.Entity<Alimento>()
+        modelBuilder
+            .Entity<Alimento>()
             .HasOne(a => a.Nutricionista)
             .WithMany(n => n.Alimentos)
             .HasForeignKey(a => a.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Nutricionista 1 ---- N GruposEquivalencia
 
-        modelBuilder.Entity<GrupoEquivalencia>()
+        modelBuilder
+            .Entity<GrupoEquivalencia>()
             .HasOne(g => g.Nutricionista)
             .WithMany(n => n.GruposEquivalencias)
             .HasForeignKey(g => g.NutricionistaId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // GrupoEquivalencia 1 ---- N Equivalencias
 
-        modelBuilder.Entity<EquivalenciaAlimento>()
+        modelBuilder
+            .Entity<EquivalenciaAlimento>()
             .HasOne(e => e.GrupoEquivalencia)
             .WithMany(g => g.Equivalencias)
             .HasForeignKey(e => e.GrupoEquivalenciaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Alimento 1 ---- N Equivalencias
 
-        modelBuilder.Entity<EquivalenciaAlimento>()
+        modelBuilder
+            .Entity<EquivalenciaAlimento>()
             .HasOne(e => e.Alimento)
             .WithMany(a => a.Equivalencias)
             .HasForeignKey(e => e.AlimentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // El mismo alimento no puede estar repetido
         // dentro del mismo grupo de equivalencia.
 
-        modelBuilder.Entity<EquivalenciaAlimento>()
-            .HasIndex(e => new
-            {
-                e.GrupoEquivalenciaId,
-                e.AlimentoId
-            })
+        modelBuilder
+            .Entity<EquivalenciaAlimento>()
+            .HasIndex(e => new { e.GrupoEquivalenciaId, e.AlimentoId })
             .IsUnique();
-
 
         // Evita categorías repetidas para un nutricionista
 
-        modelBuilder.Entity<CategoriaAlimento>()
-            .HasIndex(c => new
-            {
-                c.NutricionistaId,
-                c.Nombre
-            })
+        modelBuilder
+            .Entity<CategoriaAlimento>()
+            .HasIndex(c => new { c.NutricionistaId, c.Nombre })
             .IsUnique();
-
 
         // Evita alimentos repetidos para un nutricionista
 
-        modelBuilder.Entity<Alimento>()
-            .HasIndex(a => new
-            {
-                a.NutricionistaId,
-                a.Nombre
-            })
+        modelBuilder
+            .Entity<Alimento>()
+            .HasIndex(a => new { a.NutricionistaId, a.Nombre })
             .IsUnique();
     }
-
 
     // ==========================================================
     // DIETAS
@@ -431,132 +347,122 @@ public class NutriAppDbContext
     {
         // Paciente 1 ---- N Dietas
 
-        modelBuilder.Entity<Dieta>()
+        modelBuilder
+            .Entity<Dieta>()
             .HasOne(d => d.Paciente)
             .WithMany(p => p.Dietas)
             .HasForeignKey(d => d.PacienteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Dieta 1 ---- N Comidas
 
-        modelBuilder.Entity<Comida>()
+        modelBuilder
+            .Entity<Comida>()
             .HasOne(c => c.Dieta)
             .WithMany(d => d.Comidas)
             .HasForeignKey(c => c.DietaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Comida 1 ---- N Secciones
 
-        modelBuilder.Entity<SeccionComida>()
+        modelBuilder
+            .Entity<SeccionComida>()
             .HasOne(s => s.Comida)
             .WithMany(c => c.Secciones)
             .HasForeignKey(s => s.ComidaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Seccion 1 ---- N Opciones
 
-        modelBuilder.Entity<OpcionSeccionComida>()
+        modelBuilder
+            .Entity<OpcionSeccionComida>()
             .HasOne(o => o.SeccionComida)
             .WithMany(s => s.Opciones)
             .HasForeignKey(o => o.SeccionComidaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Opcion 1 ---- N Items
 
-        modelBuilder.Entity<ItemOpcionComida>()
+        modelBuilder
+            .Entity<ItemOpcionComida>()
             .HasOne(i => i.OpcionSeccionComida)
             .WithMany(o => o.Items)
             .HasForeignKey(i => i.OpcionSeccionComidaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Alimento 1 ---- N Items
 
-        modelBuilder.Entity<ItemOpcionComida>()
+        modelBuilder
+            .Entity<ItemOpcionComida>()
             .HasOne(i => i.Alimento)
             .WithMany(a => a.ItemsComida)
             .HasForeignKey(i => i.AlimentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
         // Item 1 ---- N Alternativas
 
-        modelBuilder.Entity<AlternativaItemComida>()
+        modelBuilder
+            .Entity<AlternativaItemComida>()
             .HasOne(a => a.ItemOpcionComida)
             .WithMany(i => i.Alternativas)
             .HasForeignKey(a => a.ItemOpcionComidaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
         // Alimento 1 ---- N Alternativas
 
-        modelBuilder.Entity<AlternativaItemComida>()
+        modelBuilder
+            .Entity<AlternativaItemComida>()
             .HasOne(a => a.Alimento)
             .WithMany(a => a.Alternativas)
             .HasForeignKey(a => a.AlimentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-
-        modelBuilder.Entity<AlternativaItemComida>()
-    .HasOne(a => a.GrupoEquivalencia)
-    .WithMany()
-    .HasForeignKey(a => a.GrupoEquivalenciaId)
-    .OnDelete(DeleteBehavior.Restrict);
-
+        modelBuilder
+            .Entity<AlternativaItemComida>()
+            .HasOne(a => a.GrupoEquivalencia)
+            .WithMany()
+            .HasForeignKey(a => a.GrupoEquivalenciaId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // No podemos agregar dos veces la misma alternativa
         // al mismo item.
 
-        modelBuilder.Entity<AlternativaItemComida>()
-            .HasIndex(a => new
-            {
-                a.ItemOpcionComidaId,
-                a.AlimentoId
-            })
+        modelBuilder
+            .Entity<AlternativaItemComida>()
+            .HasIndex(a => new { a.ItemOpcionComidaId, a.AlimentoId })
             .IsUnique();
-
 
         // Dieta 1 ---- 0..1 Hidratacion
 
-        modelBuilder.Entity<HidratacionDieta>()
+        modelBuilder
+            .Entity<HidratacionDieta>()
             .HasOne(h => h.Dieta)
             .WithOne(d => d.Hidratacion)
             .HasForeignKey<HidratacionDieta>(h => h.DietaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
-        modelBuilder.Entity<HidratacionDieta>()
-            .HasIndex(h => h.DietaId)
-            .IsUnique();
-
+        modelBuilder.Entity<HidratacionDieta>().HasIndex(h => h.DietaId).IsUnique();
 
         // Dieta 1 ---- 0..1 Suplementacion
 
-        modelBuilder.Entity<SuplementacionDieta>()
+        modelBuilder
+            .Entity<SuplementacionDieta>()
             .HasOne(s => s.Dieta)
             .WithOne(d => d.Suplementacion)
             .HasForeignKey<SuplementacionDieta>(s => s.DietaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-
-        modelBuilder.Entity<SuplementacionDieta>()
-            .HasIndex(s => s.DietaId)
-            .IsUnique();
-
+        modelBuilder.Entity<SuplementacionDieta>().HasIndex(s => s.DietaId).IsUnique();
 
         // Suplementacion 1 ---- N Items
 
-        modelBuilder.Entity<ItemSuplementacion>()
+        modelBuilder
+            .Entity<ItemSuplementacion>()
             .HasOne(i => i.SuplementacionDieta)
             .WithMany(s => s.Items)
             .HasForeignKey(i => i.SuplementacionDietaId)
             .OnDelete(DeleteBehavior.Cascade);
     }
-
 
     // ==========================================================
     // PRECISION DECIMAL
@@ -564,91 +470,41 @@ public class NutriAppDbContext
 
     private static void ConfigurarDecimales(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<PerfilPaciente>()
-            .Property(p => p.PesoInicial)
-            .HasPrecision(6, 2);
+        modelBuilder.Entity<PerfilPaciente>().Property(p => p.PesoInicial).HasPrecision(6, 2);
 
+        modelBuilder.Entity<PerfilPaciente>().Property(p => p.Altura).HasPrecision(5, 2);
 
-        modelBuilder.Entity<PerfilPaciente>()
-            .Property(p => p.Altura)
-            .HasPrecision(5, 2);
+        modelBuilder.Entity<Alimento>().Property(a => a.CantidadBase).HasPrecision(10, 2);
 
+        modelBuilder.Entity<Alimento>().Property(a => a.Calorias).HasPrecision(10, 2);
 
-        modelBuilder.Entity<Alimento>()
-            .Property(a => a.CantidadBase)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<Alimento>().Property(a => a.Proteinas).HasPrecision(10, 2);
 
+        modelBuilder.Entity<Alimento>().Property(a => a.Carbohidratos).HasPrecision(10, 2);
 
-        modelBuilder.Entity<Alimento>()
-            .Property(a => a.Calorias)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<Alimento>().Property(a => a.Grasas).HasPrecision(10, 2);
 
+        modelBuilder.Entity<ItemOpcionComida>().Property(i => i.Cantidad).HasPrecision(10, 2);
 
-        modelBuilder.Entity<Alimento>()
-            .Property(a => a.Proteinas)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<ItemSuplementacion>().Property(i => i.Cantidad).HasPrecision(10, 2);
 
+        modelBuilder.Entity<PagoPaciente>().Property(p => p.Monto).HasPrecision(18, 2);
 
-        modelBuilder.Entity<Alimento>()
-            .Property(a => a.Carbohidratos)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CinturaCm).HasPrecision(6, 2);
 
+        modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CaderaCm).HasPrecision(6, 2);
 
-        modelBuilder.Entity<Alimento>()
-            .Property(a => a.Grasas)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.GemeloCm).HasPrecision(6, 2);
 
-
-       
-
-        modelBuilder.Entity<ItemOpcionComida>()
-            .Property(i => i.Cantidad)
-            .HasPrecision(10, 2);
-
-
-        modelBuilder.Entity<ItemSuplementacion>()
-            .Property(i => i.Cantidad)
-            .HasPrecision(10, 2);
-
-
-        modelBuilder.Entity<PagoPaciente>()
-        .Property(p => p.Monto)
-        .HasPrecision(18, 2);
-
-
-        modelBuilder.Entity<RegistroDiarioPaciente>()
-    .Property(r => r.CinturaCm)
-    .HasPrecision(6, 2);
-
-        modelBuilder.Entity<RegistroDiarioPaciente>()
-            .Property(r => r.CaderaCm)
-            .HasPrecision(6, 2);
-
-        modelBuilder.Entity<RegistroDiarioPaciente>()
-            .Property(r => r.GemeloCm)
-            .HasPrecision(6, 2);
-
-        modelBuilder.Entity<RegistroDiarioPaciente>()
-            .Property(r => r.CuelloCm)
-            .HasPrecision(6, 2);
-
-
-
-
+        modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CuelloCm).HasPrecision(6, 2);
 
         modelBuilder
-    .Entity<SeguimientoSemanalPaciente>()
-    .Property(s =>
-        s.PesoActual
-    )
-    .HasPrecision(
-        6,
-        2
-    );
+            .Entity<SeguimientoSemanalPaciente>()
+            .Property(s => s.PesoActual)
+            .HasPrecision(6, 2);
     }
 
-    private static void ConfigurarSeguimiento(
-    ModelBuilder modelBuilder)
+    private static void ConfigurarSeguimiento(ModelBuilder modelBuilder)
     {
         // ==========================================
         // REGISTRO DIARIO
@@ -656,19 +512,10 @@ public class NutriAppDbContext
 
         modelBuilder
             .Entity<RegistroDiarioPaciente>()
-            .HasOne(r =>
-                r.Paciente
-            )
-            .WithMany(p =>
-                p.RegistrosDiarios
-            )
-            .HasForeignKey(r =>
-                r.PacienteId
-            )
-            .OnDelete(
-                DeleteBehavior.Restrict
-            );
-
+            .HasOne(r => r.Paciente)
+            .WithMany(p => p.RegistrosDiarios)
+            .HasForeignKey(r => r.PacienteId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         /*
          * Un paciente solamente puede tener
@@ -677,21 +524,12 @@ public class NutriAppDbContext
 
         modelBuilder
             .Entity<RegistroDiarioPaciente>()
-            .HasIndex(r =>
-                new
-                {
-                    r.PacienteId,
-                    r.Fecha
-                }
-            )
+            .HasIndex(r => new { r.PacienteId, r.Fecha })
             .IsUnique();
-
 
         modelBuilder
             .Entity<RegistroDiarioPaciente>()
-            .Property(r =>
-                r.Observaciones
-            )
+            .Property(r => r.Observaciones)
             .HasMaxLength(1000);
 
         // ==========================================
@@ -700,19 +538,10 @@ public class NutriAppDbContext
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
-            .HasOne(s =>
-                s.Paciente
-            )
-            .WithMany(p =>
-                p.SeguimientosSemanales
-            )
-            .HasForeignKey(s =>
-                s.PacienteId
-            )
-            .OnDelete(
-                DeleteBehavior.Restrict
-            );
-
+            .HasOne(s => s.Paciente)
+            .WithMany(p => p.SeguimientosSemanales)
+            .HasForeignKey(s => s.PacienteId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         /*
          * Un paciente solamente puede completar
@@ -724,15 +553,8 @@ public class NutriAppDbContext
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
-            .HasIndex(s =>
-                new
-                {
-                    s.PacienteId,
-                    s.FechaInicioSemana
-                }
-            )
+            .HasIndex(s => new { s.PacienteId, s.FechaInicioSemana })
             .IsUnique();
-
 
         // ==========================================
         // LONGITUDES DE TEXTO
@@ -740,160 +562,134 @@ public class NutriAppDbContext
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
-            .Property(s =>
-                s.DetalleDigestiones
-            )
-            .HasMaxLength(
-                1500
-            );
-
+            .Property(s => s.DetalleDigestiones)
+            .HasMaxLength(1500);
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
-            .Property(s =>
-                s.DetalleMolestiaFisica
-            )
-            .HasMaxLength(
-                1500
-            );
-
+            .Property(s => s.DetalleMolestiaFisica)
+            .HasMaxLength(1500);
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()
-            .Property(s =>
-                s.RevisionNutricionista
-            )
-            .HasMaxLength(
-                3000
-            );
-
+            .Property(s => s.RevisionNutricionista)
+            .HasMaxLength(3000);
     }
 
-
-    private static void ConfigurarTurnos(
-    ModelBuilder modelBuilder)
+    private static void ConfigurarTurnos(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Turno>(
-            entity =>
-            {
-                // ======================================
-                // PK
-                // ======================================
+        modelBuilder.Entity<Turno>(entity =>
+        {
+            // ======================================
+            // PK
+            // ======================================
 
-                entity.HasKey(t =>
-                    t.Id
-                );
+            entity.HasKey(t => t.Id);
 
+            // ======================================
+            // PACIENTE
+            // ======================================
 
-                // ======================================
-                // PACIENTE
-                // ======================================
+            entity
+                .HasOne(t => t.Paciente)
+                .WithMany()
+                .HasForeignKey(t => t.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-                entity.HasOne(t =>
-                        t.Paciente
-                    )
-                    .WithMany()
-                    .HasForeignKey(t =>
-                        t.PacienteId
-                    )
-                    .OnDelete(
-                        DeleteBehavior.Restrict
-                    );
+            // ======================================
+            // FECHA
+            // ======================================
 
+            entity.Property(t => t.FechaHora).IsRequired();
 
-                // ======================================
-                // FECHA
-                // ======================================
+            entity.Property(t => t.FechaCreacion).IsRequired();
 
-                entity.Property(t =>
-                        t.FechaHora
-                    )
-                    .IsRequired();
+            // ======================================
+            // ENUMS
+            // ======================================
 
+            entity.Property(t => t.Modalidad).IsRequired();
 
-                entity.Property(t =>
-                        t.FechaCreacion
-                    )
-                    .IsRequired();
+            entity.Property(t => t.Estado).IsRequired();
 
+            // ======================================
+            // TEXTOS
+            // ======================================
 
-                // ======================================
-                // ENUMS
-                // ======================================
+            entity.Property(t => t.Lugar).HasMaxLength(200);
 
-                entity.Property(t =>
-                        t.Modalidad
-                    )
-                    .IsRequired();
+            entity.Property(t => t.LinkReunion).HasMaxLength(500);
 
+            entity.Property(t => t.Motivo).HasMaxLength(250);
 
-                entity.Property(t =>
-                        t.Estado
-                    )
-                    .IsRequired();
+            entity.Property(t => t.Observaciones).HasMaxLength(1000);
 
+            // ======================================
+            // ÍNDICES
+            // ======================================
 
-                // ======================================
-                // TEXTOS
-                // ======================================
+            /*
+             * Consultaremos frecuentemente:
+             *
+             * turnos de un paciente
+             * ordenados por fecha.
+             */
 
-                entity.Property(t =>
-                        t.Lugar
-                    )
-                    .HasMaxLength(200);
+            entity.HasIndex(t => new { t.PacienteId, t.FechaHora });
 
+            /*
+             * También consultaremos:
+             *
+             * próximos turnos programados.
+             */
 
-                entity.Property(t =>
-                        t.LinkReunion
-                    )
-                    .HasMaxLength(500);
-
-
-                entity.Property(t =>
-                        t.Motivo
-                    )
-                    .HasMaxLength(250);
-
-
-                entity.Property(t =>
-                        t.Observaciones
-                    )
-                    .HasMaxLength(1000);
-
-
-                // ======================================
-                // ÍNDICES
-                // ======================================
-
-                /*
-                 * Consultaremos frecuentemente:
-                 *
-                 * turnos de un paciente
-                 * ordenados por fecha.
-                 */
-
-                entity.HasIndex(t =>
-                    new
-                    {
-                        t.PacienteId,
-                        t.FechaHora
-                    });
-
-
-                /*
-                 * También consultaremos:
-                 *
-                 * próximos turnos programados.
-                 */
-
-                entity.HasIndex(t =>
-                    new
-                    {
-                        t.Estado,
-                        t.FechaHora
-                    });
-            }
-        );
+            entity.HasIndex(t => new { t.Estado, t.FechaHora });
+        });
     }
 
+    // ==========================================================
+    // PLANTILLAS DE DIETA
+    // ==========================================================
+
+    private static void ConfigurarPlantillasDietas(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<PlantillaDieta>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+
+            // ======================================
+            // NUTRICIONISTA
+            // ======================================
+
+            entity
+                .HasOne<Nutricionista>()
+                .WithMany()
+                .HasForeignKey(p => p.NutricionistaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // DATOS
+            // ======================================
+
+            entity.Property(p => p.Nombre).IsRequired().HasMaxLength(150);
+
+            entity.Property(p => p.Descripcion).HasMaxLength(500);
+
+            /*
+             * PostgreSQL guardará este string
+             * como una columna JSONB real.
+             */
+            entity.Property(p => p.ContenidoJson).IsRequired().HasColumnType("jsonb");
+
+            entity.Property(p => p.FechaCreacion).IsRequired();
+
+            // ======================================
+            // ÍNDICES
+            // ======================================
+
+            entity.HasIndex(p => p.NutricionistaId);
+
+            entity.HasIndex(p => new { p.NutricionistaId, p.Nombre });
+        });
+    }
 }

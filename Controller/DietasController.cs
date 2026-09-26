@@ -107,6 +107,23 @@ public class DietasController : ControllerBase
         return ConvertirResultado(resultado);
     }
 
+    [HttpPost("{dietaId:int}/copiar-a/{pacienteDestinoId:int}")]
+    public async Task<IActionResult> CopiarAOtroPaciente(
+        int pacienteId,
+        int dietaId,
+        int pacienteDestinoId
+    )
+    {
+        var resultado = await _dietaService.CopiarAOtroPacienteAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            pacienteDestinoId
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
     // ==========================================
     // ARCHIVAR
     // ==========================================

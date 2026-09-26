@@ -324,319 +324,746 @@ public class DietaService : IDietaService
             return DietaNoEncontrada();
         }
 
-        // ==========================================
-        // NUEVA VERSIÓN
-        // ==========================================
-
-        var ultimaVersion =
-            await _context
-                .Dietas.Where(d => d.PacienteId == pacienteId)
-                .Select(d => (int?)d.Version)
-                .MaxAsync()
-            ?? 0;
-
         /*
-         * Como vamos a realizar varios SaveChanges
-         * para obtener los nuevos IDs de cada nivel,
-         * utilizamos una transacción.
+         * Como tenemos EnableRetryOnFailure configurado
+         * para PostgreSQL/Npgsql, una transacción manual
+         * debe ejecutarse dentro de la estrategia de
+         * ejecución de EF Core.
          *
-         * Si falla cualquier parte de la copia,
-         * no queda una dieta duplicada a medias.
+         * De esta forma, si ocurre un error transitorio,
+         * EF puede reintentar toda la operación como una
+         * única unidad.
          */
 
-        await using var transaccion = await _context.Database.BeginTransactionAsync();
+        var estrategia = _context.Database.CreateExecutionStrategy();
 
-        try
+        var nuevaDietaId = 0;
+
+        await estrategia.ExecuteAsync(async () =>
         {
-            // ======================================
-            // DIETA
-            // ======================================
+            /*
+             * Si la estrategia está reintentando la
+             * operación, eliminamos del ChangeTracker
+             * las entidades creadas en el intento anterior.
+             *
+             * La dieta origen fue cargada con AsNoTracking,
+             * por lo que no se pierde nada necesario.
+             */
 
-            var nuevaDieta = new Dieta
+            _context.ChangeTracker.Clear();
+
+            // ==========================================
+            // NUEVA VERSIÓN
+            // ==========================================
+
+            var ultimaVersion =
+                await _context
+                    .Dietas.Where(d => d.PacienteId == pacienteId)
+                    .Select(d => (int?)d.Version)
+                    .MaxAsync()
+                ?? 0;
+
+            await using var transaccion = await _context.Database.BeginTransactionAsync();
+
+            try
             {
-                PacienteId = pacienteId,
+                // ======================================
+                // DIETA
+                // ======================================
 
-                Nombre = origen.Nombre,
-
-                Descripcion = origen.Descripcion,
-
-                Version = ultimaVersion + 1,
-
-                FechaInicio = origen.FechaInicio,
-
-                FechaFin = origen.FechaFin,
-
-                Estado = EstadoDieta.Borrador,
-
-                ObservacionesGenerales = origen.ObservacionesGenerales,
-
-                FechaCreacion = DateTime.UtcNow,
-            };
-
-            _context.Dietas.Add(nuevaDieta);
-
-            await _context.SaveChangesAsync();
-
-            // ======================================
-            // HIDRATACIÓN
-            // ======================================
-
-            if (origen.Hidratacion is not null)
-            {
-                var nuevaHidratacion = new HidratacionDieta
+                var nuevaDieta = new Dieta
                 {
-                    DietaId = nuevaDieta.Id,
+                    PacienteId = pacienteId,
 
-                    MililitrosDiarios = origen.Hidratacion.MililitrosDiarios,
+                    Nombre = origen.Nombre,
 
-                    VasosDiarios = origen.Hidratacion.VasosDiarios,
+                    Descripcion = origen.Descripcion,
 
-                    Observaciones = origen.Hidratacion.Observaciones,
+                    Version = ultimaVersion + 1,
+
+                    FechaInicio = origen.FechaInicio,
+
+                    FechaFin = origen.FechaFin,
+
+                    Estado = EstadoDieta.Borrador,
+
+                    ObservacionesGenerales = origen.ObservacionesGenerales,
+
+                    FechaCreacion = DateTime.UtcNow,
                 };
 
-                _context.HidratacionesDietas.Add(nuevaHidratacion);
-            }
-
-            // ======================================
-            // SUPLEMENTACIÓN
-            // ======================================
-
-            if (origen.Suplementacion is not null)
-            {
-                var nuevaSuplementacion = new SuplementacionDieta
-                {
-                    DietaId = nuevaDieta.Id,
-
-                    ObservacionesGenerales = origen.Suplementacion.ObservacionesGenerales,
-                };
-
-                _context.SuplementacionesDietas.Add(nuevaSuplementacion);
-
-                /*
-                 * Necesitamos el nuevo Id para
-                 * relacionar sus items.
-                 */
+                _context.Dietas.Add(nuevaDieta);
 
                 await _context.SaveChangesAsync();
 
-                foreach (var item in origen.Suplementacion.Items.OrderBy(i => i.Orden))
+                nuevaDietaId = nuevaDieta.Id;
+
+                // ======================================
+                // HIDRATACIÓN
+                // ======================================
+
+                if (origen.Hidratacion is not null)
                 {
-                    var nuevoItem = new ItemSuplementacion
+                    var nuevaHidratacion = new HidratacionDieta
                     {
-                        SuplementacionDietaId = nuevaSuplementacion.Id,
+                        DietaId = nuevaDieta.Id,
 
-                        Nombre = item.Nombre,
+                        MililitrosDiarios = origen.Hidratacion.MililitrosDiarios,
 
-                        Cantidad = item.Cantidad,
+                        VasosDiarios = origen.Hidratacion.VasosDiarios,
 
-                        Unidad = item.Unidad,
-
-                        Momento = item.Momento,
-
-                        Indicaciones = item.Indicaciones,
-
-                        Orden = item.Orden,
+                        Observaciones = origen.Hidratacion.Observaciones,
                     };
 
-                    _context.ItemsSuplementacion.Add(nuevoItem);
+                    _context.HidratacionesDietas.Add(nuevaHidratacion);
                 }
-            }
 
-            // ======================================
-            // COMIDAS
-            // ======================================
+                // ======================================
+                // SUPLEMENTACIÓN
+                // ======================================
 
-            var comidasNuevas = new Dictionary<int, Comida>();
-
-            foreach (var comidaOrigen in origen.Comidas.OrderBy(c => c.Orden))
-            {
-                var comidaNueva = new Comida
+                if (origen.Suplementacion is not null)
                 {
-                    DietaId = nuevaDieta.Id,
-
-                    Nombre = comidaOrigen.Nombre,
-
-                    Tipo = comidaOrigen.Tipo,
-
-                    Orden = comidaOrigen.Orden,
-
-                    Observaciones = comidaOrigen.Observaciones,
-                };
-
-                _context.Comidas.Add(comidaNueva);
-
-                comidasNuevas[comidaOrigen.Id] = comidaNueva;
-            }
-
-            await _context.SaveChangesAsync();
-
-            // ======================================
-            // SECCIONES
-            // ======================================
-
-            var seccionesNuevas = new Dictionary<int, SeccionComida>();
-
-            foreach (var comidaOrigen in origen.Comidas)
-            {
-                var comidaNueva = comidasNuevas[comidaOrigen.Id];
-
-                foreach (var seccionOrigen in comidaOrigen.Secciones.OrderBy(s => s.Orden))
-                {
-                    var seccionNueva = new SeccionComida
+                    var nuevaSuplementacion = new SuplementacionDieta
                     {
-                        ComidaId = comidaNueva.Id,
+                        DietaId = nuevaDieta.Id,
 
-                        Nombre = seccionOrigen.Nombre,
-
-                        Tipo = seccionOrigen.Tipo,
-
-                        Orden = seccionOrigen.Orden,
-
-                        Observaciones = seccionOrigen.Observaciones,
+                        ObservacionesGenerales = origen.Suplementacion.ObservacionesGenerales,
                     };
 
-                    _context.SeccionesComidas.Add(seccionNueva);
+                    _context.SuplementacionesDietas.Add(nuevaSuplementacion);
 
-                    seccionesNuevas[seccionOrigen.Id] = seccionNueva;
-                }
-            }
+                    /*
+                     * Necesitamos el nuevo Id para
+                     * relacionar sus items.
+                     */
 
-            await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync();
 
-            // ======================================
-            // OPCIONES
-            // ======================================
-
-            var opcionesNuevas = new Dictionary<int, OpcionSeccionComida>();
-
-            foreach (var comidaOrigen in origen.Comidas)
-            {
-                foreach (var seccionOrigen in comidaOrigen.Secciones)
-                {
-                    var seccionNueva = seccionesNuevas[seccionOrigen.Id];
-
-                    foreach (var opcionOrigen in seccionOrigen.Opciones.OrderBy(o => o.Orden))
+                    foreach (var item in origen.Suplementacion.Items.OrderBy(i => i.Orden))
                     {
-                        var opcionNueva = new OpcionSeccionComida
+                        var nuevoItem = new ItemSuplementacion
                         {
-                            SeccionComidaId = seccionNueva.Id,
+                            SuplementacionDietaId = nuevaSuplementacion.Id,
 
-                            Nombre = opcionOrigen.Nombre,
+                            Nombre = item.Nombre,
 
-                            Orden = opcionOrigen.Orden,
+                            Cantidad = item.Cantidad,
 
-                            EsPredeterminada = opcionOrigen.EsPredeterminada,
+                            Unidad = item.Unidad,
 
-                            Observaciones = opcionOrigen.Observaciones,
+                            Momento = item.Momento,
+
+                            Indicaciones = item.Indicaciones,
+
+                            Orden = item.Orden,
                         };
 
-                        _context.OpcionesSeccionesComidas.Add(opcionNueva);
-
-                        opcionesNuevas[opcionOrigen.Id] = opcionNueva;
+                        _context.ItemsSuplementacion.Add(nuevoItem);
                     }
                 }
-            }
 
-            await _context.SaveChangesAsync();
+                // ======================================
+                // COMIDAS
+                // ======================================
 
-            // ======================================
-            // ITEMS
-            // ======================================
+                var comidasNuevas = new Dictionary<int, Comida>();
 
-            var itemsNuevos = new Dictionary<int, ItemOpcionComida>();
-
-            foreach (var comidaOrigen in origen.Comidas)
-            {
-                foreach (var seccionOrigen in comidaOrigen.Secciones)
+                foreach (var comidaOrigen in origen.Comidas.OrderBy(c => c.Orden))
                 {
-                    foreach (var opcionOrigen in seccionOrigen.Opciones)
+                    var comidaNueva = new Comida
                     {
-                        var opcionNueva = opcionesNuevas[opcionOrigen.Id];
+                        DietaId = nuevaDieta.Id,
 
-                        foreach (var itemOrigen in opcionOrigen.Items.OrderBy(i => i.Orden))
+                        Nombre = comidaOrigen.Nombre,
+
+                        Tipo = comidaOrigen.Tipo,
+
+                        Orden = comidaOrigen.Orden,
+
+                        Observaciones = comidaOrigen.Observaciones,
+                    };
+
+                    _context.Comidas.Add(comidaNueva);
+
+                    comidasNuevas[comidaOrigen.Id] = comidaNueva;
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // SECCIONES
+                // ======================================
+
+                var seccionesNuevas = new Dictionary<int, SeccionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    var comidaNueva = comidasNuevas[comidaOrigen.Id];
+
+                    foreach (var seccionOrigen in comidaOrigen.Secciones.OrderBy(s => s.Orden))
+                    {
+                        var seccionNueva = new SeccionComida
                         {
-                            var itemNuevo = new ItemOpcionComida
+                            ComidaId = comidaNueva.Id,
+
+                            Nombre = seccionOrigen.Nombre,
+
+                            Tipo = seccionOrigen.Tipo,
+
+                            Orden = seccionOrigen.Orden,
+
+                            Observaciones = seccionOrigen.Observaciones,
+                        };
+
+                        _context.SeccionesComidas.Add(seccionNueva);
+
+                        seccionesNuevas[seccionOrigen.Id] = seccionNueva;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // OPCIONES
+                // ======================================
+
+                var opcionesNuevas = new Dictionary<int, OpcionSeccionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
+                    {
+                        var seccionNueva = seccionesNuevas[seccionOrigen.Id];
+
+                        foreach (var opcionOrigen in seccionOrigen.Opciones.OrderBy(o => o.Orden))
+                        {
+                            var opcionNueva = new OpcionSeccionComida
                             {
-                                OpcionSeccionComidaId = opcionNueva.Id,
+                                SeccionComidaId = seccionNueva.Id,
 
-                                AlimentoId = itemOrigen.AlimentoId,
+                                Nombre = opcionOrigen.Nombre,
 
-                                Cantidad = itemOrigen.Cantidad,
+                                Orden = opcionOrigen.Orden,
 
-                                UnidadMedida = itemOrigen.UnidadMedida,
+                                EsPredeterminada = opcionOrigen.EsPredeterminada,
 
-                                Indicaciones = itemOrigen.Indicaciones,
-
-                                Orden = itemOrigen.Orden,
+                                Observaciones = opcionOrigen.Observaciones,
                             };
 
-                            _context.ItemsOpcionesComidas.Add(itemNuevo);
+                            _context.OpcionesSeccionesComidas.Add(opcionNueva);
 
-                            itemsNuevos[itemOrigen.Id] = itemNuevo;
+                            opcionesNuevas[opcionOrigen.Id] = opcionNueva;
                         }
                     }
                 }
-            }
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            // ======================================
-            // ALTERNATIVAS
-            // ======================================
+                // ======================================
+                // ITEMS
+                // ======================================
 
-            foreach (var comidaOrigen in origen.Comidas)
-            {
-                foreach (var seccionOrigen in comidaOrigen.Secciones)
+                var itemsNuevos = new Dictionary<int, ItemOpcionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
                 {
-                    foreach (var opcionOrigen in seccionOrigen.Opciones)
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
                     {
-                        foreach (var itemOrigen in opcionOrigen.Items)
+                        foreach (var opcionOrigen in seccionOrigen.Opciones)
                         {
-                            var itemNuevo = itemsNuevos[itemOrigen.Id];
+                            var opcionNueva = opcionesNuevas[opcionOrigen.Id];
 
-                            foreach (var alternativaOrigen in itemOrigen.Alternativas)
+                            foreach (var itemOrigen in opcionOrigen.Items.OrderBy(i => i.Orden))
                             {
-                                var alternativaNueva = new AlternativaItemComida
+                                var itemNuevo = new ItemOpcionComida
                                 {
-                                    ItemOpcionComidaId = itemNuevo.Id,
+                                    OpcionSeccionComidaId = opcionNueva.Id,
 
-                                    AlimentoId = alternativaOrigen.AlimentoId,
+                                    AlimentoId = itemOrigen.AlimentoId,
 
-                                    GrupoEquivalenciaId = alternativaOrigen.GrupoEquivalenciaId,
+                                    Cantidad = itemOrigen.Cantidad,
 
-                                    Activa = alternativaOrigen.Activa,
+                                    UnidadMedida = itemOrigen.UnidadMedida,
+
+                                    Indicaciones = itemOrigen.Indicaciones,
+
+                                    Orden = itemOrigen.Orden,
                                 };
 
-                                _context.AlternativasItemsComidas.Add(alternativaNueva);
+                                _context.ItemsOpcionesComidas.Add(itemNuevo);
+
+                                itemsNuevos[itemOrigen.Id] = itemNuevo;
                             }
                         }
                     }
                 }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // ALTERNATIVAS
+                // ======================================
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
+                    {
+                        foreach (var opcionOrigen in seccionOrigen.Opciones)
+                        {
+                            foreach (var itemOrigen in opcionOrigen.Items)
+                            {
+                                var itemNuevo = itemsNuevos[itemOrigen.Id];
+
+                                foreach (var alternativaOrigen in itemOrigen.Alternativas)
+                                {
+                                    var alternativaNueva = new AlternativaItemComida
+                                    {
+                                        ItemOpcionComidaId = itemNuevo.Id,
+
+                                        AlimentoId = alternativaOrigen.AlimentoId,
+
+                                        GrupoEquivalenciaId = alternativaOrigen.GrupoEquivalenciaId,
+
+                                        Activa = alternativaOrigen.Activa,
+                                    };
+
+                                    _context.AlternativasItemsComidas.Add(alternativaNueva);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // COMMIT
+                // ======================================
+
+                await transaccion.CommitAsync();
             }
+            catch
+            {
+                await transaccion.RollbackAsync();
 
-            await _context.SaveChangesAsync();
+                throw;
+            }
+        });
 
-            // ======================================
-            // COMMIT
-            // ======================================
+        /*
+         * Volvemos a consultar la nueva dieta
+         * usando el mapper normal del servicio.
+         *
+         * Así no duplicamos la lógica de totales.
+         */
 
-            await transaccion.CommitAsync();
+        return await ObtenerPorIdAsync(nutricionistaId, pacienteId, nuevaDietaId);
+    }
 
+    // ==========================================
+    // COPIAR A OTRO PACIENTE
+    // ==========================================
+
+    public async Task<ResultadoDieta<DietaDetalleDto>> CopiarAOtroPacienteAsync(
+        int nutricionistaId,
+        int pacienteOrigenId,
+        int dietaId,
+        int pacienteDestinoId
+    )
+    {
+        if (pacienteOrigenId == pacienteDestinoId)
+        {
+            return ErrorValidacion("Para el mismo paciente utilizá la opción de duplicar dieta.");
+        }
+
+        /*
+         * El paciente destino también debe pertenecer
+         * al nutricionista autenticado.
+         */
+
+        var pacienteDestinoExiste = await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteDestinoId && p.NutricionistaId == nutricionistaId);
+
+        if (!pacienteDestinoExiste)
+        {
+            return DietaNoEncontrada("Paciente destino no encontrado.");
+        }
+
+        /*
+         * Cargamos TODO el árbol de la dieta origen.
+         *
+         * Dieta
+         *   -> Comidas
+         *      -> Secciones
+         *         -> Opciones
+         *            -> Items
+         *               -> Alternativas
+         *
+         * También:
+         *   -> Hidratación
+         *   -> Suplementación
+         *      -> Items
+         */
+
+        var origen = await _context
+            .Dietas.AsNoTracking()
+            .Include(d => d.Comidas)
+                .ThenInclude(c => c.Secciones)
+                    .ThenInclude(s => s.Opciones)
+                        .ThenInclude(o => o.Items)
+                            .ThenInclude(i => i.Alternativas)
+            .Include(d => d.Hidratacion)
+            .Include(d => d.Suplementacion)
+                .ThenInclude(s => s.Items)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(d =>
+                d.Id == dietaId
+                && d.PacienteId == pacienteOrigenId
+                && d.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (origen is null)
+        {
+            return DietaNoEncontrada();
+        }
+
+        /*
+         * Como tenemos EnableRetryOnFailure configurado
+         * para PostgreSQL/Npgsql, una transacción manual
+         * debe ejecutarse dentro de la estrategia de
+         * ejecución de EF Core.
+         *
+         * De esta forma, si ocurre un error transitorio,
+         * EF puede reintentar toda la operación como una
+         * única unidad.
+         */
+
+        var estrategia = _context.Database.CreateExecutionStrategy();
+
+        var nuevaDietaId = 0;
+
+        await estrategia.ExecuteAsync(async () =>
+        {
             /*
-             * Volvemos a consultar la nueva dieta
-             * usando el mapper normal del servicio.
+             * Si la estrategia está reintentando la
+             * operación, eliminamos del ChangeTracker
+             * las entidades creadas en el intento anterior.
              *
-             * Así no duplicamos la lógica de totales.
+             * La dieta origen fue cargada con AsNoTracking,
+             * por lo que no se pierde nada necesario.
              */
 
-            return await ObtenerPorIdAsync(nutricionistaId, pacienteId, nuevaDieta.Id);
-        }
-        catch
-        {
-            await transaccion.RollbackAsync();
+            _context.ChangeTracker.Clear();
 
-            throw;
-        }
+            // ==========================================
+            // NUEVA VERSIÓN
+            // ==========================================
+
+            var ultimaVersion =
+                await _context
+                    .Dietas.Where(d => d.PacienteId == pacienteDestinoId)
+                    .Select(d => (int?)d.Version)
+                    .MaxAsync()
+                ?? 0;
+
+            await using var transaccion = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                // ======================================
+                // DIETA
+                // ======================================
+
+                var nuevaDieta = new Dieta
+                {
+                    PacienteId = pacienteDestinoId,
+
+                    Nombre = origen.Nombre,
+
+                    Descripcion = origen.Descripcion,
+
+                    Version = ultimaVersion + 1,
+
+                    FechaInicio = origen.FechaInicio,
+
+                    FechaFin = origen.FechaFin,
+
+                    Estado = EstadoDieta.Borrador,
+
+                    ObservacionesGenerales = origen.ObservacionesGenerales,
+
+                    FechaCreacion = DateTime.UtcNow,
+                };
+
+                _context.Dietas.Add(nuevaDieta);
+
+                await _context.SaveChangesAsync();
+
+                nuevaDietaId = nuevaDieta.Id;
+
+                // ======================================
+                // HIDRATACIÓN
+                // ======================================
+
+                if (origen.Hidratacion is not null)
+                {
+                    var nuevaHidratacion = new HidratacionDieta
+                    {
+                        DietaId = nuevaDieta.Id,
+
+                        MililitrosDiarios = origen.Hidratacion.MililitrosDiarios,
+
+                        VasosDiarios = origen.Hidratacion.VasosDiarios,
+
+                        Observaciones = origen.Hidratacion.Observaciones,
+                    };
+
+                    _context.HidratacionesDietas.Add(nuevaHidratacion);
+                }
+
+                // ======================================
+                // SUPLEMENTACIÓN
+                // ======================================
+
+                if (origen.Suplementacion is not null)
+                {
+                    var nuevaSuplementacion = new SuplementacionDieta
+                    {
+                        DietaId = nuevaDieta.Id,
+
+                        ObservacionesGenerales = origen.Suplementacion.ObservacionesGenerales,
+                    };
+
+                    _context.SuplementacionesDietas.Add(nuevaSuplementacion);
+
+                    /*
+                     * Necesitamos el nuevo Id para
+                     * relacionar sus items.
+                     */
+
+                    await _context.SaveChangesAsync();
+
+                    foreach (var item in origen.Suplementacion.Items.OrderBy(i => i.Orden))
+                    {
+                        var nuevoItem = new ItemSuplementacion
+                        {
+                            SuplementacionDietaId = nuevaSuplementacion.Id,
+
+                            Nombre = item.Nombre,
+
+                            Cantidad = item.Cantidad,
+
+                            Unidad = item.Unidad,
+
+                            Momento = item.Momento,
+
+                            Indicaciones = item.Indicaciones,
+
+                            Orden = item.Orden,
+                        };
+
+                        _context.ItemsSuplementacion.Add(nuevoItem);
+                    }
+                }
+
+                // ======================================
+                // COMIDAS
+                // ======================================
+
+                var comidasNuevas = new Dictionary<int, Comida>();
+
+                foreach (var comidaOrigen in origen.Comidas.OrderBy(c => c.Orden))
+                {
+                    var comidaNueva = new Comida
+                    {
+                        DietaId = nuevaDieta.Id,
+
+                        Nombre = comidaOrigen.Nombre,
+
+                        Tipo = comidaOrigen.Tipo,
+
+                        Orden = comidaOrigen.Orden,
+
+                        Observaciones = comidaOrigen.Observaciones,
+                    };
+
+                    _context.Comidas.Add(comidaNueva);
+
+                    comidasNuevas[comidaOrigen.Id] = comidaNueva;
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // SECCIONES
+                // ======================================
+
+                var seccionesNuevas = new Dictionary<int, SeccionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    var comidaNueva = comidasNuevas[comidaOrigen.Id];
+
+                    foreach (var seccionOrigen in comidaOrigen.Secciones.OrderBy(s => s.Orden))
+                    {
+                        var seccionNueva = new SeccionComida
+                        {
+                            ComidaId = comidaNueva.Id,
+
+                            Nombre = seccionOrigen.Nombre,
+
+                            Tipo = seccionOrigen.Tipo,
+
+                            Orden = seccionOrigen.Orden,
+
+                            Observaciones = seccionOrigen.Observaciones,
+                        };
+
+                        _context.SeccionesComidas.Add(seccionNueva);
+
+                        seccionesNuevas[seccionOrigen.Id] = seccionNueva;
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // OPCIONES
+                // ======================================
+
+                var opcionesNuevas = new Dictionary<int, OpcionSeccionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
+                    {
+                        var seccionNueva = seccionesNuevas[seccionOrigen.Id];
+
+                        foreach (var opcionOrigen in seccionOrigen.Opciones.OrderBy(o => o.Orden))
+                        {
+                            var opcionNueva = new OpcionSeccionComida
+                            {
+                                SeccionComidaId = seccionNueva.Id,
+
+                                Nombre = opcionOrigen.Nombre,
+
+                                Orden = opcionOrigen.Orden,
+
+                                EsPredeterminada = opcionOrigen.EsPredeterminada,
+
+                                Observaciones = opcionOrigen.Observaciones,
+                            };
+
+                            _context.OpcionesSeccionesComidas.Add(opcionNueva);
+
+                            opcionesNuevas[opcionOrigen.Id] = opcionNueva;
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // ITEMS
+                // ======================================
+
+                var itemsNuevos = new Dictionary<int, ItemOpcionComida>();
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
+                    {
+                        foreach (var opcionOrigen in seccionOrigen.Opciones)
+                        {
+                            var opcionNueva = opcionesNuevas[opcionOrigen.Id];
+
+                            foreach (var itemOrigen in opcionOrigen.Items.OrderBy(i => i.Orden))
+                            {
+                                var itemNuevo = new ItemOpcionComida
+                                {
+                                    OpcionSeccionComidaId = opcionNueva.Id,
+
+                                    AlimentoId = itemOrigen.AlimentoId,
+
+                                    Cantidad = itemOrigen.Cantidad,
+
+                                    UnidadMedida = itemOrigen.UnidadMedida,
+
+                                    Indicaciones = itemOrigen.Indicaciones,
+
+                                    Orden = itemOrigen.Orden,
+                                };
+
+                                _context.ItemsOpcionesComidas.Add(itemNuevo);
+
+                                itemsNuevos[itemOrigen.Id] = itemNuevo;
+                            }
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // ALTERNATIVAS
+                // ======================================
+
+                foreach (var comidaOrigen in origen.Comidas)
+                {
+                    foreach (var seccionOrigen in comidaOrigen.Secciones)
+                    {
+                        foreach (var opcionOrigen in seccionOrigen.Opciones)
+                        {
+                            foreach (var itemOrigen in opcionOrigen.Items)
+                            {
+                                var itemNuevo = itemsNuevos[itemOrigen.Id];
+
+                                foreach (var alternativaOrigen in itemOrigen.Alternativas)
+                                {
+                                    var alternativaNueva = new AlternativaItemComida
+                                    {
+                                        ItemOpcionComidaId = itemNuevo.Id,
+
+                                        AlimentoId = alternativaOrigen.AlimentoId,
+
+                                        GrupoEquivalenciaId = alternativaOrigen.GrupoEquivalenciaId,
+
+                                        Activa = alternativaOrigen.Activa,
+                                    };
+
+                                    _context.AlternativasItemsComidas.Add(alternativaNueva);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                // ======================================
+                // COMMIT
+                // ======================================
+
+                await transaccion.CommitAsync();
+            }
+            catch
+            {
+                await transaccion.RollbackAsync();
+
+                throw;
+            }
+        });
+
+        /*
+         * Volvemos a consultar la nueva dieta
+         * usando el mapper normal del servicio.
+         *
+         * Así no duplicamos la lógica de totales.
+         */
+
+        return await ObtenerPorIdAsync(nutricionistaId, pacienteDestinoId, nuevaDietaId);
     }
 
     // ==========================================

@@ -47,4 +47,11 @@ public interface IDietaService
         int pacienteId,
         int dietaId
     );
+
+    Task<ResultadoDieta<DietaDetalleDto>> CopiarAOtroPacienteAsync(
+        int nutricionistaId,
+        int pacienteOrigenId,
+        int dietaId,
+        int pacienteDestinoId
+    );
 }
