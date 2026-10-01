@@ -512,6 +512,8 @@ builder.Services.AddScoped<IControlSeguimientoService, ControlSeguimientoService
 
 builder.Services.AddScoped<IMensajePacienteService, MensajePacienteService>();
 
+builder.Services.AddHostedService<ActivacionProgramadaDietasWorker>();
+
 // =====================================
 // CORS
 // =====================================

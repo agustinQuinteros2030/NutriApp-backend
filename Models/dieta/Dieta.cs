@@ -1,9 +1,8 @@
-﻿
+﻿using System;
+using System.Collections.Generic;
 using NutriApi.Models.dieta;
 using NutriApp.Enums;
 using NutriApp.Models.Usuarios;
-using System;
-using System.Collections.Generic;
 
 namespace NutriApp.Models.Dietas;
 
@@ -25,12 +24,13 @@ public class Dieta
 
     public EstadoDieta Estado { get; set; } = EstadoDieta.Borrador;
 
+    public DateOnly? FechaActivacionProgramada { get; set; }
+
     public string? ObservacionesGenerales { get; set; }
 
     public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     public DateTime? FechaActualizacion { get; set; }
-
 
     // Navegación
 

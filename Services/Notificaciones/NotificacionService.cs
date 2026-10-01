@@ -371,4 +371,22 @@ public class NotificacionService : INotificacionService
                     .SetProperty(n => n.Mensaje, mensajeLimpio)
             );
     }
+
+    // ==========================================
+    // ELIMINAR TODAS
+    // ==========================================
+
+    public async Task<int> EliminarTodasAsync(int usuarioId)
+    {
+        if (usuarioId <= 0)
+        {
+            throw new ArgumentException("El usuario no es válido.", nameof(usuarioId));
+        }
+
+        var cantidadEliminada = await _context
+            .Notificaciones.Where(n => n.UsuarioId == usuarioId)
+            .ExecuteDeleteAsync();
+
+        return cantidadEliminada;
+    }
 }

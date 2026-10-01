@@ -54,4 +54,19 @@ public interface IDietaService
         int dietaId,
         int pacienteDestinoId
     );
+
+    Task<ResultadoDieta<DietaDetalleDto>> ProgramarActivacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        ProgramarActivacionDietaDto dto
+    );
+
+    Task<ResultadoDieta<DietaDetalleDto>> CancelarActivacionProgramadaAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
+
+    Task<int> ProcesarActivacionesProgramadasAsync();
 }

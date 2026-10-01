@@ -120,4 +120,30 @@ public class NotificacionesController : ControllerBase
 
         return id;
     }
+
+    // ==========================================
+    // ELIMINAR TODAS
+    // ==========================================
+
+    [HttpDelete]
+    public async Task<IActionResult> EliminarTodas()
+    {
+        var usuarioId = ObtenerUsuarioId();
+
+        if (!usuarioId.HasValue)
+        {
+            return Unauthorized();
+        }
+
+        var cantidad = await _service.EliminarTodasAsync(usuarioId.Value);
+
+        return Ok(
+            new
+            {
+                mensaje = "Notificaciones eliminadas correctamente.",
+
+                cantidadEliminada = cantidad,
+            }
+        );
+    }
 }

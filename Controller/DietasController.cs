@@ -195,4 +195,37 @@ public class DietasController : ControllerBase
             ),
         };
     }
+
+    [HttpPut("pacientes/{pacienteId:int}/dietas/{dietaId:int}/programar-activacion")]
+    public async Task<IActionResult> ProgramarActivacion(
+        int pacienteId,
+        int dietaId,
+        [FromBody] ProgramarActivacionDietaDto dto
+    )
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ProgramarActivacionAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            dto
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpDelete("pacientes/{pacienteId:int}/dietas/{dietaId:int}/programar-activacion")]
+    public async Task<IActionResult> CancelarActivacionProgramada(int pacienteId, int dietaId)
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.CancelarActivacionProgramadaAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId
+        );
+
+        return ConvertirResultado(resultado);
+    }
 }

@@ -17,4 +17,6 @@ public class DietaListadoDto
     public int CantidadComidas { get; set; }
 
     public DateTime FechaCreacion { get; set; }
+
+    public DateOnly? FechaActivacionProgramada { get; set; }
 }

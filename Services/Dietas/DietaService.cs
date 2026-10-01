@@ -145,6 +145,8 @@ public class DietaService : IDietaService
 
                 FechaFin = d.FechaFin,
 
+                FechaActivacionProgramada = d.FechaActivacionProgramada,
+
                 CantidadComidas = d.Comidas.Count,
 
                 FechaCreacion = d.FechaCreacion,
@@ -1067,6 +1069,150 @@ public class DietaService : IDietaService
     }
 
     // ==========================================
+    // PROGRAMAR ACTIVACIÓN
+    // ==========================================
+
+    public async Task<ResultadoDieta<DietaDetalleDto>> ProgramarActivacionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        ProgramarActivacionDietaDto dto
+    )
+    {
+        var dieta = await _context.Dietas.FirstOrDefaultAsync(d =>
+            d.Id == dietaId
+            && d.PacienteId == pacienteId
+            && d.Paciente.NutricionistaId == nutricionistaId
+        );
+
+        if (dieta is null)
+        {
+            return DietaNoEncontrada();
+        }
+
+        if (dieta.Estado != EstadoDieta.Borrador)
+        {
+            return ErrorValidacion(
+                "Solo se puede programar la activación de una dieta en estado borrador."
+            );
+        }
+
+        var hoy = ObtenerFechaLocalActual();
+
+        if (dto.FechaActivacion <= hoy)
+        {
+            return ErrorValidacion("La fecha de activación programada debe ser posterior a hoy.");
+        }
+
+        var existeOtraProgramada = await _context
+            .Dietas.AsNoTracking()
+            .AnyAsync(d =>
+                d.PacienteId == pacienteId
+                && d.Id != dietaId
+                && d.Estado == EstadoDieta.Borrador
+                && d.FechaActivacionProgramada.HasValue
+            );
+
+        if (existeOtraProgramada)
+        {
+            return ErrorValidacion("El paciente ya tiene otra dieta con activación programada.");
+        }
+
+        dieta.FechaActivacionProgramada = dto.FechaActivacion;
+        dieta.FechaActualizacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return await ObtenerPorIdAsync(nutricionistaId, pacienteId, dietaId);
+    }
+
+    // ==========================================
+    // CANCELAR ACTIVACIÓN PROGRAMADA
+    // ==========================================
+
+    public async Task<ResultadoDieta<DietaDetalleDto>> CancelarActivacionProgramadaAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    )
+    {
+        var dieta = await _context.Dietas.FirstOrDefaultAsync(d =>
+            d.Id == dietaId
+            && d.PacienteId == pacienteId
+            && d.Paciente.NutricionistaId == nutricionistaId
+        );
+
+        if (dieta is null)
+        {
+            return DietaNoEncontrada();
+        }
+
+        if (!dieta.FechaActivacionProgramada.HasValue)
+        {
+            return ErrorValidacion("La dieta no tiene una activación programada.");
+        }
+
+        dieta.FechaActivacionProgramada = null;
+        dieta.FechaActualizacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return await ObtenerPorIdAsync(nutricionistaId, pacienteId, dietaId);
+    }
+
+    // ==========================================
+    // PROCESAR ACTIVACIONES PROGRAMADAS
+    // ==========================================
+
+    public async Task<int> ProcesarActivacionesProgramadasAsync()
+    {
+        var hoy = ObtenerFechaLocalActual();
+
+        var dietasPendientesIds = await _context
+            .Dietas.AsNoTracking()
+            .Where(d =>
+                d.Estado == EstadoDieta.Borrador
+                && d.FechaActivacionProgramada.HasValue
+                && d.FechaActivacionProgramada.Value <= hoy
+            )
+            .OrderBy(d => d.FechaActivacionProgramada)
+            .ThenBy(d => d.Id)
+            .Select(d => d.Id)
+            .ToListAsync();
+
+        var cantidadActivadas = 0;
+
+        foreach (var dietaId in dietasPendientesIds)
+        {
+            _context.ChangeTracker.Clear();
+
+            var dieta = await _context
+                .Dietas.Include(d => d.Comidas)
+                    .ThenInclude(c => c.Secciones)
+                        .ThenInclude(s => s.Opciones)
+                            .ThenInclude(o => o.Items)
+                                .ThenInclude(i => i.Alimento)
+                .AsSplitQuery()
+                .FirstOrDefaultAsync(d =>
+                    d.Id == dietaId
+                    && d.Estado == EstadoDieta.Borrador
+                    && d.FechaActivacionProgramada.HasValue
+                    && d.FechaActivacionProgramada.Value <= hoy
+                );
+
+            if (dieta is null)
+            {
+                continue;
+            }
+
+            await ActivarDietaInternamenteAsync(dieta);
+            cantidadActivadas++;
+        }
+
+        return cantidadActivadas;
+    }
+
+    // ==========================================
     // ACTIVAR
     // ==========================================
 
@@ -1105,33 +1251,12 @@ public class DietaService : IDietaService
         }
 
         /*
-         * Solo permitimos una dieta activa
-         * por paciente.
-         *
-         * Si existe una anterior,
-         * la archivamos automáticamente.
+         * La misma lógica interna se utiliza
+         * tanto para activación manual como
+         * para activación programada.
          */
 
-        var dietasActivasAnteriores = await _context
-            .Dietas.Where(d =>
-                d.PacienteId == pacienteId && d.Id != dietaId && d.Estado == EstadoDieta.Activa
-            )
-            .ToListAsync();
-
-        foreach (var anterior in dietasActivasAnteriores)
-        {
-            anterior.Estado = EstadoDieta.Archivada;
-
-            anterior.FechaFin ??= DateOnly.FromDateTime(DateTime.UtcNow);
-
-            anterior.FechaActualizacion = DateTime.UtcNow;
-        }
-
-        dieta.Estado = EstadoDieta.Activa;
-
-        dieta.FechaActualizacion = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
+        await ActivarDietaInternamenteAsync(dieta);
 
         return new ResultadoDieta<DietaDetalleDto>
         {
@@ -1177,6 +1302,8 @@ public class DietaService : IDietaService
         }
 
         dieta.Estado = EstadoDieta.Archivada;
+
+        dieta.FechaActivacionProgramada = null;
 
         dieta.FechaFin ??= DateOnly.FromDateTime(DateTime.UtcNow);
 
@@ -1257,6 +1384,56 @@ public class DietaService : IDietaService
     }
 
     // ==========================================
+    // ACTIVACIÓN INTERNA
+    // ==========================================
+
+    private async Task ActivarDietaInternamenteAsync(Dieta dieta)
+    {
+        var dietasActivasAnteriores = await _context
+            .Dietas.Where(d =>
+                d.PacienteId == dieta.PacienteId
+                && d.Id != dieta.Id
+                && d.Estado == EstadoDieta.Activa
+            )
+            .ToListAsync();
+
+        foreach (var anterior in dietasActivasAnteriores)
+        {
+            anterior.Estado = EstadoDieta.Archivada;
+            anterior.FechaFin ??= DateOnly.FromDateTime(DateTime.UtcNow);
+            anterior.FechaActualizacion = DateTime.UtcNow;
+        }
+
+        dieta.Estado = EstadoDieta.Activa;
+        dieta.FechaActivacionProgramada = null;
+        dieta.FechaActualizacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+    }
+
+    // ==========================================
+    // FECHA LOCAL DE NEGOCIO
+    // ==========================================
+
+    private static DateOnly ObtenerFechaLocalActual()
+    {
+        TimeZoneInfo zonaHoraria;
+
+        try
+        {
+            zonaHoraria = TimeZoneInfo.FindSystemTimeZoneById("America/Argentina/Buenos_Aires");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            zonaHoraria = TimeZoneInfo.FindSystemTimeZoneById("Argentina Standard Time");
+        }
+
+        var fechaLocal = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, zonaHoraria);
+
+        return DateOnly.FromDateTime(fechaLocal);
+    }
+
+    // ==========================================
     // MAPPER
     // ==========================================
 
@@ -1298,6 +1475,8 @@ public class DietaService : IDietaService
             FechaInicio = dieta.FechaInicio,
 
             FechaFin = dieta.FechaFin,
+
+            FechaActivacionProgramada = dieta.FechaActivacionProgramada,
 
             ObservacionesGenerales = dieta.ObservacionesGenerales,
 

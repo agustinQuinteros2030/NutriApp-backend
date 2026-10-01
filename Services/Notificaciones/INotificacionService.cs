@@ -33,4 +33,6 @@ public interface INotificacionService
         string titulo,
         string mensaje
     );
+
+    Task<int> EliminarTodasAsync(int usuarioId);
 }
