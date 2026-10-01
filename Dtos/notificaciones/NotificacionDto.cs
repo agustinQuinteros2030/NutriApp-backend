@@ -1,6 +1,4 @@
-﻿
-
-using NutriApp.Enums.Notificaciones;
+﻿using NutriApp.Enums.Notificaciones;
 
 namespace NutriApi.DTOs.Notificaciones;
 
@@ -10,11 +8,9 @@ public class NotificacionDto
 
     public TipoNotificacion Tipo { get; set; }
 
-    public string Titulo { get; set; } =
-        string.Empty;
+    public string Titulo { get; set; } = string.Empty;
 
-    public string Mensaje { get; set; } =
-        string.Empty;
+    public string Mensaje { get; set; } = string.Empty;
 
     public bool Leida { get; set; }
 

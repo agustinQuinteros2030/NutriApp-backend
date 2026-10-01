@@ -15,6 +15,7 @@ using NutriApi.Services.ControlSeguimiento;
 using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
 using NutriApi.Services.Equivalencias;
+using NutriApi.Services.Mensajes;
 using NutriApi.Services.MiPerfil;
 using NutriApi.Services.Notas;
 using NutriApi.Services.Notificaciones;
@@ -508,6 +509,8 @@ builder.Services.AddScoped<IPlantillaDietaService, PlantillaDietaService>();
 // -----------------------------
 
 builder.Services.AddScoped<IControlSeguimientoService, ControlSeguimientoService>();
+
+builder.Services.AddScoped<IMensajePacienteService, MensajePacienteService>();
 
 // =====================================
 // CORS

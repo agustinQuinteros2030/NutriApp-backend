@@ -1,5 +1,4 @@
-﻿
-using NutriApp.Enums.Notificaciones;
+﻿using NutriApp.Enums.Notificaciones;
 using NutriApp.Models.Usuarios;
 
 namespace NutriApp.Models.Notificaciones;
@@ -8,16 +7,13 @@ public class Notificacion
 {
     public int Id { get; set; }
 
-
     // ==========================================
     // USUARIO DESTINATARIO
     // ==========================================
 
     public int UsuarioId { get; set; }
 
-    public UsuarioAplicacion Usuario { get; set; } =
-        null!;
-
+    public UsuarioAplicacion Usuario { get; set; } = null!;
 
     // ==========================================
     // CONTENIDO
@@ -25,25 +21,19 @@ public class Notificacion
 
     public TipoNotificacion Tipo { get; set; }
 
-    public string Titulo { get; set; } =
-        string.Empty;
+    public string Titulo { get; set; } = string.Empty;
 
-    public string Mensaje { get; set; } =
-        string.Empty;
-
+    public string Mensaje { get; set; } = string.Empty;
 
     // ==========================================
     // ESTADO
     // ==========================================
 
-    public bool Leida { get; set; } =
-        false;
+    public bool Leida { get; set; } = false;
 
-    public DateTime FechaCreacion { get; set; } =
-        DateTime.UtcNow;
+    public DateTime FechaCreacion { get; set; } = DateTime.UtcNow;
 
     public DateTime? FechaLectura { get; set; }
-
 
     // ==========================================
     // RECURSO RELACIONADO

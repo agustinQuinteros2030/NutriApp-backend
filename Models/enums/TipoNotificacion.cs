@@ -18,5 +18,7 @@ public enum TipoNotificacion
 
     TurnoReprogramado = 8,
 
-    TurnoCancelado = 9
+    TurnoCancelado = 9,
+
+    NuevoMensajeNutricionista = 10,
 }

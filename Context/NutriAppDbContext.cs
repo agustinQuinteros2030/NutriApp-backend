@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using NutriApp.Models.Alimentos;
 using NutriApp.Models.ControlSeguimiento;
 using NutriApp.Models.Dietas;
+using NutriApp.Models.Mensajes;
 using NutriApp.Models.Notificaciones;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Pagos;
@@ -99,6 +100,12 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // CONTROL DE SEGUIMIENTO
     // =========================
 
+    public DbSet<MensajePaciente> MensajesPacientes
+    {
+        get;
+        set;
+    }
+
     public DbSet<ControlSeguimientoPaciente> ControlesSeguimientoPacientes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -125,6 +132,8 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
         ConfigurarPlantillasDietas(modelBuilder);
 
         ConfigurarControlSeguimiento(modelBuilder);
+
+        ConfigurarMensajes(modelBuilder);
     }
 
     private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
@@ -751,6 +760,56 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
              * ORDER BY ProximoSeguimiento
              */
             entity.HasIndex(c => new { c.Activo, c.ProximoSeguimiento });
+        });
+    }
+
+    private static void ConfigurarMensajes(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<MensajePaciente>(entity =>
+        {
+            entity.HasKey(m => m.Id);
+
+            // ======================================
+            // NUTRICIONISTA
+            // ======================================
+
+            entity
+                .HasOne(m => m.Nutricionista)
+                .WithMany()
+                .HasForeignKey(m => m.NutricionistaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // PACIENTE
+            // ======================================
+
+            entity
+                .HasOne(m => m.Paciente)
+                .WithMany()
+                .HasForeignKey(m => m.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // CONTENIDO
+            // ======================================
+
+            entity.Property(m => m.Titulo).IsRequired().HasMaxLength(150);
+
+            entity.Property(m => m.Contenido).IsRequired().HasMaxLength(2000);
+
+            // ======================================
+            // FECHAS
+            // ======================================
+
+            entity.Property(m => m.FechaCreacion).IsRequired();
+
+            // ======================================
+            // ÍNDICES
+            // ======================================
+
+            entity.HasIndex(m => new { m.PacienteId, m.FechaCreacion });
+
+            entity.HasIndex(m => new { m.NutricionistaId, m.PacienteId });
         });
     }
 }

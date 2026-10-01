@@ -1,45 +1,31 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using NutriApi.DTOs.Notas;
-
 using NutriApp.Data;
 using NutriApp.Models.Pacientes;
 
 namespace NutriApi.Services.Notas;
 
-public class NotaPacienteService
-    : INotaPacienteService
+public class NotaPacienteService : INotaPacienteService
 {
     private readonly NutriAppDbContext _context;
 
-
-    public NotaPacienteService(
-        NutriAppDbContext context)
+    public NotaPacienteService(NutriAppDbContext context)
     {
         _context = context;
     }
 
-
     // ==========================================
     // CREAR NOTA
     // ==========================================
-    public async Task<
-        ResultadoNotaPaciente<NotaPacienteDto>>
-        CrearAsync(
-            int nutricionistaId,
-            int pacienteId,
-            CrearNotaPacienteDto dto)
+    public async Task<ResultadoNotaPaciente<NotaPacienteDto>> CrearAsync(
+        int nutricionistaId,
+        int pacienteId,
+        CrearNotaPacienteDto dto
+    )
     {
-        var pacienteExiste =
-            await _context.Pacientes
-                .AsNoTracking()
-                .AnyAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var pacienteExiste = await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
 
         if (!pacienteExiste)
         {
@@ -49,9 +35,7 @@ public class NotaPacienteService
             );
         }
 
-
-        if (string.IsNullOrWhiteSpace(
-            dto.Contenido))
+        if (string.IsNullOrWhiteSpace(dto.Contenido))
         {
             return Error<NotaPacienteDto>(
                 "El contenido de la nota es obligatorio.",
@@ -59,46 +43,30 @@ public class NotaPacienteService
             );
         }
 
+        var contenido = dto.Contenido.Trim();
 
-        var contenido =
-            dto.Contenido.Trim();
+        var nota = new NotaPaciente
+        {
+            PacienteId = pacienteId,
 
+            NutricionistaId = nutricionistaId,
 
-        var nota =
-            new NotaPaciente
-            {
-                PacienteId =
-                    pacienteId,
+            Contenido = contenido,
 
-                NutricionistaId =
-                    nutricionistaId,
+            FechaCreacion = DateTime.UtcNow,
+        };
 
-                Contenido =
-                    contenido,
-
-                FechaCreacion =
-                    DateTime.UtcNow
-            };
-
-
-        _context.NotasPacientes.Add(
-            nota
-        );
-
+        _context.NotasPacientes.Add(nota);
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoNotaPaciente<
-            NotaPacienteDto>
+        return new ResultadoNotaPaciente<NotaPacienteDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearNota(nota),
+            Datos = MapearNota(nota),
 
-            TipoError =
-                TipoErrorNotaPaciente.Ninguno
+            TipoError = TipoErrorNotaPaciente.Ninguno,
         };
     }
 
@@ -106,131 +74,82 @@ public class NotaPacienteService
     // LISTAR NOTAS
     // ==========================================
 
-    public async Task<
-        ResultadoNotaPaciente<
-            List<NotaPacienteDto>>>
-        ObtenerTodasAsync(
-            int nutricionistaId,
-            int pacienteId)
+    public async Task<ResultadoNotaPaciente<List<NotaPacienteDto>>> ObtenerTodasAsync(
+        int nutricionistaId,
+        int pacienteId
+    )
     {
-        var pacienteExiste =
-            await _context.Pacientes
-                .AsNoTracking()
-                .AnyAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var pacienteExiste = await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
 
         if (!pacienteExiste)
         {
-            return Error<
-                List<NotaPacienteDto>>(
+            return Error<List<NotaPacienteDto>>(
                 "Paciente no encontrado.",
                 TipoErrorNotaPaciente.NoEncontrado
             );
         }
 
+        var notas = await _context
+            .NotasPacientes.AsNoTracking()
+            .Where(n => n.PacienteId == pacienteId && n.NutricionistaId == nutricionistaId)
+            .OrderByDescending(n => n.FechaCreacion)
+            .Select(n => new NotaPacienteDto
+            {
+                Id = n.Id,
 
-        var notas =
-            await _context.NotasPacientes
-                .AsNoTracking()
-                .Where(n =>
-                    n.PacienteId ==
-                    pacienteId
-                    &&
-                    n.NutricionistaId ==
-                    nutricionistaId
-                )
-                .OrderByDescending(n =>
-                    n.FechaCreacion
-                )
-                .Select(n =>
-                    new NotaPacienteDto
-                    {
-                        Id =
-                            n.Id,
+                PacienteId = n.PacienteId,
 
-                        PacienteId =
-                            n.PacienteId,
+                Contenido = n.Contenido,
 
-                        Contenido =
-                            n.Contenido,
+                FechaCreacion = n.FechaCreacion,
 
-                        FechaCreacion =
-                            n.FechaCreacion,
+                FechaActualizacion = n.FechaActualizacion,
+            })
+            .ToListAsync();
 
-                        FechaActualizacion =
-                            n.FechaActualizacion
-                    }
-                )
-                .ToListAsync();
-
-
-        return new ResultadoNotaPaciente<
-            List<NotaPacienteDto>>
+        return new ResultadoNotaPaciente<List<NotaPacienteDto>>
         {
             Exitoso = true,
 
-            Datos =
-                notas,
+            Datos = notas,
 
-            TipoError =
-                TipoErrorNotaPaciente.Ninguno
+            TipoError = TipoErrorNotaPaciente.Ninguno,
         };
     }
-
 
     // ==========================================
     // OBTENER NOTA
     // ==========================================
 
-    public async Task<
-        ResultadoNotaPaciente<NotaPacienteDto>>
-        ObtenerPorIdAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int notaId)
+    public async Task<ResultadoNotaPaciente<NotaPacienteDto>> ObtenerPorIdAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int notaId
+    )
     {
-        var nota =
-            await _context.NotasPacientes
-                .AsNoTracking()
-                .Where(n =>
-                    n.Id ==
-                    notaId
-                    &&
-                    n.PacienteId ==
-                    pacienteId
-                    &&
-                    n.NutricionistaId ==
-                    nutricionistaId
-                    &&
-                    n.Paciente.NutricionistaId ==
-                    nutricionistaId
-                )
-                .Select(n =>
-                    new NotaPacienteDto
-                    {
-                        Id =
-                            n.Id,
+        var nota = await _context
+            .NotasPacientes.AsNoTracking()
+            .Where(n =>
+                n.Id == notaId
+                && n.PacienteId == pacienteId
+                && n.NutricionistaId == nutricionistaId
+                && n.Paciente.NutricionistaId == nutricionistaId
+            )
+            .Select(n => new NotaPacienteDto
+            {
+                Id = n.Id,
 
-                        PacienteId =
-                            n.PacienteId,
+                PacienteId = n.PacienteId,
 
-                        Contenido =
-                            n.Contenido,
+                Contenido = n.Contenido,
 
-                        FechaCreacion =
-                            n.FechaCreacion,
+                FechaCreacion = n.FechaCreacion,
 
-                        FechaActualizacion =
-                            n.FechaActualizacion
-                    }
-                )
-                .FirstOrDefaultAsync();
-
+                FechaActualizacion = n.FechaActualizacion,
+            })
+            .FirstOrDefaultAsync();
 
         if (nota is null)
         {
@@ -240,52 +159,35 @@ public class NotaPacienteService
             );
         }
 
-
-        return new ResultadoNotaPaciente<
-            NotaPacienteDto>
+        return new ResultadoNotaPaciente<NotaPacienteDto>
         {
             Exitoso = true,
 
-            Datos =
-                nota,
+            Datos = nota,
 
-            TipoError =
-                TipoErrorNotaPaciente.Ninguno
+            TipoError = TipoErrorNotaPaciente.Ninguno,
         };
     }
-
 
     // ==========================================
     // EDITAR NOTA
     // ==========================================
 
-    public async Task<
-    ResultadoNotaPaciente<NotaPacienteDto>>
-    EditarAsync(
+    public async Task<ResultadoNotaPaciente<NotaPacienteDto>> EditarAsync(
         int nutricionistaId,
         int pacienteId,
         int notaId,
-        EditarNotaPacienteDto dto)
+        EditarNotaPacienteDto dto
+    )
     {
-        var nota =
-            await _context.NotasPacientes
-                .Include(n =>
-                    n.Paciente
-                )
-                .FirstOrDefaultAsync(n =>
-                    n.Id ==
-                    notaId
-                    &&
-                    n.PacienteId ==
-                    pacienteId
-                    &&
-                    n.NutricionistaId ==
-                    nutricionistaId
-                    &&
-                    n.Paciente.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var nota = await _context
+            .NotasPacientes.Include(n => n.Paciente)
+            .FirstOrDefaultAsync(n =>
+                n.Id == notaId
+                && n.PacienteId == pacienteId
+                && n.NutricionistaId == nutricionistaId
+                && n.Paciente.NutricionistaId == nutricionistaId
+            );
 
         if (nota is null)
         {
@@ -295,9 +197,7 @@ public class NotaPacienteService
             );
         }
 
-
-        if (string.IsNullOrWhiteSpace(
-            dto.Contenido))
+        if (string.IsNullOrWhiteSpace(dto.Contenido))
         {
             return Error<NotaPacienteDto>(
                 "El contenido de la nota es obligatorio.",
@@ -305,31 +205,21 @@ public class NotaPacienteService
             );
         }
 
+        var contenido = dto.Contenido.Trim();
 
-        var contenido =
-            dto.Contenido.Trim();
+        nota.Contenido = contenido;
 
-
-        nota.Contenido =
-            contenido;
-
-        nota.FechaActualizacion =
-            DateTime.UtcNow;
-
+        nota.FechaActualizacion = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
 
-
-        return new ResultadoNotaPaciente<
-            NotaPacienteDto>
+        return new ResultadoNotaPaciente<NotaPacienteDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearNota(nota),
+            Datos = MapearNota(nota),
 
-            TipoError =
-                TipoErrorNotaPaciente.Ninguno
+            TipoError = TipoErrorNotaPaciente.Ninguno,
         };
     }
 
@@ -337,48 +227,35 @@ public class NotaPacienteService
     // MAPPER
     // ==========================================
 
-    private static NotaPacienteDto
-        MapearNota(
-            NotaPaciente nota)
+    private static NotaPacienteDto MapearNota(NotaPaciente nota)
     {
         return new NotaPacienteDto
         {
-            Id =
-                nota.Id,
+            Id = nota.Id,
 
-            PacienteId =
-                nota.PacienteId,
+            PacienteId = nota.PacienteId,
 
-            Contenido =
-                nota.Contenido,
+            Contenido = nota.Contenido,
 
-            FechaCreacion =
-                nota.FechaCreacion,
+            FechaCreacion = nota.FechaCreacion,
 
-            FechaActualizacion =
-                nota.FechaActualizacion
+            FechaActualizacion = nota.FechaActualizacion,
         };
     }
-
 
     // ==========================================
     // ERROR
     // ==========================================
 
-    private static ResultadoNotaPaciente<T>
-        Error<T>(
-            string mensaje,
-            TipoErrorNotaPaciente tipo)
+    private static ResultadoNotaPaciente<T> Error<T>(string mensaje, TipoErrorNotaPaciente tipo)
     {
         return new ResultadoNotaPaciente<T>
         {
             Exitoso = false,
 
-            Error =
-                mensaje,
+            Error = mensaje,
 
-            TipoError =
-                tipo
+            TipoError = tipo,
         };
     }
 }
