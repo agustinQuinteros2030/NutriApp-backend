@@ -13,6 +13,8 @@ public interface INotificacionService
 
     Task<int> MarcarTodasComoLeidasAsync(int usuarioId);
 
+    Task<int> EliminarTodasAsync(int usuarioId);
+
     Task CrearAsync(
         int usuarioId,
         TipoNotificacion tipo,
@@ -33,6 +35,4 @@ public interface INotificacionService
         string titulo,
         string mensaje
     );
-
-    Task<int> EliminarTodasAsync(int usuarioId);
 }

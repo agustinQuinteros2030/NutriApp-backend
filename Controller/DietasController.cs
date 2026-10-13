@@ -8,7 +8,7 @@ namespace NutriApi.Controllers;
 
 [ApiController]
 [Route("api/pacientes/{pacienteId:int}/dietas")]
-[Authorize(Roles = Roles.Nutricionista)]
+[Authorize(Roles = "Nutricionista")]
 public class DietasController : ControllerBase
 {
     private readonly IDietaService _dietaService;
@@ -23,9 +23,11 @@ public class DietasController : ControllerBase
     // ==========================================
 
     [HttpPost]
-    public async Task<IActionResult> Crear(int pacienteId, CrearDietaDto dto)
+    public async Task<IActionResult> Crear(int pacienteId, [FromBody] CrearDietaDto dto)
     {
-        var resultado = await _dietaService.CrearAsync(ObtenerUsuarioIdActual(), pacienteId, dto);
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.CrearAsync(nutricionistaId, pacienteId, dto);
 
         return ConvertirResultado(resultado);
     }
@@ -37,7 +39,9 @@ public class DietasController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> ObtenerTodas(int pacienteId)
     {
-        var resultado = await _dietaService.ObtenerTodasAsync(ObtenerUsuarioIdActual(), pacienteId);
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerTodasAsync(nutricionistaId, pacienteId);
 
         return ConvertirResultado(resultado);
     }
@@ -49,11 +53,9 @@ public class DietasController : ControllerBase
     [HttpGet("{dietaId:int}")]
     public async Task<IActionResult> ObtenerPorId(int pacienteId, int dietaId)
     {
-        var resultado = await _dietaService.ObtenerPorIdAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId
-        );
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerPorIdAsync(nutricionistaId, pacienteId, dietaId);
 
         return ConvertirResultado(resultado);
     }
@@ -63,30 +65,15 @@ public class DietasController : ControllerBase
     // ==========================================
 
     [HttpPut("{dietaId:int}")]
-    public async Task<IActionResult> Editar(int pacienteId, int dietaId, EditarDietaDto dto)
+    public async Task<IActionResult> Editar(
+        int pacienteId,
+        int dietaId,
+        [FromBody] EditarDietaDto dto
+    )
     {
-        var resultado = await _dietaService.EditarAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId,
-            dto
-        );
+        var nutricionistaId = ObtenerUsuarioIdActual();
 
-        return ConvertirResultado(resultado);
-    }
-
-    // ==========================================
-    // ACTIVAR
-    // ==========================================
-
-    [HttpPatch("{dietaId:int}/activar")]
-    public async Task<IActionResult> Activar(int pacienteId, int dietaId)
-    {
-        var resultado = await _dietaService.ActivarAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId
-        );
+        var resultado = await _dietaService.EditarAsync(nutricionistaId, pacienteId, dietaId, dto);
 
         return ConvertirResultado(resultado);
     }
@@ -98,14 +85,16 @@ public class DietasController : ControllerBase
     [HttpPost("{dietaId:int}/duplicar")]
     public async Task<IActionResult> Duplicar(int pacienteId, int dietaId)
     {
-        var resultado = await _dietaService.DuplicarAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId
-        );
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.DuplicarAsync(nutricionistaId, pacienteId, dietaId);
 
         return ConvertirResultado(resultado);
     }
+
+    // ==========================================
+    // COPIAR A OTRO PACIENTE
+    // ==========================================
 
     [HttpPost("{dietaId:int}/copiar-a/{pacienteDestinoId:int}")]
     public async Task<IActionResult> CopiarAOtroPaciente(
@@ -114,8 +103,10 @@ public class DietasController : ControllerBase
         int pacienteDestinoId
     )
     {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
         var resultado = await _dietaService.CopiarAOtroPacienteAsync(
-            ObtenerUsuarioIdActual(),
+            nutricionistaId,
             pacienteId,
             dietaId,
             pacienteDestinoId
@@ -125,78 +116,24 @@ public class DietasController : ControllerBase
     }
 
     // ==========================================
-    // ARCHIVAR
+    // ACTIVAR AHORA
     // ==========================================
 
-    [HttpPatch("{dietaId:int}/archivar")]
-    public async Task<IActionResult> Archivar(int pacienteId, int dietaId)
+    [HttpPatch("{dietaId:int}/activar")]
+    public async Task<IActionResult> Activar(int pacienteId, int dietaId)
     {
-        var resultado = await _dietaService.ArchivarAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId
-        );
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ActivarAsync(nutricionistaId, pacienteId, dietaId);
 
         return ConvertirResultado(resultado);
     }
 
     // ==========================================
-    // ELIMINAR
+    // PROGRAMAR ACTIVACIÓN
     // ==========================================
 
-    [HttpDelete("{dietaId:int}")]
-    public async Task<IActionResult> Eliminar(int pacienteId, int dietaId)
-    {
-        var resultado = await _dietaService.EliminarAsync(
-            ObtenerUsuarioIdActual(),
-            pacienteId,
-            dietaId
-        );
-
-        return ConvertirResultado(resultado);
-    }
-
-    // ==========================================
-    // JWT
-    // ==========================================
-
-    private int ObtenerUsuarioIdActual()
-    {
-        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(claim, out var id))
-        {
-            throw new UnauthorizedAccessException("Usuario no válido.");
-        }
-
-        return id;
-    }
-
-    // ==========================================
-    // RESPUESTAS
-    // ==========================================
-
-    private IActionResult ConvertirResultado<T>(ResultadoDieta<T> resultado)
-    {
-        if (resultado.Exitoso)
-        {
-            return Ok(resultado.Datos);
-        }
-
-        return resultado.TipoError switch
-        {
-            TipoErrorDieta.Validacion => BadRequest(new { mensaje = resultado.Error }),
-
-            TipoErrorDieta.NoEncontrado => NotFound(new { mensaje = resultado.Error }),
-
-            _ => StatusCode(
-                StatusCodes.Status500InternalServerError,
-                new { mensaje = "Ocurrió un error interno." }
-            ),
-        };
-    }
-
-    [HttpPut("pacientes/{pacienteId:int}/dietas/{dietaId:int}/programar-activacion")]
+    [HttpPut("{dietaId:int}/programar-activacion")]
     public async Task<IActionResult> ProgramarActivacion(
         int pacienteId,
         int dietaId,
@@ -215,7 +152,11 @@ public class DietasController : ControllerBase
         return ConvertirResultado(resultado);
     }
 
-    [HttpDelete("pacientes/{pacienteId:int}/dietas/{dietaId:int}/programar-activacion")]
+    // ==========================================
+    // CANCELAR ACTIVACIÓN PROGRAMADA
+    // ==========================================
+
+    [HttpDelete("{dietaId:int}/programar-activacion")]
     public async Task<IActionResult> CancelarActivacionProgramada(int pacienteId, int dietaId)
     {
         var nutricionistaId = ObtenerUsuarioIdActual();
@@ -227,5 +168,73 @@ public class DietasController : ControllerBase
         );
 
         return ConvertirResultado(resultado);
+    }
+
+    // ==========================================
+    // ARCHIVAR
+    // ==========================================
+
+    [HttpPatch("{dietaId:int}/archivar")]
+    public async Task<IActionResult> Archivar(int pacienteId, int dietaId)
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ArchivarAsync(nutricionistaId, pacienteId, dietaId);
+
+        return ConvertirResultado(resultado);
+    }
+
+    // ==========================================
+    // ELIMINAR
+    // ==========================================
+
+    [HttpDelete("{dietaId:int}")]
+    public async Task<IActionResult> Eliminar(int pacienteId, int dietaId)
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.EliminarAsync(nutricionistaId, pacienteId, dietaId);
+
+        return ConvertirResultado(resultado);
+    }
+
+    // ==========================================
+    // USUARIO ACTUAL
+    // ==========================================
+
+    private int ObtenerUsuarioIdActual()
+    {
+        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(claim, out var usuarioId))
+        {
+            throw new UnauthorizedAccessException("No se pudo obtener el usuario autenticado.");
+        }
+
+        return usuarioId;
+    }
+
+    // ==========================================
+    // CONVERTIR RESULTADO
+    // ==========================================
+
+    private IActionResult ConvertirResultado<T>(ResultadoDieta<T> resultado)
+    {
+        if (resultado.Exitoso)
+        {
+            return Ok(resultado.Datos);
+        }
+
+        return resultado.TipoError switch
+        {
+            TipoErrorDieta.Validacion => BadRequest(new { error = resultado.Error }),
+
+            TipoErrorDieta.NoEncontrado => NotFound(new { error = resultado.Error }),
+
+            _ => StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { error = resultado.Error }
+            ),
+        };
     }
 }

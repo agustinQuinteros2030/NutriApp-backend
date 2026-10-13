@@ -98,11 +98,29 @@ public class NotificacionService : INotificacionService
     {
         var ahora = DateTime.UtcNow;
 
-        return await _context
+        var cantidadActualizada = await _context
             .Notificaciones.Where(n => n.UsuarioId == usuarioId && !n.Leida)
             .ExecuteUpdateAsync(setters =>
                 setters.SetProperty(n => n.Leida, true).SetProperty(n => n.FechaLectura, ahora)
             );
+
+        return cantidadActualizada;
+    }
+
+    // ==========================================
+    // ELIMINAR TODAS
+    // ==========================================
+
+    public async Task<int> EliminarTodasAsync(int usuarioId)
+    {
+        if (usuarioId <= 0)
+        {
+            throw new ArgumentException("El usuario no es válido.", nameof(usuarioId));
+        }
+
+        return await _context
+            .Notificaciones.Where(n => n.UsuarioId == usuarioId)
+            .ExecuteDeleteAsync();
     }
 
     // ==========================================
@@ -118,15 +136,27 @@ public class NotificacionService : INotificacionService
         int? recursoId = null
     )
     {
+        // ======================================
+        // USUARIO
+        // ======================================
+
         if (usuarioId <= 0)
         {
             throw new ArgumentException("El usuario destinatario no es válido.", nameof(usuarioId));
         }
 
+        // ======================================
+        // TIPO
+        // ======================================
+
         if (!Enum.IsDefined(tipo))
         {
             throw new ArgumentException("El tipo de notificación no es válido.", nameof(tipo));
         }
+
+        // ======================================
+        // TÍTULO
+        // ======================================
 
         if (string.IsNullOrWhiteSpace(titulo))
         {
@@ -146,6 +176,10 @@ public class NotificacionService : INotificacionService
             );
         }
 
+        // ======================================
+        // MENSAJE
+        // ======================================
+
         if (string.IsNullOrWhiteSpace(mensaje))
         {
             throw new ArgumentException(
@@ -163,6 +197,10 @@ public class NotificacionService : INotificacionService
                 nameof(mensaje)
             );
         }
+
+        // ======================================
+        // RECURSO
+        // ======================================
 
         string? recursoTipoLimpio = string.IsNullOrWhiteSpace(recursoTipo)
             ? null
@@ -193,6 +231,10 @@ public class NotificacionService : INotificacionService
                 "El tipo de recurso y su identificador deben informarse juntos."
             );
         }
+
+        // ======================================
+        // CREAR NOTIFICACIÓN
+        // ======================================
 
         var notificacion = new Notificacion
         {
@@ -298,7 +340,7 @@ public class NotificacionService : INotificacionService
     }
 
     // ==========================================
-    // ACTUALIZAR POR RECURSO
+    // ACTUALIZAR CONTENIDO POR RECURSO
     // ==========================================
 
     public async Task<int> ActualizarContenidoPorRecursoAsync(
@@ -370,23 +412,5 @@ public class NotificacionService : INotificacionService
                     .SetProperty(n => n.Titulo, tituloLimpio)
                     .SetProperty(n => n.Mensaje, mensajeLimpio)
             );
-    }
-
-    // ==========================================
-    // ELIMINAR TODAS
-    // ==========================================
-
-    public async Task<int> EliminarTodasAsync(int usuarioId)
-    {
-        if (usuarioId <= 0)
-        {
-            throw new ArgumentException("El usuario no es válido.", nameof(usuarioId));
-        }
-
-        var cantidadEliminada = await _context
-            .Notificaciones.Where(n => n.UsuarioId == usuarioId)
-            .ExecuteDeleteAsync();
-
-        return cantidadEliminada;
     }
 }

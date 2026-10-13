@@ -425,6 +425,9 @@ namespace NutriApi.Migrations
                     b.Property<int>("Estado")
                         .HasColumnType("integer");
 
+                    b.Property<DateOnly?>("FechaActivacionProgramada")
+                        .HasColumnType("date");
+
                     b.Property<DateTime?>("FechaActualizacion")
                         .HasColumnType("timestamp with time zone");
 

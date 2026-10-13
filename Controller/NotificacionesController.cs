@@ -106,22 +106,6 @@ public class NotificacionesController : ControllerBase
     }
 
     // ==========================================
-    // ID JWT
-    // ==========================================
-
-    private int? ObtenerUsuarioId()
-    {
-        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (!int.TryParse(claim, out var id))
-        {
-            return null;
-        }
-
-        return id;
-    }
-
-    // ==========================================
     // ELIMINAR TODAS
     // ==========================================
 
@@ -145,5 +129,21 @@ public class NotificacionesController : ControllerBase
                 cantidadEliminada = cantidad,
             }
         );
+    }
+
+    // ==========================================
+    // ID JWT
+    // ==========================================
+
+    private int? ObtenerUsuarioId()
+    {
+        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!int.TryParse(claim, out var id))
+        {
+            return null;
+        }
+
+        return id;
     }
 }
