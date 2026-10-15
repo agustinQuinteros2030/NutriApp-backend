@@ -19,4 +19,14 @@ public class DietaListadoDto
     public DateTime FechaCreacion { get; set; }
 
     public DateOnly? FechaActivacionProgramada { get; set; }
+
+    // Objetivos nutricionales diarios
+
+    public decimal? ObjetivoCalorias { get; set; }
+
+    public decimal? ObjetivoProteinas { get; set; }
+
+    public decimal? ObjetivoCarbohidratos { get; set; }
+
+    public decimal? ObjetivoGrasas { get; set; }
 }

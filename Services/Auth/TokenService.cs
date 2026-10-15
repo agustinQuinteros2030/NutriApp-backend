@@ -1,35 +1,24 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
-
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 
 namespace NutriApi.Services.Auth;
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration
-        _configuration;
+    private readonly IConfiguration _configuration;
 
-    private readonly UserManager<UsuarioAplicacion>
-        _userManager;
+    private readonly UserManager<UsuarioAplicacion> _userManager;
 
-
-    public TokenService(
-        IConfiguration configuration,
-        UserManager<UsuarioAplicacion> userManager)
+    public TokenService(IConfiguration configuration, UserManager<UsuarioAplicacion> userManager)
     {
-        _configuration =
-            configuration;
+        _configuration = configuration;
 
-        _userManager =
-            userManager;
+        _userManager = userManager;
     }
 
-
-    public async Task<TokenResultado>
-        GenerarTokenAsync(
-            UsuarioAplicacion usuario)
+    public async Task<TokenResultado> GenerarTokenAsync(UsuarioAplicacion usuario)
     {
         // ======================================
         // CONFIGURACIÓN
@@ -37,42 +26,23 @@ public class TokenService : ITokenService
 
         var jwtKey =
             _configuration["Jwt:Key"]
-            ?? throw new InvalidOperationException(
-                "No se encontró Jwt:Key."
-            );
-
+            ?? throw new InvalidOperationException("No se encontró Jwt:Key.");
 
         var issuer =
             _configuration["Jwt:Issuer"]
-            ?? throw new InvalidOperationException(
-                "No se encontró Jwt:Issuer."
-            );
-
+            ?? throw new InvalidOperationException("No se encontró Jwt:Issuer.");
 
         var audience =
             _configuration["Jwt:Audience"]
-            ?? throw new InvalidOperationException(
-                "No se encontró Jwt:Audience."
-            );
+            ?? throw new InvalidOperationException("No se encontró Jwt:Audience.");
 
-
-        var expirationMinutes =
-            _configuration.GetValue<int?>(
-                "Jwt:ExpirationMinutes"
-            )
-            ?? 60;
-
+        var expirationMinutes = _configuration.GetValue<int?>("Jwt:ExpirationMinutes") ?? 60;
 
         // ======================================
         // ROLES
         // ======================================
 
-        var roles =
-            await _userManager
-                .GetRolesAsync(
-                    usuario
-                );
-
+        var roles = await _userManager.GetRolesAsync(usuario);
 
         // ======================================
         // SECURITY STAMP
@@ -88,136 +58,67 @@ public class TokenService : ITokenService
          * Guardamos el valor actual dentro del JWT.
          */
 
-        var securityStamp =
-            await _userManager
-                .GetSecurityStampAsync(
-                    usuario
-                );
+        var securityStamp = await _userManager.GetSecurityStampAsync(usuario);
 
-
-        if (string.IsNullOrWhiteSpace(
-            securityStamp))
+        if (string.IsNullOrWhiteSpace(securityStamp))
         {
-            throw new InvalidOperationException(
-                "El usuario no posee un SecurityStamp válido."
-            );
+            throw new InvalidOperationException("El usuario no posee un SecurityStamp válido.");
         }
-
 
         // ======================================
         // CLAIMS
         // ======================================
 
-        var claims =
-            new List<Claim>
-            {
-                new(
-                    ClaimTypes.NameIdentifier,
-                    usuario.Id.ToString()
-                ),
-
-                new(
-                    ClaimTypes.Email,
-                    usuario.Email
-                    ?? string.Empty
-                ),
-
-                new(
-                    ClaimTypes.Name,
-                    $"{usuario.Nombre} {usuario.Apellido}"
-                ),
-
-                new(
-                    JwtRegisteredClaimNames.Jti,
-                    Guid.NewGuid().ToString()
-                ),
-
-                /*
-                 * Claim propio utilizado para
-                 * invalidar JWT anteriores cuando
-                 * cambia la seguridad del usuario.
-                 */
-                new(
-                    "security_stamp",
-                    securityStamp
-                )
-            };
-
+        var claims = new List<Claim>
+        {
+            new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+            new(ClaimTypes.Email, usuario.Email ?? string.Empty),
+            new(ClaimTypes.Name, $"{usuario.Nombre} {usuario.Apellido}"),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            /*
+             * Claim propio utilizado para
+             * invalidar JWT anteriores cuando
+             * cambia la seguridad del usuario.
+             */
+            new("security_stamp", securityStamp),
+        };
 
         foreach (var rol in roles)
         {
-            claims.Add(
-                new Claim(
-                    ClaimTypes.Role,
-                    rol
-                )
-            );
+            claims.Add(new Claim(ClaimTypes.Role, rol));
         }
-
 
         // ======================================
         // FIRMA
         // ======================================
 
-        var key =
-            new SymmetricSecurityKey(
-                Convert.FromBase64String(
-                    jwtKey
-                )
-            );
+        var key = new SymmetricSecurityKey(Convert.FromBase64String(jwtKey));
 
-
-        var credentials =
-            new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256
-            );
-
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         // ======================================
         // EXPIRACIÓN
         // ======================================
 
-        var fechaExpiracion =
-            DateTime.UtcNow
-                .AddMinutes(
-                    expirationMinutes
-                );
-
+        var fechaExpiracion = DateTime.UtcNow.AddMinutes(expirationMinutes);
 
         // ======================================
         // TOKEN
         // ======================================
 
-        var token =
-            new JwtSecurityToken(
-                issuer:
-                    issuer,
-
-                audience:
-                    audience,
-
-                claims:
-                    claims,
-
-                expires:
-                    fechaExpiracion,
-
-                signingCredentials:
-                    credentials
-            );
-
+        var token = new JwtSecurityToken(
+            issuer: issuer,
+            audience: audience,
+            claims: claims,
+            expires: fechaExpiracion,
+            signingCredentials: credentials
+        );
 
         return new TokenResultado
         {
-            Token =
-                new JwtSecurityTokenHandler()
-                    .WriteToken(
-                        token
-                    ),
+            Token = new JwtSecurityTokenHandler().WriteToken(token),
 
-            ExpiraEn =
-                fechaExpiracion
+            ExpiraEn = fechaExpiracion,
         };
     }
 }

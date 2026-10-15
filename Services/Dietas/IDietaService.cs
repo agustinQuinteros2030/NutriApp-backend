@@ -1,4 +1,5 @@
-﻿using NutriApi.DTOs.Dietas;
+﻿using NutriApi.Calculos;
+using NutriApi.DTOs.Dietas;
 
 namespace NutriApi.Services.Dietas;
 
@@ -69,4 +70,44 @@ public interface IDietaService
     );
 
     Task<int> ProcesarActivacionesProgramadasAsync();
+
+    Task<ResultadoDieta<DietaDetalleDto>> ActualizarObjetivosNutricionalesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        ActualizarObjetivosNutricionalesDto dto
+    );
+
+    Task<ResultadoDieta<DistribucionNutricionalDto>> ObtenerDistribucionNutricionalAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
+
+    Task<ResultadoDieta<BalanceNutricionalDiarioDto>> ObtenerBalanceNutricionalDiarioAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
+
+    Task<ResultadoDieta<ComparacionAlternativasDietaDto>> ObtenerComparacionCaloricaPorSeccionAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId
+    );
+
+    Task<ResultadoDieta<SimulacionAjustesPorcionesDto>> ObtenerSugerenciasAjustePorcionesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId
+    );
+
+    Task<ResultadoDieta<SimulacionAjustesPorcionesV2Dto>> ObtenerSugerenciasAjustePorcionesV2Async(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        PrioridadAjusteNutricional prioridad
+    );
 }

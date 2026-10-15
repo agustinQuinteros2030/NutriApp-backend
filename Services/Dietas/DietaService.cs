@@ -150,6 +150,16 @@ public class DietaService : IDietaService
                 CantidadComidas = d.Comidas.Count,
 
                 FechaCreacion = d.FechaCreacion,
+
+                // Objetivos nutricionales diarios
+
+                ObjetivoCalorias = d.ObjetivoCalorias,
+
+                ObjetivoProteinas = d.ObjetivoProteinas,
+
+                ObjetivoCarbohidratos = d.ObjetivoCarbohidratos,
+
+                ObjetivoGrasas = d.ObjetivoGrasas,
             })
             .ToListAsync();
 
@@ -161,6 +171,58 @@ public class DietaService : IDietaService
 
             TipoError = TipoErrorDieta.Ninguno,
         };
+    }
+
+    public async Task<ResultadoDieta<DietaDetalleDto>> ActualizarObjetivosNutricionalesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        ActualizarObjetivosNutricionalesDto dto
+    )
+    {
+        var dieta = await _context.Dietas.FirstOrDefaultAsync(d =>
+            d.Id == dietaId
+            && d.PacienteId == pacienteId
+            && d.Paciente.NutricionistaId == nutricionistaId
+        );
+
+        if (dieta is null)
+        {
+            return DietaNoEncontrada();
+        }
+
+        if (dieta.Estado == EstadoDieta.Archivada)
+        {
+            return ErrorValidacion("No se pueden modificar los objetivos de una dieta archivada.");
+        }
+
+        // Validar los límites definidos para decimal(10,2).
+
+        var valores = new decimal?[]
+        {
+            dto.ObjetivoCalorias,
+            dto.ObjetivoProteinas,
+            dto.ObjetivoCarbohidratos,
+            dto.ObjetivoGrasas,
+        };
+
+        if (
+            valores.Any(valor => valor.HasValue && (valor.Value < 0m || valor.Value > 99999999.99m))
+        )
+        {
+            return ErrorValidacion("Los objetivos deben estar entre 0 y 99999999.99.");
+        }
+
+        dieta.ObjetivoCalorias = dto.ObjetivoCalorias;
+        dieta.ObjetivoProteinas = dto.ObjetivoProteinas;
+        dieta.ObjetivoCarbohidratos = dto.ObjetivoCarbohidratos;
+        dieta.ObjetivoGrasas = dto.ObjetivoGrasas;
+
+        dieta.FechaActualizacion = DateTime.UtcNow;
+
+        await _context.SaveChangesAsync();
+
+        return await ObtenerPorIdAsync(nutricionistaId, pacienteId, dietaId);
     }
 
     // ==========================================
@@ -391,6 +453,12 @@ public class DietaService : IDietaService
 
                     ObservacionesGenerales = origen.ObservacionesGenerales,
 
+                    // Copiar objetivos nutricionales diarios
+                    ObjetivoCalorias = origen.ObjetivoCalorias,
+                    ObjetivoProteinas = origen.ObjetivoProteinas,
+                    ObjetivoCarbohidratos = origen.ObjetivoCarbohidratos,
+                    ObjetivoGrasas = origen.ObjetivoGrasas,
+
                     FechaCreacion = DateTime.UtcNow,
                 };
 
@@ -484,6 +552,12 @@ public class DietaService : IDietaService
                         Orden = comidaOrigen.Orden,
 
                         Observaciones = comidaOrigen.Observaciones,
+
+                        // Copiar objetivos nutricionales de la comida
+                        ObjetivoCalorias = comidaOrigen.ObjetivoCalorias,
+                        ObjetivoProteinas = comidaOrigen.ObjetivoProteinas,
+                        ObjetivoCarbohidratos = comidaOrigen.ObjetivoCarbohidratos,
+                        ObjetivoGrasas = comidaOrigen.ObjetivoGrasas,
                     };
 
                     _context.Comidas.Add(comidaNueva);
@@ -796,6 +870,12 @@ public class DietaService : IDietaService
 
                     ObservacionesGenerales = origen.ObservacionesGenerales,
 
+                    // Copiar objetivos nutricionales diarios
+                    ObjetivoCalorias = origen.ObjetivoCalorias,
+                    ObjetivoProteinas = origen.ObjetivoProteinas,
+                    ObjetivoCarbohidratos = origen.ObjetivoCarbohidratos,
+                    ObjetivoGrasas = origen.ObjetivoGrasas,
+
                     FechaCreacion = DateTime.UtcNow,
                 };
 
@@ -889,6 +969,12 @@ public class DietaService : IDietaService
                         Orden = comidaOrigen.Orden,
 
                         Observaciones = comidaOrigen.Observaciones,
+
+                        // Copiar objetivos nutricionales de la comida
+                        ObjetivoCalorias = comidaOrigen.ObjetivoCalorias,
+                        ObjetivoProteinas = comidaOrigen.ObjetivoProteinas,
+                        ObjetivoCarbohidratos = comidaOrigen.ObjetivoCarbohidratos,
+                        ObjetivoGrasas = comidaOrigen.ObjetivoGrasas,
                     };
 
                     _context.Comidas.Add(comidaNueva);
@@ -1440,17 +1526,12 @@ public class DietaService : IDietaService
     private static DietaDetalleDto MapearDetalle(Dieta dieta, int cantidadComidas)
     {
         /*
-         * Para calcular el total del plan:
+         * Calculamos los nutrientes reales
+         * utilizando las opciones predeterminadas
+         * de cada sección.
          *
-         * 1. Recorremos todas las comidas.
-         *
-         * 2. Juntamos todas sus secciones.
-         *
-         * 3. CalculadoraTotalesNutricionales
-         *    toma únicamente la opción
-         *    predeterminada de cada sección.
-         *
-         * 4. Suma los items de esas opciones.
+         * Los objetivos nutricionales son
+         * independientes de estos totales.
          */
 
         var secciones =
@@ -1487,6 +1568,16 @@ public class DietaService : IDietaService
             FechaActualizacion = dieta.FechaActualizacion,
 
             Totales = MapearTotales(resultadoTotales),
+
+            // OBJETIVOS NUTRICIONALES DIARIOS
+
+            ObjetivoCalorias = dieta.ObjetivoCalorias,
+
+            ObjetivoProteinas = dieta.ObjetivoProteinas,
+
+            ObjetivoCarbohidratos = dieta.ObjetivoCarbohidratos,
+
+            ObjetivoGrasas = dieta.ObjetivoGrasas,
         };
     }
 
@@ -1513,6 +1604,204 @@ public class DietaService : IDietaService
             SeccionesSinOpcionPredeterminada = resultado.SeccionesSinOpcionPredeterminada,
 
             EsCompleto = resultado.EsCompleto,
+        };
+    }
+
+    public async Task<
+        ResultadoDieta<BalanceNutricionalDiarioDto>
+    > ObtenerBalanceNutricionalDiarioAsync(int nutricionistaId, int pacienteId, int dietaId)
+    {
+        var resultadoDieta = await ObtenerPorIdAsync(nutricionistaId, pacienteId, dietaId);
+
+        if (!resultadoDieta.Exitoso || resultadoDieta.Datos is null)
+        {
+            return new ResultadoDieta<BalanceNutricionalDiarioDto>
+            {
+                Exitoso = false,
+                Error = resultadoDieta.Error,
+                TipoError = resultadoDieta.TipoError,
+            };
+        }
+
+        var balance = CalculadoraBalanceNutricional.Calcular(resultadoDieta.Datos);
+
+        return new ResultadoDieta<BalanceNutricionalDiarioDto>
+        {
+            Exitoso = true,
+            Datos = balance,
+            TipoError = TipoErrorDieta.Ninguno,
+        };
+    }
+
+    public async Task<
+        ResultadoDieta<DistribucionNutricionalDto>
+    > ObtenerDistribucionNutricionalAsync(int nutricionistaId, int pacienteId, int dietaId)
+    {
+        var dieta = await _context
+            .Dietas.AsNoTracking()
+            .Include(d => d.Comidas)
+            .FirstOrDefaultAsync(d =>
+                d.Id == dietaId
+                && d.PacienteId == pacienteId
+                && d.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (dieta is null)
+        {
+            return new ResultadoDieta<DistribucionNutricionalDto>
+            {
+                Exitoso = false,
+
+                Error = "Dieta no encontrada.",
+
+                TipoError = TipoErrorDieta.NoEncontrado,
+            };
+        }
+
+        var distribucion = CalculadoraDistribucionNutricional.Calcular(dieta);
+
+        return new ResultadoDieta<DistribucionNutricionalDto>
+        {
+            Exitoso = true,
+
+            Datos = distribucion,
+
+            TipoError = TipoErrorDieta.Ninguno,
+        };
+    }
+
+    public async Task<
+        ResultadoDieta<ComparacionAlternativasDietaDto>
+    > ObtenerComparacionCaloricaPorSeccionAsync(int nutricionistaId, int pacienteId, int dietaId)
+    {
+        var dieta = await _context
+            .Dietas.AsNoTracking()
+            .Include(d => d.Comidas)
+                .ThenInclude(c => c.Secciones)
+                    .ThenInclude(s => s.Opciones)
+                        .ThenInclude(o => o.Items)
+                            .ThenInclude(i => i.Alimento)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(d =>
+                d.Id == dietaId
+                && d.PacienteId == pacienteId
+                && d.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (dieta is null)
+        {
+            return new ResultadoDieta<ComparacionAlternativasDietaDto>
+            {
+                Exitoso = false,
+                Error = "Dieta no encontrada.",
+                TipoError = TipoErrorDieta.NoEncontrado,
+            };
+        }
+
+        var comparacion = CalculadoraComparacionAlternativas.Calcular(dieta);
+
+        return new ResultadoDieta<ComparacionAlternativasDietaDto>
+        {
+            Exitoso = true,
+            Datos = comparacion,
+            TipoError = TipoErrorDieta.Ninguno,
+        };
+    }
+
+    public async Task<
+        ResultadoDieta<SimulacionAjustesPorcionesDto>
+    > ObtenerSugerenciasAjustePorcionesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId
+    )
+    {
+        var comida = await _context
+            .Comidas.AsNoTracking()
+            .Include(c => c.Secciones)
+                .ThenInclude(s => s.Opciones)
+                    .ThenInclude(o => o.Items)
+                        .ThenInclude(i => i.Alimento)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(c =>
+                c.Id == comidaId
+                && c.DietaId == dietaId
+                && c.Dieta.PacienteId == pacienteId
+                && c.Dieta.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (comida is null)
+        {
+            return new ResultadoDieta<SimulacionAjustesPorcionesDto>
+            {
+                Exitoso = false,
+                Error = "Comida no encontrada.",
+                TipoError = TipoErrorDieta.NoEncontrado,
+            };
+        }
+
+        var simulacion = SimuladorAjustesPorciones.Calcular(comida);
+
+        return new ResultadoDieta<SimulacionAjustesPorcionesDto>
+        {
+            Exitoso = true,
+            Datos = simulacion,
+            TipoError = TipoErrorDieta.Ninguno,
+        };
+    }
+
+    public async Task<
+        ResultadoDieta<SimulacionAjustesPorcionesV2Dto>
+    > ObtenerSugerenciasAjustePorcionesV2Async(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        PrioridadAjusteNutricional prioridad
+    )
+    {
+        if (!Enum.IsDefined(prioridad))
+        {
+            return new ResultadoDieta<SimulacionAjustesPorcionesV2Dto>
+            {
+                Exitoso = false,
+                Error = "La prioridad nutricional no es válida.",
+                TipoError = TipoErrorDieta.Validacion,
+            };
+        }
+
+        var comida = await _context
+            .Comidas.AsNoTracking()
+            .Include(c => c.Secciones)
+                .ThenInclude(s => s.Opciones)
+                    .ThenInclude(o => o.Items)
+                        .ThenInclude(i => i.Alimento)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(c =>
+                c.Id == comidaId
+                && c.DietaId == dietaId
+                && c.Dieta.PacienteId == pacienteId
+                && c.Dieta.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (comida is null)
+        {
+            return new ResultadoDieta<SimulacionAjustesPorcionesV2Dto>
+            {
+                Exitoso = false,
+                Error = "Comida no encontrada.",
+                TipoError = TipoErrorDieta.NoEncontrado,
+            };
+        }
+
+        var simulacion = SimuladorAjustesPorcionesV2.Calcular(comida, prioridad);
+
+        return new ResultadoDieta<SimulacionAjustesPorcionesV2Dto>
+        {
+            Exitoso = true,
+            Datos = simulacion,
+            TipoError = TipoErrorDieta.Ninguno,
         };
     }
 

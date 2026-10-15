@@ -100,11 +100,7 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // CONTROL DE SEGUIMIENTO
     // =========================
 
-    public DbSet<MensajePaciente> MensajesPacientes
-    {
-        get;
-        set;
-    }
+    public DbSet<MensajePaciente> MensajesPacientes { get; set; }
 
     public DbSet<ControlSeguimientoPaciente> ControlesSeguimientoPacientes { get; set; }
 
@@ -488,9 +484,13 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
 
     private static void ConfigurarDecimales(ModelBuilder modelBuilder)
     {
+        // PERFIL PACIENTE
+
         modelBuilder.Entity<PerfilPaciente>().Property(p => p.PesoInicial).HasPrecision(6, 2);
 
         modelBuilder.Entity<PerfilPaciente>().Property(p => p.Altura).HasPrecision(5, 2);
+
+        // ALIMENTOS
 
         modelBuilder.Entity<Alimento>().Property(a => a.CantidadBase).HasPrecision(10, 2);
 
@@ -502,19 +502,50 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
 
         modelBuilder.Entity<Alimento>().Property(a => a.Grasas).HasPrecision(10, 2);
 
+        // OBJETIVOS NUTRICIONALES DIARIOS - DIETA
+
+        modelBuilder.Entity<Dieta>().Property(d => d.ObjetivoCalorias).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Dieta>().Property(d => d.ObjetivoProteinas).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Dieta>().Property(d => d.ObjetivoCarbohidratos).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Dieta>().Property(d => d.ObjetivoGrasas).HasPrecision(10, 2);
+
+        // OBJETIVOS NUTRICIONALES POR COMIDA
+
+        modelBuilder.Entity<Comida>().Property(c => c.ObjetivoCalorias).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Comida>().Property(c => c.ObjetivoProteinas).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Comida>().Property(c => c.ObjetivoCarbohidratos).HasPrecision(10, 2);
+
+        modelBuilder.Entity<Comida>().Property(c => c.ObjetivoGrasas).HasPrecision(10, 2);
+
+        // ITEMS DE DIETAS
+
         modelBuilder.Entity<ItemOpcionComida>().Property(i => i.Cantidad).HasPrecision(10, 2);
 
         modelBuilder.Entity<ItemSuplementacion>().Property(i => i.Cantidad).HasPrecision(10, 2);
 
+        // PAGOS
+
         modelBuilder.Entity<PagoPaciente>().Property(p => p.Monto).HasPrecision(18, 2);
 
-        modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CinturaCm).HasPrecision(6, 2);
+        // REGISTROS DIARIOS
+
+        modelBuilder
+            .Entity<RegistroDiarioPaciente>()
+            .Property(r => r.CinturaCm)
+            .HasPrecision(6, 2);
 
         modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CaderaCm).HasPrecision(6, 2);
 
         modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.GemeloCm).HasPrecision(6, 2);
 
         modelBuilder.Entity<RegistroDiarioPaciente>().Property(r => r.CuelloCm).HasPrecision(6, 2);
+
+        // SEGUIMIENTO SEMANAL
 
         modelBuilder
             .Entity<SeguimientoSemanalPaciente>()

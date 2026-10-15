@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NutriApi.Calculos;
 using NutriApi.DTOs.Dietas;
 using NutriApi.Services.Dietas;
 
@@ -236,5 +237,109 @@ public class DietasController : ControllerBase
                 new { error = resultado.Error }
             ),
         };
+    }
+
+    [HttpPut("{dietaId:int}/objetivos-nutricionales")]
+    public async Task<IActionResult> ActualizarObjetivosNutricionales(
+        int pacienteId,
+        int dietaId,
+        [FromBody] ActualizarObjetivosNutricionalesDto dto
+    )
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ActualizarObjetivosNutricionalesAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            dto
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpGet("{dietaId:int}/comidas/{comidaId:int}/sugerencias-ajuste-porciones")]
+    public async Task<IActionResult> ObtenerSugerenciasAjustePorciones(
+        int pacienteId,
+        int dietaId,
+        int comidaId
+    )
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerSugerenciasAjustePorcionesAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            comidaId
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpGet("{dietaId:int}/balance-nutricional")]
+    public async Task<IActionResult> ObtenerBalanceNutricionalDiario(int pacienteId, int dietaId)
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerBalanceNutricionalDiarioAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpGet("{dietaId:int}/comparacion-calorica-secciones")]
+    public async Task<IActionResult> ObtenerComparacionCaloricaPorSeccion(
+        int pacienteId,
+        int dietaId
+    )
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerComparacionCaloricaPorSeccionAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpGet("{dietaId:int}/distribucion-nutricional")]
+    public async Task<IActionResult> ObtenerDistribucionNutricional(int pacienteId, int dietaId)
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerDistribucionNutricionalAsync(
+            nutricionistaId,
+            pacienteId,
+            dietaId
+        );
+
+        return ConvertirResultado(resultado);
+    }
+
+    [HttpGet("{dietaId:int}/comidas/{comidaId:int}/sugerencias-ajuste-porciones-v2")]
+    public async Task<IActionResult> ObtenerSugerenciasAjustePorcionesV2(
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        [FromQuery] PrioridadAjusteNutricional prioridad = PrioridadAjusteNutricional.Equilibrado
+    )
+    {
+        var nutricionistaId = ObtenerUsuarioIdActual();
+
+        var resultado = await _dietaService.ObtenerSugerenciasAjustePorcionesV2Async(
+            nutricionistaId,
+            pacienteId,
+            dietaId,
+            comidaId,
+            prioridad
+        );
+
+        return ConvertirResultado(resultado);
     }
 }

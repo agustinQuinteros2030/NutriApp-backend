@@ -32,6 +32,16 @@ public class Dieta
 
     public DateTime? FechaActualizacion { get; set; }
 
+    // Objetivos nutricionales diarios
+
+    public decimal? ObjetivoCalorias { get; set; }
+
+    public decimal? ObjetivoProteinas { get; set; }
+
+    public decimal? ObjetivoCarbohidratos { get; set; }
+
+    public decimal? ObjetivoGrasas { get; set; }
+
     // Navegación
 
     public Paciente Paciente { get; set; } = null!;

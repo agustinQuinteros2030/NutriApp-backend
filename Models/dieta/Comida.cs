@@ -20,6 +20,16 @@ public class Comida
 
     public string? Observaciones { get; set; }
 
+    // Objetivos nutricionales de la comida
+
+    public decimal? ObjetivoCalorias { get; set; }
+
+    public decimal? ObjetivoProteinas { get; set; }
+
+    public decimal? ObjetivoCarbohidratos { get; set; }
+
+    public decimal? ObjetivoGrasas { get; set; }
+
 
     // Navegación
 

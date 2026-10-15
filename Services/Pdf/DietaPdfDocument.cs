@@ -11,19 +11,24 @@ public class DietaPdfDocument
 {
     private readonly DietaPdfDatos _datos;
 
-    private const string VerdeOscuro = "#164E3F";
+    private const string VerdeOscuro = "#10130F";
 
-    private const string Verde = "#2F7D64";
+    private const string Verde = "#C8FF00";
 
-    private const string VerdeClaro = "#EAF5F0";
+    private const string VerdeClaro = "#1A2310";
 
-    private const string Fondo = "#F7FAF8";
+    private const string Fondo = "#151815";
 
-    private const string Texto = "#18332C";
+    private const string Texto = "#F1F4EC";
 
-    private const string TextoSecundario = "#62756F";
+    private const string TextoSecundario = "#ADB5A5";
 
-    private const string Borde = "#D9E6E0";
+    private const string Borde = "#303A29";
+
+    // Paleta inspirada en la referencia: negro grafito + lima neón.
+    private const string FondoPagina = "#090B09";
+
+    private const string Tarjeta = "#121512";
 
     public DietaPdfDocument(DietaPdfDatos datos)
     {
@@ -40,7 +45,7 @@ public class DietaPdfDocument
 
                 page.Margin(30);
 
-                page.PageColor(Colors.White);
+                page.PageColor(FondoPagina);
 
                 page.DefaultTextStyle(estilo => estilo.FontSize(10).FontColor(Texto));
 
@@ -78,6 +83,9 @@ public class DietaPdfDocument
                     });
 
                 page.Footer()
+                    .BorderTop(1)
+                    .BorderColor(Borde)
+                    .PaddingTop(8)
                     .Row(fila =>
                     {
                         fila.RelativeItem()
@@ -115,6 +123,8 @@ public class DietaPdfDocument
     {
         container
             .Background(VerdeOscuro)
+            .BorderBottom(3)
+            .BorderColor(Verde)
             .Padding(18)
             .Row(fila =>
             {
@@ -123,32 +133,34 @@ public class DietaPdfDocument
                     {
                         columna
                             .Item()
-                            .Text("NUTRIPOWER")
-                            .FontSize(10)
+                            .Text("NUTRIPOWER · PLAN PERSONALIZADO")
+                            .FontSize(9)
                             .SemiBold()
-                            .FontColor("#BFE3D5");
+                            .FontColor(Verde);
 
                         columna
                             .Item()
                             .PaddingTop(3)
-                            .Text("Plan nutricional")
-                            .FontSize(22)
+                            .Text("PLAN NUTRICIONAL")
+                            .FontSize(14)
+                            .SemiBold()
+                            .FontColor(Texto);
+
+                        columna
+                            .Item()
+                            .PaddingTop(3)
+                            .Text(_datos.NombrePaciente.ToUpperInvariant())
+                            .FontSize(23)
                             .Bold()
-                            .FontColor(Colors.White);
-
-                        columna
-                            .Item()
-                            .PaddingTop(3)
-                            .Text(_datos.NombrePaciente)
-                            .FontSize(13)
-                            .FontColor(Colors.White);
+                            .FontColor(Verde);
                     });
 
                 fila.AutoItem()
                     .AlignBottom()
-                    .Text($"Versión {_datos.Plan.Version}")
+                    .Text($"VERSIÓN {_datos.Plan.Version}")
                     .FontSize(9)
-                    .FontColor("#BFE3D5");
+                    .SemiBold()
+                    .FontColor(Verde);
             });
     }
 
@@ -167,7 +179,7 @@ public class DietaPdfDocument
             {
                 columna.Spacing(7);
 
-                columna.Item().Text(_datos.Plan.Nombre).FontSize(16).Bold().FontColor(VerdeOscuro);
+                columna.Item().Text(_datos.Plan.Nombre).FontSize(16).Bold().FontColor(Verde);
 
                 if (!string.IsNullOrWhiteSpace(_datos.Plan.Descripcion))
                 {
@@ -216,9 +228,9 @@ public class DietaPdfDocument
             .AlignCenter()
             .Column(columna =>
             {
-                columna.Item().AlignCenter().Text(valor).Bold().FontSize(13);
+                columna.Item().AlignCenter().Text(valor).Bold().FontSize(14).FontColor(Verde);
 
-                columna.Item().AlignCenter().Text(label).FontSize(8);
+                columna.Item().AlignCenter().Text(label).FontSize(8).FontColor(TextoSecundario);
             });
     }
 
@@ -231,11 +243,14 @@ public class DietaPdfDocument
         container
             .Border(1)
             .BorderColor(Borde)
+            .Background(Tarjeta)
             .Column(columna =>
             {
                 columna
                     .Item()
                     .Background(VerdeOscuro)
+                    .BorderLeft(3)
+                    .BorderColor(Verde)
                     .Padding(10)
                     .Row(fila =>
                     {
@@ -245,7 +260,7 @@ public class DietaPdfDocument
                             .Bold()
                             .FontColor(Colors.White);
 
-                        fila.AutoItem().Text(comida.Tipo).FontSize(9).FontColor("#CDE6DC");
+                        fila.AutoItem().Text(comida.Tipo).FontSize(9).FontColor(Verde);
                     });
 
                 columna
@@ -294,7 +309,7 @@ public class DietaPdfDocument
             .PreventPageBreak()
             .Border(1)
             .BorderColor(opcion.EsPredeterminada ? Verde : Borde)
-            .Background(opcion.EsPredeterminada ? VerdeClaro : Colors.White)
+            .Background(opcion.EsPredeterminada ? VerdeClaro : Fondo)
             .Padding(10)
             .Column(columna =>
             {
@@ -304,7 +319,7 @@ public class DietaPdfDocument
                     .Item()
                     .Row(fila =>
                     {
-                        fila.RelativeItem().Text(opcion.Nombre).SemiBold();
+                        fila.RelativeItem().Text(opcion.Nombre).SemiBold().FontColor(Texto);
 
                         if (opcion.EsPredeterminada)
                         {
@@ -348,7 +363,8 @@ public class DietaPdfDocument
                             .Text(
                                 $"{FormatearNumero(item.Cantidad)} {FormatearUnidad(item.UnidadMedida)}"
                             )
-                            .SemiBold();
+                            .SemiBold()
+                            .FontColor(Verde);
                     });
 
                 if (!string.IsNullOrWhiteSpace(item.Indicaciones))
@@ -392,13 +408,13 @@ public class DietaPdfDocument
         var hidratacion = _datos.Plan.Hidratacion!;
 
         container
-            .Background("#EDF7FB")
+            .Background(VerdeClaro)
             .Border(1)
-            .BorderColor("#CAE5F0")
+            .BorderColor(Borde)
             .Padding(12)
             .Column(columna =>
             {
-                columna.Item().Text("Hidratación").Bold().FontSize(13).FontColor("#23647B");
+                columna.Item().Text("HIDRATACIÓN").Bold().FontSize(13).FontColor(Verde);
 
                 var pauta = new List<string>();
                 if (hidratacion.MililitrosDiarios.HasValue)
@@ -407,7 +423,6 @@ public class DietaPdfDocument
                     pauta.Add($"{hidratacion.VasosDiarios.Value} vasos");
                 if (pauta.Count > 0)
                     columna.Item().PaddingTop(4).Text(string.Join(" · ", pauta));
-
 
                 if (!string.IsNullOrWhiteSpace(hidratacion.Observaciones))
                 {
@@ -429,15 +444,15 @@ public class DietaPdfDocument
         var suplementacion = _datos.Plan.Suplementacion!;
 
         container
-            .Background("#FFF8E8")
+            .Background(VerdeClaro)
             .Border(1)
-            .BorderColor("#ECDDB6")
+            .BorderColor(Borde)
             .Padding(12)
             .Column(columna =>
             {
                 columna.Spacing(5);
 
-                columna.Item().Text("Suplementación").Bold().FontSize(13).FontColor("#7A5A16");
+                columna.Item().Text("SUPLEMENTACIÓN").Bold().FontSize(13).FontColor(Verde);
 
                 if (!string.IsNullOrWhiteSpace(suplementacion.ObservacionesGenerales))
                 {
@@ -466,8 +481,12 @@ public class DietaPdfDocument
 
                     if (!string.IsNullOrWhiteSpace(item.Indicaciones))
                     {
-                        columna.Item().PaddingLeft(10).Text(item.Indicaciones)
-                            .FontSize(9).FontColor(TextoSecundario);
+                        columna
+                            .Item()
+                            .PaddingLeft(10)
+                            .Text(item.Indicaciones)
+                            .FontSize(9)
+                            .FontColor(TextoSecundario);
                     }
                 }
             });
@@ -485,7 +504,7 @@ public class DietaPdfDocument
             .PaddingTop(10)
             .Column(columna =>
             {
-                columna.Item().Text("Indicaciones generales").Bold().FontColor(VerdeOscuro);
+                columna.Item().Text("INDICACIONES GENERALES").Bold().FontColor(Verde);
 
                 columna.Item().PaddingTop(4).Text(_datos.Plan.ObservacionesGenerales!);
             });

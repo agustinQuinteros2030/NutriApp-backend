@@ -1,11 +1,10 @@
-using System.Security.Claims;
-using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Npgsql;
 using NutriApi.Configuracion;
 using NutriApi.Inicializadores;
 using NutriApi.Services.ActivacionCuenta;
@@ -27,9 +26,12 @@ using NutriApi.Services.PlantillasDietas;
 using NutriApi.Services.RecuperacionPassword;
 using NutriApi.Services.RegistroDiario;
 using NutriApi.Services.SeguimientoSemanal;
+using NutriApi.Services.SustitucionesNutricionales;
 using NutriApi.Services.Turnos;
 using NutriApp.Data;
 using QuestPDF.Infrastructure;
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -59,14 +61,45 @@ builder.Services.AddOpenApi();
 // BASE DE DATOS - SUPABASE
 // =====================================
 
+// =====================================
+// BASE DE DATOS - SUPABASE
+// =====================================
+
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException("No se encontró DefaultConnection.");
+    ?? throw new InvalidOperationException(
+        "No se encontró DefaultConnection."
+    );
+
+// =====================================
+// CONFIGURACIÓN DEL POOL NPGSQL
+// =====================================
+
+var connectionBuilder = new NpgsqlConnectionStringBuilder(
+    connectionString
+)
+{
+    // Reutilizar conexiones.
+    Pooling = true,
+
+    // Límite inicial conservador para desarrollo.
+    MaxPoolSize = 5,
+
+    // No mantener conexiones mínimas obligatorias.
+    MinPoolSize = 0,
+
+    // Liberar conexiones inactivas después de 30 segundos.
+    ConnectionIdleLifetime = 30
+};
+
+// =====================================
+// ENTITY FRAMEWORK CORE
+// =====================================
 
 builder.Services.AddDbContext<NutriAppDbContext>(options =>
 {
     options.UseNpgsql(
-        connectionString,
+        connectionBuilder.ConnectionString,
         npgsqlOptions =>
         {
             npgsqlOptions.EnableRetryOnFailure(
@@ -513,6 +546,10 @@ builder.Services.AddScoped<IControlSeguimientoService, ControlSeguimientoService
 builder.Services.AddScoped<IMensajePacienteService, MensajePacienteService>();
 
 builder.Services.AddHostedService<ActivacionProgramadaDietasWorker>();
+
+builder.Services.AddScoped<ISustitucionNutricionalService, SustitucionNutricionalService>();
+
+builder.Services.AddScoped<IAplicarSustitucionService, AplicarSustitucionService>();
 
 // =====================================
 // CORS

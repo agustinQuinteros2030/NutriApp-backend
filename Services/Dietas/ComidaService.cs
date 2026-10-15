@@ -517,12 +517,9 @@ public class ComidaService : IComidaService
     private static ComidaDetalleDto MapearComida(Comida comida, List<SeccionComidaDto> secciones)
     {
         /*
-         * Para el total de la comida:
-         *
-         * - recorremos todas las secciones
-         * - de cada sección tomamos solamente
-         *   la opción predeterminada
-         * - sumamos sus items
+         * Calculamos los nutrientes reales
+         * utilizando las opciones predeterminadas
+         * de cada sección de la comida.
          */
 
         var resultadoTotales = CalculadoraTotalesNutricionales.CalcularSecciones(comida.Secciones);
@@ -544,7 +541,75 @@ public class ComidaService : IComidaService
             Secciones = secciones,
 
             Totales = MapearTotales(resultadoTotales),
+
+            // Objetivos de esta comida
+
+            ObjetivoCalorias = comida.ObjetivoCalorias,
+
+            ObjetivoProteinas = comida.ObjetivoProteinas,
+
+            ObjetivoCarbohidratos = comida.ObjetivoCarbohidratos,
+
+            ObjetivoGrasas = comida.ObjetivoGrasas,
         };
+    }
+
+    public async Task<ResultadoDieta<ComidaDetalleDto>> ActualizarObjetivosNutricionalesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        ActualizarObjetivosNutricionalesDto dto
+    )
+    {
+        var comida = await _context
+            .Comidas.Include(c => c.Dieta)
+            .FirstOrDefaultAsync(c =>
+                c.Id == comidaId
+                && c.DietaId == dietaId
+                && c.Dieta.PacienteId == pacienteId
+                && c.Dieta.Paciente.NutricionistaId == nutricionistaId
+            );
+
+        if (comida is null)
+        {
+            return Error<ComidaDetalleDto>("Comida no encontrada.", TipoErrorDieta.NoEncontrado);
+        }
+
+        if (comida.Dieta.Estado == EstadoDieta.Archivada)
+        {
+            return Error<ComidaDetalleDto>(
+                "No se pueden modificar los objetivos de una dieta archivada.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+        var valores = new decimal?[]
+        {
+            dto.ObjetivoCalorias,
+            dto.ObjetivoProteinas,
+            dto.ObjetivoCarbohidratos,
+            dto.ObjetivoGrasas,
+        };
+
+        if (
+            valores.Any(valor => valor.HasValue && (valor.Value < 0m || valor.Value > 99999999.99m))
+        )
+        {
+            return Error<ComidaDetalleDto>(
+                "Los objetivos deben estar entre 0 y 99999999.99.",
+                TipoErrorDieta.Validacion
+            );
+        }
+
+        comida.ObjetivoCalorias = dto.ObjetivoCalorias;
+        comida.ObjetivoProteinas = dto.ObjetivoProteinas;
+        comida.ObjetivoCarbohidratos = dto.ObjetivoCarbohidratos;
+        comida.ObjetivoGrasas = dto.ObjetivoGrasas;
+
+        await _context.SaveChangesAsync();
+
+        return await ObtenerComidaAsync(nutricionistaId, pacienteId, dietaId, comidaId);
     }
 
     private static SeccionComidaDto MapearSeccion(SeccionComida seccion)

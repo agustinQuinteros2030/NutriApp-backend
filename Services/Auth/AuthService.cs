@@ -11,33 +11,26 @@ public class AuthService : IAuthService
 
     private readonly ITokenService _tokenService;
 
-
     public AuthService(
         UserManager<UsuarioAplicacion> userManager,
         SignInManager<UsuarioAplicacion> signInManager,
-        ITokenService tokenService)
+        ITokenService tokenService
+    )
     {
         _userManager = userManager;
         _signInManager = signInManager;
         _tokenService = tokenService;
     }
 
-
     // =========================================
     // REGISTRO NUTRICIONISTA
     // =========================================
 
-    public async Task<ResultadoAuth>
-        RegistrarNutricionistaAsync(
-            RegistroNutricionistaDto dto)
+    public async Task<ResultadoAuth> RegistrarNutricionistaAsync(RegistroNutricionistaDto dto)
     {
-        var email =
-            dto.Email.Trim().ToLowerInvariant();
+        var email = dto.Email.Trim().ToLowerInvariant();
 
-
-        var usuarioExistente =
-            await _userManager.FindByEmailAsync(email);
-
+        var usuarioExistente = await _userManager.FindByEmailAsync(email);
 
         if (usuarioExistente is not null)
         {
@@ -45,55 +38,36 @@ public class AuthService : IAuthService
             {
                 Exitoso = false,
 
-                Error =
-                    "Ya existe un usuario con ese email.",
+                Error = "Ya existe un usuario con ese email.",
 
-                TipoError =
-                    TipoErrorAuth.Validacion
+                TipoError = TipoErrorAuth.Validacion,
             };
         }
 
+        var nutricionista = new Nutricionista
+        {
+            Nombre = dto.Nombre.Trim(),
 
-        var nutricionista =
-            new Nutricionista
-            {
-                Nombre = dto.Nombre.Trim(),
+            Apellido = dto.Apellido.Trim(),
 
-                Apellido = dto.Apellido.Trim(),
+            Email = email,
 
-                Email = email,
+            UserName = email,
 
-                UserName = email,
+            PhoneNumber = dto.Telefono?.Trim(),
 
-                PhoneNumber =
-                    dto.Telefono?.Trim(),
+            Matricula = dto.Matricula?.Trim(),
 
-                Matricula =
-                    dto.Matricula?.Trim(),
+            Activo = true,
 
-                Activo = true,
+            FechaCreacion = DateTime.UtcNow,
+        };
 
-                FechaCreacion =
-                    DateTime.UtcNow
-            };
-
-
-        var resultadoCreacion =
-            await _userManager.CreateAsync(
-                nutricionista,
-                dto.Password
-            );
-
+        var resultadoCreacion = await _userManager.CreateAsync(nutricionista, dto.Password);
 
         if (!resultadoCreacion.Succeeded)
         {
-            var errores =
-                string.Join(
-                    " | ",
-                    resultadoCreacion.Errors
-                        .Select(e => e.Description)
-                );
-
+            var errores = string.Join(" | ", resultadoCreacion.Errors.Select(e => e.Description));
 
             return new ResultadoAuth
             {
@@ -101,96 +75,65 @@ public class AuthService : IAuthService
 
                 Error = errores,
 
-                TipoError =
-                    TipoErrorAuth.Validacion
+                TipoError = TipoErrorAuth.Validacion,
             };
         }
 
-
-        var resultadoRol =
-            await _userManager.AddToRoleAsync(
-                nutricionista,
-                Roles.Nutricionista
-            );
-
+        var resultadoRol = await _userManager.AddToRoleAsync(nutricionista, Roles.Nutricionista);
 
         if (!resultadoRol.Succeeded)
         {
             // Evitamos dejar un usuario
             // creado sin su rol correspondiente.
 
-            await _userManager
-                .DeleteAsync(nutricionista);
-
+            await _userManager.DeleteAsync(nutricionista);
 
             return new ResultadoAuth
             {
                 Exitoso = false,
 
-                Error =
-                    "No se pudo asignar el rol al usuario.",
+                Error = "No se pudo asignar el rol al usuario.",
 
-                TipoError =
-                    TipoErrorAuth.ErrorInterno
+                TipoError = TipoErrorAuth.ErrorInterno,
             };
         }
 
-
-        var token =
-            await _tokenService
-                .GenerarTokenAsync(nutricionista);
-
+        var token = await _tokenService.GenerarTokenAsync(nutricionista);
 
         return new ResultadoAuth
         {
             Exitoso = true,
 
-            TipoError =
-                TipoErrorAuth.Ninguno,
+            TipoError = TipoErrorAuth.Ninguno,
 
-            Datos =
-                new AuthResponseDto
-                {
-                    UsuarioId =
-                        nutricionista.Id,
+            Datos = new AuthResponseDto
+            {
+                UsuarioId = nutricionista.Id,
 
-                    Nombre =
-                        nutricionista.Nombre,
+                Nombre = nutricionista.Nombre,
 
-                    Apellido =
-                        nutricionista.Apellido,
+                Apellido = nutricionista.Apellido,
 
-                    Email =
-                        nutricionista.Email!,
+                Email = nutricionista.Email!,
 
-                    Rol =
-                        Roles.Nutricionista,
+                Rol = Roles.Nutricionista,
 
-                    Token =
-                        token.Token,
+                Token = token.Token,
 
-                    ExpiraEn =
-                        token.ExpiraEn
-                }
+                ExpiraEn = token.ExpiraEn,
+            },
         };
     }
-
 
     // =========================================
     // LOGIN
     // =========================================
 
-    public async Task<ResultadoAuth>
-        LoginAsync(LoginDto dto)
+    public async Task<ResultadoAuth> LoginAsync(LoginDto dto)
     {
-        var email =
-            dto.Email.Trim().ToLowerInvariant();
+        var email = dto.Email.Trim().ToLowerInvariant();
 
-
-        var usuario =
-            await _userManager
-                .FindByEmailAsync(email);
-
+        var usuario = await _userManager.FindByEmailAsync(email);
 
         // No decimos si el email existe o no.
         if (usuario is null)
@@ -198,30 +141,23 @@ public class AuthService : IAuthService
             return CredencialesInvalidas();
         }
 
-
         if (!usuario.Activo)
         {
             return new ResultadoAuth
             {
                 Exitoso = false,
 
-                Error =
-                    "La cuenta se encuentra desactivada.",
+                Error = "La cuenta se encuentra desactivada.",
 
-                TipoError =
-                    TipoErrorAuth.UsuarioDesactivado
+                TipoError = TipoErrorAuth.UsuarioDesactivado,
             };
         }
 
-
-        var resultadoPassword =
-            await _signInManager
-                .CheckPasswordSignInAsync(
-                    usuario,
-                    dto.Password,
-                    lockoutOnFailure: true
-                );
-
+        var resultadoPassword = await _signInManager.CheckPasswordSignInAsync(
+            usuario,
+            dto.Password,
+            lockoutOnFailure: true
+        );
 
         if (resultadoPassword.IsLockedOut)
         {
@@ -229,29 +165,20 @@ public class AuthService : IAuthService
             {
                 Exitoso = false,
 
-                Error =
-                    "La cuenta fue bloqueada temporalmente por demasiados intentos fallidos.",
+                Error = "La cuenta fue bloqueada temporalmente por demasiados intentos fallidos.",
 
-                TipoError =
-                    TipoErrorAuth.UsuarioBloqueado
+                TipoError = TipoErrorAuth.UsuarioBloqueado,
             };
         }
-
 
         if (!resultadoPassword.Succeeded)
         {
             return CredencialesInvalidas();
         }
 
+        var roles = await _userManager.GetRolesAsync(usuario);
 
-        var roles =
-            await _userManager
-                .GetRolesAsync(usuario);
-
-
-        var rol =
-            roles.FirstOrDefault();
-
+        var rol = roles.FirstOrDefault();
 
         if (rol is null)
         {
@@ -259,67 +186,48 @@ public class AuthService : IAuthService
             {
                 Exitoso = false,
 
-                Error =
-                    "El usuario no posee un rol asignado.",
+                Error = "El usuario no posee un rol asignado.",
 
-                TipoError =
-                    TipoErrorAuth.ErrorInterno
+                TipoError = TipoErrorAuth.ErrorInterno,
             };
         }
 
-
-        var token =
-            await _tokenService
-                .GenerarTokenAsync(usuario);
-
+        var token = await _tokenService.GenerarTokenAsync(usuario);
 
         return new ResultadoAuth
         {
             Exitoso = true,
 
-            TipoError =
-                TipoErrorAuth.Ninguno,
+            TipoError = TipoErrorAuth.Ninguno,
 
-            Datos =
-                new AuthResponseDto
-                {
-                    UsuarioId =
-                        usuario.Id,
+            Datos = new AuthResponseDto
+            {
+                UsuarioId = usuario.Id,
 
-                    Nombre =
-                        usuario.Nombre,
+                Nombre = usuario.Nombre,
 
-                    Apellido =
-                        usuario.Apellido,
+                Apellido = usuario.Apellido,
 
-                    Email =
-                        usuario.Email!,
+                Email = usuario.Email!,
 
-                    Rol =
-                        rol,
+                Rol = rol,
 
-                    Token =
-                        token.Token,
+                Token = token.Token,
 
-                    ExpiraEn =
-                        token.ExpiraEn
-                }
+                ExpiraEn = token.ExpiraEn,
+            },
         };
     }
 
-
-    private static ResultadoAuth
-        CredencialesInvalidas()
+    private static ResultadoAuth CredencialesInvalidas()
     {
         return new ResultadoAuth
         {
             Exitoso = false,
 
-            Error =
-                "Email o contraseña incorrectos.",
+            Error = "Email o contraseña incorrectos.",
 
-            TipoError =
-                TipoErrorAuth.CredencialesInvalidas
+            TipoError = TipoErrorAuth.CredencialesInvalidas,
         };
     }
 }

@@ -74,4 +74,12 @@ public interface IComidaService
         int comidaId,
         int seccionId
     );
+
+    Task<ResultadoDieta<ComidaDetalleDto>> ActualizarObjetivosNutricionalesAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        ActualizarObjetivosNutricionalesDto dto
+    );
 }

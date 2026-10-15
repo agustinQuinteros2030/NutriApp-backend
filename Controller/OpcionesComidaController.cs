@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NutriApi.DTOs.Dietas;
 using NutriApi.Services.Dietas;
 
-using System.Security.Claims;
-
 namespace NutriApi.Controllers;
-
 
 [ApiController]
 [Route(
@@ -15,16 +13,12 @@ namespace NutriApi.Controllers;
 [Authorize(Roles = Roles.Nutricionista)]
 public class OpcionesComidaController : ControllerBase
 {
-    private readonly IOpcionComidaService
-        _opcionService;
+    private readonly IOpcionComidaService _opcionService;
 
-
-    public OpcionesComidaController(
-        IOpcionComidaService opcionService)
+    public OpcionesComidaController(IOpcionComidaService opcionService)
     {
         _opcionService = opcionService;
     }
-
 
     // ==========================================
     // OPCIONES
@@ -36,43 +30,39 @@ public class OpcionesComidaController : ControllerBase
         int dietaId,
         int comidaId,
         int seccionId,
-        CrearOpcionSeccionComidaDto dto)
+        CrearOpcionSeccionComidaDto dto
+    )
     {
-        var resultado =
-            await _opcionService.CrearOpcionAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                dto
-            );
-
+        var resultado = await _opcionService.CrearOpcionAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            dto
+        );
 
         return ConvertirResultado(resultado);
     }
-
 
     [HttpGet]
     public async Task<IActionResult> ObtenerOpciones(
         int pacienteId,
         int dietaId,
         int comidaId,
-        int seccionId)
+        int seccionId
+    )
     {
-        var resultado =
-            await _opcionService.ObtenerOpcionesAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId
-            );
-
+        var resultado = await _opcionService.ObtenerOpcionesAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId
+        );
 
         return ConvertirResultado(resultado);
     }
-
 
     [HttpGet("{opcionId:int}")]
     public async Task<IActionResult> ObtenerOpcion(
@@ -80,22 +70,20 @@ public class OpcionesComidaController : ControllerBase
         int dietaId,
         int comidaId,
         int seccionId,
-        int opcionId)
+        int opcionId
+    )
     {
-        var resultado =
-            await _opcionService.ObtenerOpcionAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId
-            );
-
+        var resultado = await _opcionService.ObtenerOpcionAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId
+        );
 
         return ConvertirResultado(resultado);
     }
-
 
     [HttpPut("{opcionId:int}")]
     public async Task<IActionResult> EditarOpcion(
@@ -104,48 +92,42 @@ public class OpcionesComidaController : ControllerBase
         int comidaId,
         int seccionId,
         int opcionId,
-        EditarOpcionSeccionComidaDto dto)
+        EditarOpcionSeccionComidaDto dto
+    )
     {
-        var resultado =
-            await _opcionService.EditarOpcionAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                dto
-            );
-
+        var resultado = await _opcionService.EditarOpcionAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            dto
+        );
 
         return ConvertirResultado(resultado);
     }
-
-
 
     [HttpDelete("{opcionId:int}")]
     public async Task<IActionResult> EliminarOpcion(
-    int pacienteId,
-    int dietaId,
-    int comidaId,
-    int seccionId,
-    int opcionId)
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId
+    )
     {
-        var resultado =
-            await _opcionService
-                .EliminarOpcionAsync(
-                    ObtenerUsuarioIdActual(),
-                    pacienteId,
-                    dietaId,
-                    comidaId,
-                    seccionId,
-                    opcionId
-                );
-
+        var resultado = await _opcionService.EliminarOpcionAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId
+        );
 
         return ConvertirResultado(resultado);
     }
-
 
     // ==========================================
     // ITEMS
@@ -158,27 +140,23 @@ public class OpcionesComidaController : ControllerBase
         int comidaId,
         int seccionId,
         int opcionId,
-        CrearItemOpcionComidaDto dto)
+        CrearItemOpcionComidaDto dto
+    )
     {
-        var resultado =
-            await _opcionService.CrearItemAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                dto
-            );
-
+        var resultado = await _opcionService.CrearItemAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            dto
+        );
 
         return ConvertirResultado(resultado);
     }
 
-
-    [HttpPut(
-        "{opcionId:int}/items/{itemId:int}"
-    )]
+    [HttpPut("{opcionId:int}/items/{itemId:int}")]
     public async Task<IActionResult> EditarItem(
         int pacienteId,
         int dietaId,
@@ -186,111 +164,83 @@ public class OpcionesComidaController : ControllerBase
         int seccionId,
         int opcionId,
         int itemId,
-        EditarItemOpcionComidaDto dto)
+        EditarItemOpcionComidaDto dto
+    )
     {
-        var resultado =
-            await _opcionService.EditarItemAsync(
-                ObtenerUsuarioIdActual(),
-                pacienteId,
-                dietaId,
-                comidaId,
-                seccionId,
-                opcionId,
-                itemId,
-                dto
-            );
-
+        var resultado = await _opcionService.EditarItemAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            itemId,
+            dto
+        );
 
         return ConvertirResultado(resultado);
     }
-    [HttpDelete(
-    "{opcionId:int}/items/{itemId:int}"
-)]
+
+    [HttpDelete("{opcionId:int}/items/{itemId:int}")]
     public async Task<IActionResult> EliminarItem(
-    int pacienteId,
-    int dietaId,
-    int comidaId,
-    int seccionId,
-    int opcionId,
-    int itemId)
+        int pacienteId,
+        int dietaId,
+        int comidaId,
+        int seccionId,
+        int opcionId,
+        int itemId
+    )
     {
-        var resultado =
-            await _opcionService
-                .EliminarItemAsync(
-                    ObtenerUsuarioIdActual(),
-                    pacienteId,
-                    dietaId,
-                    comidaId,
-                    seccionId,
-                    opcionId,
-                    itemId
-                );
-
+        var resultado = await _opcionService.EliminarItemAsync(
+            ObtenerUsuarioIdActual(),
+            pacienteId,
+            dietaId,
+            comidaId,
+            seccionId,
+            opcionId,
+            itemId
+        );
 
         return ConvertirResultado(resultado);
     }
+
     // ==========================================
     // JWT
     // ==========================================
 
     private int ObtenerUsuarioIdActual()
     {
-        var claim =
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            );
-
+        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (!int.TryParse(claim, out var id))
         {
-            throw new UnauthorizedAccessException(
-                "Usuario no válido."
-            );
+            throw new UnauthorizedAccessException("Usuario no válido.");
         }
-
 
         return id;
     }
-
 
     // ==========================================
     // RESULTADOS
     // ==========================================
 
-    private IActionResult ConvertirResultado<T>(
-        ResultadoDieta<T> resultado)
+    private IActionResult ConvertirResultado<T>(ResultadoDieta<T> resultado)
     {
         if (resultado.Exitoso)
         {
             return Ok(resultado.Datos);
         }
 
-
         return resultado.TipoError switch
         {
-            TipoErrorDieta.Validacion =>
-                BadRequest(new
-                {
-                    mensaje = resultado.Error
-                }),
+            TipoErrorDieta.Validacion => BadRequest(new { mensaje = resultado.Error }),
 
-            TipoErrorDieta.NoEncontrado =>
-                NotFound(new
-                {
-                    mensaje = resultado.Error
-                }),
+            TipoErrorDieta.NoEncontrado => NotFound(new { mensaje = resultado.Error }),
 
-            _ =>
-                StatusCode(
-                    StatusCodes
-                        .Status500InternalServerError,
-
-                    new
-                    {
-                        mensaje =
-                            "Ocurrió un error interno."
-                    }
-                )
+            _ => StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { mensaje = "Ocurrió un error interno." }
+            ),
         };
     }
 }
