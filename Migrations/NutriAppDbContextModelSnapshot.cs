@@ -387,6 +387,69 @@ namespace NutriApi.Migrations
                     b.ToTable("Competencias");
                 });
 
+            modelBuilder.Entity("NutriApp.Models.Competencias.SolicitudCompetencia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ComentarioPaciente")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int?>("CompetenciaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Disciplina")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<DateOnly?>("FechaFin")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("FechaInicio")
+                        .HasColumnType("date");
+
+                    b.Property<DateTime?>("FechaResolucion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("FechaSolicitud")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Lugar")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("MotivoRechazo")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompetenciaId")
+                        .IsUnique();
+
+                    b.HasIndex("Estado", "FechaSolicitud");
+
+                    b.HasIndex("PacienteId", "Estado", "FechaInicio");
+
+                    b.ToTable("SolicitudesCompetencias");
+                });
+
             modelBuilder.Entity("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", b =>
                 {
                     b.Property<int>("Id")
@@ -1434,6 +1497,24 @@ namespace NutriApi.Migrations
                         .HasForeignKey("PacienteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Paciente");
+                });
+
+            modelBuilder.Entity("NutriApp.Models.Competencias.SolicitudCompetencia", b =>
+                {
+                    b.HasOne("NutriApp.Models.Competencias.Competencia", "Competencia")
+                        .WithMany()
+                        .HasForeignKey("CompetenciaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("NutriApp.Models.Usuarios.Paciente", "Paciente")
+                        .WithMany()
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Competencia");
 
                     b.Navigation("Paciente");
                 });

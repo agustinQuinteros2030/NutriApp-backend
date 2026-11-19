@@ -1,72 +1,50 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using NutriApi.DTOs.Turnos;
 using NutriApi.Services.Notificaciones;
-
 using NutriApp.Data;
 using NutriApp.Enums.Notificaciones;
 
 namespace NutriApi.Services.Turnos;
 
-public class TurnoService
-    : ITurnoService
+public class TurnoService : ITurnoService
 {
-    private readonly NutriAppDbContext
-        _context;
+    private readonly NutriAppDbContext _context;
 
-    private readonly INotificacionService
-        _notificacionService;
+    private readonly INotificacionService _notificacionService;
 
-    private readonly ILogger<TurnoService>
-        _logger;
-
+    private readonly ILogger<TurnoService> _logger;
 
     public TurnoService(
         NutriAppDbContext context,
         INotificacionService notificacionService,
-        ILogger<TurnoService> logger)
+        ILogger<TurnoService> logger
+    )
     {
-        _context =
-            context;
+        _context = context;
 
-        _notificacionService =
-            notificacionService;
+        _notificacionService = notificacionService;
 
-        _logger =
-            logger;
+        _logger = logger;
     }
-
 
     // ==========================================
     // NUTRICIONISTA - CREAR
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<TurnoDto>>
-        CrearAsync(
-            int nutricionistaId,
-            int pacienteId,
-            CrearTurnoDto dto)
+    public async Task<ResultadoTurno<TurnoDto>> CrearAsync(
+        int nutricionistaId,
+        int pacienteId,
+        CrearTurnoDto dto
+    )
     {
-        var paciente =
-            await _context.Pacientes
-                .AsNoTracking()
-                .FirstOrDefaultAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var paciente = await _context
+            .Pacientes.AsNoTracking()
+            .FirstOrDefaultAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
 
         if (paciente is null)
         {
-            return Error<TurnoDto>(
-                "Paciente no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<TurnoDto>("Paciente no encontrado.", TipoErrorTurno.NoEncontrado);
         }
-
 
         if (!paciente.Activo)
         {
@@ -76,22 +54,12 @@ public class TurnoService
             );
         }
 
-
-        var errorValidacion =
-            ValidarDatosTurno(
-                dto.FechaHora,
-                dto.Modalidad
-            );
-
+        var errorValidacion = ValidarDatosTurno(dto.FechaHora, dto.Modalidad);
 
         if (errorValidacion is not null)
         {
-            return Error<TurnoDto>(
-                errorValidacion,
-                TipoErrorTurno.Validacion
-            );
+            return Error<TurnoDto>(errorValidacion, TipoErrorTurno.Validacion);
         }
-
 
         /*
          * DateTimeOffset nos permite recibir:
@@ -101,16 +69,9 @@ public class TurnoService
          * y convertirlo inequívocamente a UTC.
          */
 
-        var fechaHoraUtc =
-            dto.FechaHora.UtcDateTime;
+        var fechaHoraUtc = dto.FechaHora.UtcDateTime;
 
-
-        var horarioOcupado =
-            await ExisteColisionAsync(
-                nutricionistaId,
-                fechaHoraUtc
-            );
-
+        var horarioOcupado = await ExisteColisionAsync(nutricionistaId, fechaHoraUtc);
 
         if (horarioOcupado)
         {
@@ -120,55 +81,30 @@ public class TurnoService
             );
         }
 
+        var turno = new Turno
+        {
+            PacienteId = pacienteId,
 
-        var turno =
-            new Turno
-            {
-                PacienteId =
-                    pacienteId,
+            FechaHora = fechaHoraUtc,
 
-                FechaHora =
-                    fechaHoraUtc,
+            Modalidad = dto.Modalidad,
 
-                Modalidad =
-                    dto.Modalidad,
+            Estado = EstadoTurno.Programado,
 
-                Estado =
-                    EstadoTurno.Programado,
+            Lugar = Limpiar(dto.Lugar),
 
-                Lugar =
-                    Limpiar(
-                        dto.Lugar
-                    ),
+            LinkReunion = Limpiar(dto.LinkReunion),
 
-                LinkReunion =
-                    Limpiar(
-                        dto.LinkReunion
-                    ),
+            Motivo = Limpiar(dto.Motivo),
 
-                Motivo =
-                    Limpiar(
-                        dto.Motivo
-                    ),
+            Observaciones = Limpiar(dto.Observaciones),
 
-                Observaciones =
-                    Limpiar(
-                        dto.Observaciones
-                    ),
+            FechaCreacion = DateTime.UtcNow,
+        };
 
-                FechaCreacion =
-                    DateTime.UtcNow
-            };
+        _context.Turnos.Add(turno);
 
-
-        _context.Turnos.Add(
-            turno
-        );
-
-
-        await _context
-            .SaveChangesAsync();
-
+        await _context.SaveChangesAsync();
 
         // ======================================
         // NOTIFICACIÓN
@@ -183,52 +119,31 @@ public class TurnoService
             turno.Id
         );
 
-
-        return Exito(
-            Mapear(
-                turno,
-                paciente.Nombre,
-                paciente.Apellido
-            )
-        );
+        return Exito(Mapear(turno, paciente.Nombre, paciente.Apellido));
     }
-
 
     // ==========================================
     // NUTRICIONISTA - EDITAR / REPROGRAMAR
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<TurnoDto>>
-        EditarAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int turnoId,
-            EditarTurnoDto dto)
+    public async Task<ResultadoTurno<TurnoDto>> EditarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int turnoId,
+        EditarTurnoDto dto
+    )
     {
-        var turno =
-            await _context.Turnos
-                .Include(t =>
-                    t.Paciente
-                )
-                .FirstOrDefaultAsync(t =>
-                    t.Id == turnoId
-                    &&
-                    t.PacienteId ==
-                    pacienteId
-                    &&
-                    t.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var turno = await _context
+            .Turnos.Include(t => t.Paciente)
+            .FirstOrDefaultAsync(t =>
+                t.Id == turnoId
+                && t.PacienteId == pacienteId
+                && t.Paciente.NutricionistaId == nutricionistaId
+            );
 
         if (turno is null)
         {
-            return Error<TurnoDto>(
-                "Turno no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<TurnoDto>("Turno no encontrado.", TipoErrorTurno.NoEncontrado);
         }
         if (!turno.Paciente.Activo)
         {
@@ -238,8 +153,7 @@ public class TurnoService
             );
         }
 
-        if (turno.Estado !=
-            EstadoTurno.Programado)
+        if (turno.Estado != EstadoTurno.Programado)
         {
             return Error<TurnoDto>(
                 "Solo se pueden editar turnos programados.",
@@ -247,34 +161,20 @@ public class TurnoService
             );
         }
 
-
-        var errorValidacion =
-            ValidarDatosTurno(
-                dto.FechaHora,
-                dto.Modalidad
-            );
-
+        var errorValidacion = ValidarDatosTurno(dto.FechaHora, dto.Modalidad);
 
         if (errorValidacion is not null)
         {
-            return Error<TurnoDto>(
-                errorValidacion,
-                TipoErrorTurno.Validacion
-            );
+            return Error<TurnoDto>(errorValidacion, TipoErrorTurno.Validacion);
         }
 
+        var nuevaFechaHoraUtc = dto.FechaHora.UtcDateTime;
 
-        var nuevaFechaHoraUtc =
-            dto.FechaHora.UtcDateTime;
-
-
-        var horarioOcupado =
-            await ExisteColisionAsync(
-                nutricionistaId,
-                nuevaFechaHoraUtc,
-                turno.Id
-            );
-
+        var horarioOcupado = await ExisteColisionAsync(
+            nutricionistaId,
+            nuevaFechaHoraUtc,
+            turno.Id
+        );
 
         if (horarioOcupado)
         {
@@ -284,55 +184,31 @@ public class TurnoService
             );
         }
 
-
         /*
          * Lo guardamos ANTES de modificar
          * la entidad para saber después si
          * realmente hubo una reprogramación.
          */
 
-        var fechaAnterior =
-            turno.FechaHora;
+        var fechaAnterior = turno.FechaHora;
 
+        var fechaModificada = fechaAnterior != nuevaFechaHoraUtc;
 
-        var fechaModificada =
-            fechaAnterior !=
-            nuevaFechaHoraUtc;
+        turno.FechaHora = nuevaFechaHoraUtc;
 
+        turno.Modalidad = dto.Modalidad;
 
-        turno.FechaHora =
-            nuevaFechaHoraUtc;
+        turno.Lugar = Limpiar(dto.Lugar);
 
-        turno.Modalidad =
-            dto.Modalidad;
+        turno.LinkReunion = Limpiar(dto.LinkReunion);
 
-        turno.Lugar =
-            Limpiar(
-                dto.Lugar
-            );
+        turno.Motivo = Limpiar(dto.Motivo);
 
-        turno.LinkReunion =
-            Limpiar(
-                dto.LinkReunion
-            );
+        turno.Observaciones = Limpiar(dto.Observaciones);
 
-        turno.Motivo =
-            Limpiar(
-                dto.Motivo
-            );
+        turno.FechaActualizacion = DateTime.UtcNow;
 
-        turno.Observaciones =
-            Limpiar(
-                dto.Observaciones
-            );
-
-        turno.FechaActualizacion =
-            DateTime.UtcNow;
-
-
-        await _context
-            .SaveChangesAsync();
-
+        await _context.SaveChangesAsync();
 
         /*
          * Solamente usamos TurnoReprogramado
@@ -346,8 +222,7 @@ public class TurnoService
         {
             await IntentarCrearNotificacionAsync(
                 turno.PacienteId,
-                TipoNotificacion
-                    .TurnoReprogramado,
+                TipoNotificacion.TurnoReprogramado,
                 "Consulta reprogramada",
                 "Tu nutricionista modificó la fecha u hora de una consulta. Revisá tu agenda para ver la nueva programación.",
                 "Turno",
@@ -355,56 +230,33 @@ public class TurnoService
             );
         }
 
-
-        return Exito(
-            Mapear(
-                turno,
-                turno.Paciente.Nombre,
-                turno.Paciente.Apellido
-            )
-        );
+        return Exito(Mapear(turno, turno.Paciente.Nombre, turno.Paciente.Apellido));
     }
-
 
     // ==========================================
     // NUTRICIONISTA - CANCELAR
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<TurnoDto>>
-        CancelarAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int turnoId)
+    public async Task<ResultadoTurno<TurnoDto>> CancelarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int turnoId
+    )
     {
-        var turno =
-            await _context.Turnos
-                .Include(t =>
-                    t.Paciente
-                )
-                .FirstOrDefaultAsync(t =>
-                    t.Id == turnoId
-                    &&
-                    t.PacienteId ==
-                    pacienteId
-                    &&
-                    t.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var turno = await _context
+            .Turnos.Include(t => t.Paciente)
+            .FirstOrDefaultAsync(t =>
+                t.Id == turnoId
+                && t.PacienteId == pacienteId
+                && t.Paciente.NutricionistaId == nutricionistaId
+            );
 
         if (turno is null)
         {
-            return Error<TurnoDto>(
-                "Turno no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<TurnoDto>("Turno no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
-
-        if (turno.Estado ==
-            EstadoTurno.Cancelado)
+        if (turno.Estado == EstadoTurno.Cancelado)
         {
             return Error<TurnoDto>(
                 "El turno ya se encuentra cancelado.",
@@ -412,9 +264,7 @@ public class TurnoService
             );
         }
 
-
-        if (turno.Estado ==
-            EstadoTurno.Realizado)
+        if (turno.Estado == EstadoTurno.Realizado)
         {
             return Error<TurnoDto>(
                 "No se puede cancelar un turno que ya fue realizado.",
@@ -422,78 +272,48 @@ public class TurnoService
             );
         }
 
+        turno.Estado = EstadoTurno.Cancelado;
 
-        turno.Estado =
-            EstadoTurno.Cancelado;
+        turno.FechaActualizacion = DateTime.UtcNow;
 
-        turno.FechaActualizacion =
-            DateTime.UtcNow;
-
-
-        await _context
-            .SaveChangesAsync();
-
+        await _context.SaveChangesAsync();
 
         await IntentarCrearNotificacionAsync(
             turno.PacienteId,
-            TipoNotificacion
-                .TurnoCancelado,
+            TipoNotificacion.TurnoCancelado,
             "Consulta cancelada",
             "Tu nutricionista canceló una consulta programada. Podés consultar tu agenda para ver los detalles.",
             "Turno",
             turno.Id
         );
 
-
-        return Exito(
-            Mapear(
-                turno,
-                turno.Paciente.Nombre,
-                turno.Paciente.Apellido
-            )
-        );
+        return Exito(Mapear(turno, turno.Paciente.Nombre, turno.Paciente.Apellido));
     }
-
 
     // ==========================================
     // NUTRICIONISTA - MARCAR REALIZADO
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<TurnoDto>>
-        MarcarRealizadoAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int turnoId)
+    public async Task<ResultadoTurno<TurnoDto>> MarcarRealizadoAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int turnoId
+    )
     {
-        var turno =
-            await _context.Turnos
-                .Include(t =>
-                    t.Paciente
-                )
-                .FirstOrDefaultAsync(t =>
-                    t.Id == turnoId
-                    &&
-                    t.PacienteId ==
-                    pacienteId
-                    &&
-                    t.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var turno = await _context
+            .Turnos.Include(t => t.Paciente)
+            .FirstOrDefaultAsync(t =>
+                t.Id == turnoId
+                && t.PacienteId == pacienteId
+                && t.Paciente.NutricionistaId == nutricionistaId
+            );
 
         if (turno is null)
         {
-            return Error<TurnoDto>(
-                "Turno no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<TurnoDto>("Turno no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
-
-        if (turno.Estado ==
-            EstadoTurno.Realizado)
+        if (turno.Estado == EstadoTurno.Realizado)
         {
             return Error<TurnoDto>(
                 "El turno ya fue marcado como realizado.",
@@ -501,9 +321,7 @@ public class TurnoService
             );
         }
 
-
-        if (turno.Estado ==
-            EstadoTurno.Cancelado)
+        if (turno.Estado == EstadoTurno.Cancelado)
         {
             return Error<TurnoDto>(
                 "No se puede marcar como realizado un turno cancelado.",
@@ -511,14 +329,12 @@ public class TurnoService
             );
         }
 
-
         /*
          * Evitamos marcar accidentalmente como
          * realizada una consulta futura.
          */
 
-        if (turno.FechaHora >
-            DateTime.UtcNow)
+        if (turno.FechaHora > DateTime.UtcNow)
         {
             return Error<TurnoDto>(
                 "No se puede marcar como realizado un turno que todavía no ocurrió.",
@@ -526,17 +342,11 @@ public class TurnoService
             );
         }
 
+        turno.Estado = EstadoTurno.Realizado;
 
-        turno.Estado =
-            EstadoTurno.Realizado;
+        turno.FechaActualizacion = DateTime.UtcNow;
 
-        turno.FechaActualizacion =
-            DateTime.UtcNow;
-
-
-        await _context
-            .SaveChangesAsync();
-
+        await _context.SaveChangesAsync();
 
         /*
          * No generamos notificación:
@@ -546,293 +356,147 @@ public class TurnoService
          * porque no aporta valor al paciente.
          */
 
-
-        return Exito(
-            Mapear(
-                turno,
-                turno.Paciente.Nombre,
-                turno.Paciente.Apellido
-            )
-        );
+        return Exito(Mapear(turno, turno.Paciente.Nombre, turno.Paciente.Apellido));
     }
-
 
     // ==========================================
     // NUTRICIONISTA - PRÓXIMOS TURNOS
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<List<TurnoDto>>>
-        ObtenerProximosNutricionistaAsync(
-            int nutricionistaId)
+    public async Task<ResultadoTurno<List<TurnoDto>>> ObtenerProximosNutricionistaAsync(
+        int nutricionistaId
+    )
     {
-        var ahora =
-            DateTime.UtcNow;
+        var ahora = DateTime.UtcNow;
 
-
-        var turnos =
-            await _context.Turnos
-                .AsNoTracking()
-                .Include(t =>
-                    t.Paciente
-                )
-                .Where(t =>
-                    t.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                    &&
-                    t.Estado ==
-                    EstadoTurno.Programado
-                    &&
-                    t.FechaHora >=
-                    ahora
-                )
-                .OrderBy(t =>
-                    t.FechaHora
-                )
-                .ThenBy(t =>
-                    t.Id
-                )
-                .ToListAsync();
-
+        var turnos = await _context
+            .Turnos.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Where(t =>
+                t.Paciente.NutricionistaId == nutricionistaId
+                && t.Estado == EstadoTurno.Programado
+                && t.FechaHora >= ahora
+            )
+            .OrderBy(t => t.FechaHora)
+            .ThenBy(t => t.Id)
+            .ToListAsync();
 
         return Exito(
-            turnos
-                .Select(t =>
-                    Mapear(
-                        t,
-                        t.Paciente.Nombre,
-                        t.Paciente.Apellido
-                    )
-                )
-                .ToList()
+            turnos.Select(t => Mapear(t, t.Paciente.Nombre, t.Paciente.Apellido)).ToList()
         );
     }
-
 
     // ==========================================
     // NUTRICIONISTA - HISTORIAL PACIENTE
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<List<TurnoDto>>>
-        ObtenerPacienteAsync(
-            int nutricionistaId,
-            int pacienteId)
+    public async Task<ResultadoTurno<List<TurnoDto>>> ObtenerPacienteAsync(
+        int nutricionistaId,
+        int pacienteId
+    )
     {
-        var pertenece =
-            await PacientePerteneceAsync(
-                nutricionistaId,
-                pacienteId
-            );
-
+        var pertenece = await PacientePerteneceAsync(nutricionistaId, pacienteId);
 
         if (!pertenece)
         {
-            return Error<
-                List<TurnoDto>>(
-                "Paciente no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<List<TurnoDto>>("Paciente no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
-
-        var turnos =
-            await _context.Turnos
-                .AsNoTracking()
-                .Include(t =>
-                    t.Paciente
-                )
-                .Where(t =>
-                    t.PacienteId ==
-                    pacienteId
-                )
-                .OrderByDescending(t =>
-                    t.FechaHora
-                )
-                .ThenByDescending(t =>
-                    t.Id
-                )
-                .ToListAsync();
-
+        var turnos = await _context
+            .Turnos.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Where(t => t.PacienteId == pacienteId)
+            .OrderByDescending(t => t.FechaHora)
+            .ThenByDescending(t => t.Id)
+            .ToListAsync();
 
         return Exito(
-            turnos
-                .Select(t =>
-                    Mapear(
-                        t,
-                        t.Paciente.Nombre,
-                        t.Paciente.Apellido
-                    )
-                )
-                .ToList()
+            turnos.Select(t => Mapear(t, t.Paciente.Nombre, t.Paciente.Apellido)).ToList()
         );
     }
-
 
     // ==========================================
     // NUTRICIONISTA - DETALLE
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<TurnoDto>>
-        ObtenerDetalleAsync(
-            int nutricionistaId,
-            int pacienteId,
-            int turnoId)
+    public async Task<ResultadoTurno<TurnoDto>> ObtenerDetalleAsync(
+        int nutricionistaId,
+        int pacienteId,
+        int turnoId
+    )
     {
-        var turno =
-            await _context.Turnos
-                .AsNoTracking()
-                .Include(t =>
-                    t.Paciente
-                )
-                .FirstOrDefaultAsync(t =>
-                    t.Id ==
-                    turnoId
-                    &&
-                    t.PacienteId ==
-                    pacienteId
-                    &&
-                    t.Paciente
-                        .NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var turno = await _context
+            .Turnos.AsNoTracking()
+            .Include(t => t.Paciente)
+            .FirstOrDefaultAsync(t =>
+                t.Id == turnoId
+                && t.PacienteId == pacienteId
+                && t.Paciente.NutricionistaId == nutricionistaId
+            );
 
         if (turno is null)
         {
-            return Error<TurnoDto>(
-                "Turno no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<TurnoDto>("Turno no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
-
-        return Exito(
-            Mapear(
-                turno,
-                turno.Paciente.Nombre,
-                turno.Paciente.Apellido
-            )
-        );
+        return Exito(Mapear(turno, turno.Paciente.Nombre, turno.Paciente.Apellido));
     }
-
 
     // ==========================================
     // PACIENTE - MIS TURNOS
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<List<TurnoDto>>>
-        ObtenerPropiosAsync(
-            int pacienteId)
+    public async Task<ResultadoTurno<List<TurnoDto>>> ObtenerPropiosAsync(int pacienteId)
     {
-        var pacienteExiste =
-            await _context.Pacientes
-                .AsNoTracking()
-                .AnyAsync(p =>
-                    p.Id ==
-                    pacienteId
-                );
-
+        var pacienteExiste = await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteId);
 
         if (!pacienteExiste)
         {
-            return Error<
-                List<TurnoDto>>(
-                "Paciente no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<List<TurnoDto>>("Paciente no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
-
-        var turnos =
-            await _context.Turnos
-                .AsNoTracking()
-                .Include(t =>
-                    t.Paciente
-                )
-                .Where(t =>
-                    t.PacienteId ==
-                    pacienteId
-                )
-                .OrderByDescending(t =>
-                    t.FechaHora
-                )
-                .ThenByDescending(t =>
-                    t.Id
-                )
-                .ToListAsync();
-
+        var turnos = await _context
+            .Turnos.AsNoTracking()
+            .Include(t => t.Paciente)
+            .Where(t => t.PacienteId == pacienteId)
+            .OrderByDescending(t => t.FechaHora)
+            .ThenByDescending(t => t.Id)
+            .ToListAsync();
 
         return Exito(
-            turnos
-                .Select(t =>
-                    Mapear(
-                        t,
-                        t.Paciente.Nombre,
-                        t.Paciente.Apellido
-                    )
-                )
-                .ToList()
+            turnos.Select(t => Mapear(t, t.Paciente.Nombre, t.Paciente.Apellido)).ToList()
         );
     }
-
 
     // ==========================================
     // PACIENTE - PRÓXIMO TURNO
     // ==========================================
 
-    public async Task<
-        ResultadoTurno<ProximoTurnoDto?>>
-        ObtenerProximoPacienteAsync(
-            int pacienteId)
+    public async Task<ResultadoTurno<ProximoTurnoDto?>> ObtenerProximoPacienteAsync(int pacienteId)
     {
-        var pacienteExiste =
-            await _context.Pacientes
-                .AsNoTracking()
-                .AnyAsync(p =>
-                    p.Id ==
-                    pacienteId
-                );
-
+        var pacienteExiste = await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteId);
 
         if (!pacienteExiste)
         {
-            return Error<
-                ProximoTurnoDto?>(
-                "Paciente no encontrado.",
-                TipoErrorTurno.NoEncontrado
-            );
+            return Error<ProximoTurnoDto?>("Paciente no encontrado.", TipoErrorTurno.NoEncontrado);
         }
 
+        var ahora = DateTime.UtcNow;
 
-        var ahora =
-            DateTime.UtcNow;
-
-
-        var turno =
-            await _context.Turnos
-                .AsNoTracking()
-                .Where(t =>
-                    t.PacienteId ==
-                    pacienteId
-                    &&
-                    t.Estado ==
-                    EstadoTurno.Programado
-                    &&
-                    t.FechaHora >=
-                    ahora
-                )
-                .OrderBy(t =>
-                    t.FechaHora
-                )
-                .ThenBy(t =>
-                    t.Id
-                )
-                .FirstOrDefaultAsync();
-
+        var turno = await _context
+            .Turnos.AsNoTracking()
+            .Where(t =>
+                t.PacienteId == pacienteId
+                && t.Estado == EstadoTurno.Programado
+                && t.FechaHora >= ahora
+            )
+            .OrderBy(t => t.FechaHora)
+            .ThenBy(t => t.Id)
+            .FirstOrDefaultAsync();
 
         if (turno is null)
         {
@@ -840,155 +504,102 @@ public class TurnoService
              * No tener próximos turnos NO es error.
              */
 
-            return Exito<
-                ProximoTurnoDto?>(
-                null
-            );
+            return Exito<ProximoTurnoDto?>(null);
         }
 
+        var dto = new ProximoTurnoDto
+        {
+            Id = turno.Id,
 
-        var dto =
-            new ProximoTurnoDto
-            {
-                Id =
-                    turno.Id,
+            FechaHora = turno.FechaHora,
 
-                FechaHora =
-                    turno.FechaHora,
+            Modalidad = turno.Modalidad.ToString(),
 
-                Modalidad =
-                    turno.Modalidad
-                        .ToString(),
+            Lugar = turno.Lugar,
 
-                Lugar =
-                    turno.Lugar,
+            LinkReunion = turno.LinkReunion,
 
-                LinkReunion =
-                    turno.LinkReunion,
+            Motivo = turno.Motivo,
+        };
 
-                Motivo =
-                    turno.Motivo
-            };
-
-
-        return Exito<
-            ProximoTurnoDto?>(
-                dto
-            );
+        return Exito<ProximoTurnoDto?>(dto);
     }
-
 
     // ==========================================
     // COLISIÓN DE AGENDA
     // ==========================================
 
-    private async Task<bool>
-        ExisteColisionAsync(
-            int nutricionistaId,
-            DateTime fechaHoraUtc,
-            int? turnoExcluirId = null)
+    private async Task<bool> ExisteColisionAsync(
+        int nutricionistaId,
+        DateTime fechaHoraUtc,
+        int? turnoExcluirId = null
+    )
     {
-        return await _context.Turnos
-            .AsNoTracking()
+        return await _context
+            .Turnos.AsNoTracking()
             .AnyAsync(t =>
-                t.Paciente
-                    .NutricionistaId ==
-                nutricionistaId
-                &&
-                t.Estado ==
-                EstadoTurno.Programado
-                &&
-                t.FechaHora ==
-                fechaHoraUtc
-                &&
-                (
-                    !turnoExcluirId.HasValue
-                    ||
-                    t.Id !=
-                    turnoExcluirId.Value
-                )
+                t.Paciente.NutricionistaId == nutricionistaId
+                && t.Estado == EstadoTurno.Programado
+                && t.FechaHora == fechaHoraUtc
+                && (!turnoExcluirId.HasValue || t.Id != turnoExcluirId.Value)
             );
     }
-
 
     // ==========================================
     // OWNERSHIP
     // ==========================================
 
-    private async Task<bool>
-        PacientePerteneceAsync(
-            int nutricionistaId,
-            int pacienteId)
+    private async Task<bool> PacientePerteneceAsync(int nutricionistaId, int pacienteId)
     {
-        return await _context.Pacientes
-            .AsNoTracking()
-            .AnyAsync(p =>
-                p.Id ==
-                pacienteId
-                &&
-                p.NutricionistaId ==
-                nutricionistaId
-            );
+        return await _context
+            .Pacientes.AsNoTracking()
+            .AnyAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
     }
-
 
     // ==========================================
     // VALIDACIÓN
     // ==========================================
 
-    private static string?
-        ValidarDatosTurno(
-            DateTimeOffset fechaHora,
-            ModalidadTurno modalidad)
+    private static string? ValidarDatosTurno(DateTimeOffset fechaHora, ModalidadTurno modalidad)
     {
-        if (!Enum.IsDefined(
-            modalidad))
+        if (!Enum.IsDefined(modalidad))
         {
-            return
-                "La modalidad del turno no es válida.";
+            return "La modalidad del turno no es válida.";
         }
 
+        var fechaUtc = fechaHora.UtcDateTime;
 
-        var fechaUtc =
-            fechaHora.UtcDateTime;
-
-
-        if (fechaUtc <=
-            DateTime.UtcNow)
+        if (fechaUtc <= DateTime.UtcNow)
         {
-            return
-                "La fecha y hora del turno deben ser futuras.";
+            return "La fecha y hora del turno deben ser futuras.";
         }
-
 
         return null;
     }
-
 
     // ==========================================
     // NOTIFICACIONES
     // ==========================================
 
-    private async Task
-        IntentarCrearNotificacionAsync(
-            int usuarioId,
-            TipoNotificacion tipo,
-            string titulo,
-            string mensaje,
-            string recursoTipo,
-            int recursoId)
+    private async Task IntentarCrearNotificacionAsync(
+        int usuarioId,
+        TipoNotificacion tipo,
+        string titulo,
+        string mensaje,
+        string recursoTipo,
+        int recursoId
+    )
     {
         try
         {
-            await _notificacionService
-                .CrearAsync(
-                    usuarioId,
-                    tipo,
-                    titulo,
-                    mensaje,
-                    recursoTipo,
-                    recursoId
-                );
+            await _notificacionService.CrearAsync(
+                usuarioId,
+                tipo,
+                titulo,
+                mensaje,
+                recursoTipo,
+                recursoId
+            );
         }
         catch (Exception ex)
         {
@@ -1010,136 +621,85 @@ public class TurnoService
         }
     }
 
-
     // ==========================================
     // MAPPER
     // ==========================================
 
-    private static TurnoDto
-        Mapear(
-            Turno turno,
-            string? nombre,
-            string? apellido)
+    private static TurnoDto Mapear(Turno turno, string? nombre, string? apellido)
     {
         return new TurnoDto
         {
-            Id =
-                turno.Id,
+            Id = turno.Id,
 
-            PacienteId =
-                turno.PacienteId,
+            PacienteId = turno.PacienteId,
 
-            NombrePaciente =
-                ObtenerNombrePaciente(
-                    nombre,
-                    apellido
-                ),
+            NombrePaciente = ObtenerNombrePaciente(nombre, apellido),
 
-            FechaHora =
-                turno.FechaHora,
+            FechaHora = turno.FechaHora,
 
-            Modalidad =
-                turno.Modalidad
-                    .ToString(),
+            Modalidad = turno.Modalidad.ToString(),
 
-            Estado =
-                turno.Estado
-                    .ToString(),
+            Estado = turno.Estado.ToString(),
 
-            Lugar =
-                turno.Lugar,
+            Lugar = turno.Lugar,
 
-            LinkReunion =
-                turno.LinkReunion,
+            LinkReunion = turno.LinkReunion,
 
-            Motivo =
-                turno.Motivo,
+            Motivo = turno.Motivo,
 
-            Observaciones =
-                turno.Observaciones,
+            Observaciones = turno.Observaciones,
 
-            FechaCreacion =
-                turno.FechaCreacion,
+            FechaCreacion = turno.FechaCreacion,
 
-            FechaActualizacion =
-                turno.FechaActualizacion
+            FechaActualizacion = turno.FechaActualizacion,
         };
     }
-
 
     // ==========================================
     // NOMBRE PACIENTE
     // ==========================================
 
-    private static string
-        ObtenerNombrePaciente(
-            string? nombre,
-            string? apellido)
+    private static string ObtenerNombrePaciente(string? nombre, string? apellido)
     {
-        var nombreCompleto =
-            $"{nombre} {apellido}"
-                .Trim();
+        var nombreCompleto = $"{nombre} {apellido}".Trim();
 
-
-        return string.IsNullOrWhiteSpace(
-            nombreCompleto)
-            ? "Paciente"
-            : nombreCompleto;
+        return string.IsNullOrWhiteSpace(nombreCompleto) ? "Paciente" : nombreCompleto;
     }
-
 
     // ==========================================
     // LIMPIEZA
     // ==========================================
 
-    private static string?
-        Limpiar(
-            string? valor)
+    private static string? Limpiar(string? valor)
     {
-        return string.IsNullOrWhiteSpace(
-            valor)
-            ? null
-            : valor.Trim();
+        return string.IsNullOrWhiteSpace(valor) ? null : valor.Trim();
     }
-
 
     // ==========================================
     // RESULTADOS
     // ==========================================
 
-    private static ResultadoTurno<T>
-        Exito<T>(
-            T datos)
+    private static ResultadoTurno<T> Exito<T>(T datos)
     {
         return new ResultadoTurno<T>
         {
-            Exitoso =
-                true,
+            Exitoso = true,
 
-            Datos =
-                datos,
+            Datos = datos,
 
-            TipoError =
-                TipoErrorTurno.Ninguno
+            TipoError = TipoErrorTurno.Ninguno,
         };
     }
 
-
-    private static ResultadoTurno<T>
-        Error<T>(
-            string mensaje,
-            TipoErrorTurno tipo)
+    private static ResultadoTurno<T> Error<T>(string mensaje, TipoErrorTurno tipo)
     {
         return new ResultadoTurno<T>
         {
-            Exitoso =
-                false,
+            Exitoso = false,
 
-            Error =
-                mensaje,
+            Error = mensaje,
 
-            TipoError =
-                tipo
+            TipoError = tipo,
         };
     }
 }

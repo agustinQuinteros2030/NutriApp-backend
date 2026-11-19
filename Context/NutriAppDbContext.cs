@@ -99,6 +99,7 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     public DbSet<Turno> Turnos { get; set; }
 
     public DbSet<Competencia> Competencias { get; set; }
+    public DbSet<SolicitudCompetencia> SolicitudesCompetencias { get; set; }
 
     // =========================
     // CONTROL DE SEGUIMIENTO
@@ -140,8 +141,106 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
         ConfigurarMensajes(modelBuilder);
 
         ConfigurarCatalogoIniciacion(modelBuilder);
+        ConfigurarSolicitudesCompetencias(modelBuilder);
     }
 
+    private static void ConfigurarSolicitudesCompetencias(
+    ModelBuilder modelBuilder
+)
+    {
+        modelBuilder.Entity<SolicitudCompetencia>(entity =>
+        {
+            // ======================================
+            // PK
+            // ======================================
+
+            entity.HasKey(s => s.Id);
+
+            // ======================================
+            // PACIENTE
+            // ======================================
+
+            entity
+                .HasOne(s => s.Paciente)
+                .WithMany()
+                .HasForeignKey(s => s.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // COMPETENCIA GENERADA
+            // ======================================
+
+            entity
+                .HasOne(s => s.Competencia)
+                .WithMany()
+                .HasForeignKey(s => s.CompetenciaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // DATOS DE LA SOLICITUD
+            // ======================================
+
+            entity.Property(s => s.Nombre)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(s => s.Disciplina)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(s => s.FechaInicio)
+                .IsRequired();
+
+            entity.Property(s => s.FechaFin)
+                .IsRequired(false);
+
+            entity.Property(s => s.Lugar)
+                .HasMaxLength(200);
+
+            entity.Property(s => s.ComentarioPaciente)
+                .HasMaxLength(1000);
+
+            // ======================================
+            // RESOLUCIÓN
+            // ======================================
+
+            entity.Property(s => s.Estado)
+                .IsRequired();
+
+            entity.Property(s => s.MotivoRechazo)
+                .HasMaxLength(500);
+
+            // ======================================
+            // AUDITORÍA
+            // ======================================
+
+            entity.Property(s => s.FechaSolicitud)
+                .IsRequired();
+
+            entity.Property(s => s.FechaResolucion)
+                .IsRequired(false);
+
+            // ======================================
+            // ÍNDICES
+            // ======================================
+
+            entity.HasIndex(s => new
+            {
+                s.PacienteId,
+                s.Estado,
+                s.FechaInicio
+            });
+
+            entity.HasIndex(s => new
+            {
+                s.Estado,
+                s.FechaSolicitud
+            });
+
+            entity.HasIndex(s => s.CompetenciaId)
+                .IsUnique();
+        });
+    }
     private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
     {
         // ==========================================
@@ -708,6 +807,8 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // PLANTILLAS DE DIETA
     // ==========================================================
 
+
+
     private static void ConfigurarCompetencias(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Competencia>(entity =>
@@ -732,62 +833,43 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
             // INFORMACIÓN DE LA COMPETENCIA
             // ======================================
 
-            entity.Property(c => c.Nombre)
-                .IsRequired()
-                .HasMaxLength(150);
+            entity.Property(c => c.Nombre).IsRequired().HasMaxLength(150);
 
-            entity.Property(c => c.Disciplina)
-                .IsRequired()
-                .HasMaxLength(100);
+            entity.Property(c => c.Disciplina).IsRequired().HasMaxLength(100);
 
-            entity.Property(c => c.Lugar)
-                .HasMaxLength(200);
+            entity.Property(c => c.Lugar).HasMaxLength(200);
 
-            entity.Property(c => c.Observaciones)
-                .HasMaxLength(1000);
+            entity.Property(c => c.Observaciones).HasMaxLength(1000);
 
             // ======================================
             // FECHAS
             // ======================================
 
-            entity.Property(c => c.FechaInicio)
-                .IsRequired();
+            entity.Property(c => c.FechaInicio).IsRequired();
 
-            entity.Property(c => c.FechaFin)
-                .IsRequired(false);
+            entity.Property(c => c.FechaFin).IsRequired(false);
 
             // ======================================
             // ESTADO
             // ======================================
 
-            entity.Property(c => c.Estado)
-                .IsRequired();
+            entity.Property(c => c.Estado).IsRequired();
 
             // ======================================
             // AUDITORÍA
             // ======================================
 
-            entity.Property(c => c.FechaCreacion)
-                .IsRequired();
+            entity.Property(c => c.FechaCreacion).IsRequired();
 
-            entity.Property(c => c.FechaActualizacion)
-                .IsRequired(false);
+            entity.Property(c => c.FechaActualizacion).IsRequired(false);
 
             // ======================================
             // ÍNDICES
             // ======================================
 
-            entity.HasIndex(c => new
-            {
-                c.PacienteId,
-                c.FechaInicio
-            });
+            entity.HasIndex(c => new { c.PacienteId, c.FechaInicio });
 
-            entity.HasIndex(c => new
-            {
-                c.Estado,
-                c.FechaInicio
-            });
+            entity.HasIndex(c => new { c.Estado, c.FechaInicio });
         });
     }
 

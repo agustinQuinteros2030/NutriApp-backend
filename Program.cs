@@ -12,6 +12,7 @@ using NutriApi.Inicializadores;
 using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.Calendario;
 using NutriApi.Services.CatalogoInicial;
 using NutriApi.Services.Competencias;
 using NutriApi.Services.ControlSeguimiento;
@@ -556,6 +557,8 @@ builder.Services.AddScoped<ICompetenciaService, CompetenciaService>();
 // ==========================================
 
 builder.Services.AddScoped<ICatalogoInicialService, CatalogoInicialService>();
+
+builder.Services.AddScoped<ICalendarioService, CalendarioService>();
 
 // =====================================
 // CORS
