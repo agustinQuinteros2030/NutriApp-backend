@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿
+using System.ComponentModel.DataAnnotations;
 using NutriApp.Enums;
 
 namespace NutriApi.DTOs.Pacientes;
@@ -23,26 +24,19 @@ public class CrearPacienteDto
 
     public DateOnly? FechaNacimiento { get; set; }
 
-
-    // PERFIL NUTRICIONAL
-
     public ObjetivoNutricional ObjetivoNutricional { get; set; }
 
     public TipoActividad TipoActividad { get; set; }
 
     public decimal? PesoInicial { get; set; }
 
-
-    // Altura expresada en metros.
-    // Ejemplo: 1.80
     [Range(
         typeof(decimal),
         "0.50",
         "2.50",
-        ErrorMessage =
-            "La altura debe estar entre 0,50 y 2,50 metros."
+        ParseLimitsInInvariantCulture = true,
+        ErrorMessage = "La altura debe estar entre 0,50 y 2,50 metros."
     )]
-
     public decimal? Altura { get; set; }
 
     public DateOnly? FechaInicio { get; set; }

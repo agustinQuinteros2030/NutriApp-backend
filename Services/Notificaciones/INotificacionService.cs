@@ -21,7 +21,8 @@ public interface INotificacionService
         string titulo,
         string mensaje,
         string? recursoTipo = null,
-        int? recursoId = null
+        int? recursoId = null,
+        int? emisorNutricionistaId = null
     );
 
     Task<int> MarcarComoLeidaPorRecursoAsync(int usuarioId, string recursoTipo, int recursoId);

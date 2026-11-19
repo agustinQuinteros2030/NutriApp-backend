@@ -1,14 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 using NutriApi.DTOs.Pacientes;
 using NutriApi.Services.Pacientes;
 using NutriApp.Data;
 using NutriApp.Models.Pacientes;
 using NutriApp.Models.Usuarios;
+
 namespace NutriApi.Services.MiPerfil;
-
-
 
 public class PacienteService : IPacienteService
 {
@@ -16,32 +14,24 @@ public class PacienteService : IPacienteService
 
     private readonly UserManager<UsuarioAplicacion> _userManager;
 
-
-    public PacienteService(
-        NutriAppDbContext context,
-        UserManager<UsuarioAplicacion> userManager)
+    public PacienteService(NutriAppDbContext context, UserManager<UsuarioAplicacion> userManager)
     {
         _context = context;
         _userManager = userManager;
     }
 
-
     // ==========================================
     // CREAR
     // ==========================================
 
-    public async Task<ResultadoPaciente<PacienteDetalleDto>>
-        CrearAsync(
-            int nutricionistaId,
-            CrearPacienteDto dto)
+    public async Task<ResultadoPaciente<PacienteDetalleDto>> CrearAsync(
+        int nutricionistaId,
+        CrearPacienteDto dto
+    )
     {
-        var email =
-            dto.Email.Trim().ToLowerInvariant();
+        var email = dto.Email.Trim().ToLowerInvariant();
 
-
-        var usuarioExistente =
-            await _userManager.FindByEmailAsync(email);
-
+        var usuarioExistente = await _userManager.FindByEmailAsync(email);
 
         if (usuarioExistente is not null)
         {
@@ -49,10 +39,9 @@ public class PacienteService : IPacienteService
             {
                 Exitoso = false,
                 Error = "Ya existe un usuario con ese email.",
-                TipoError = TipoErrorPaciente.Validacion
+                TipoError = TipoErrorPaciente.Validacion,
             };
         }
-
 
         var paciente = new Paciente
         {
@@ -72,16 +61,13 @@ public class PacienteService : IPacienteService
 
             Activo = true,
 
-            FechaCreacion = DateTime.UtcNow
+            FechaCreacion = DateTime.UtcNow,
         };
-
 
         // Se crea como usuario Identity,
         // pero todavía SIN contraseña.
 
-        var resultadoCreacion =
-            await _userManager.CreateAsync(paciente);
-
+        var resultadoCreacion = await _userManager.CreateAsync(paciente);
 
         if (!resultadoCreacion.Succeeded)
         {
@@ -89,23 +75,13 @@ public class PacienteService : IPacienteService
             {
                 Exitoso = false,
 
-                Error = string.Join(
-                    " | ",
-                    resultadoCreacion.Errors
-                        .Select(e => e.Description)
-                ),
+                Error = string.Join(" | ", resultadoCreacion.Errors.Select(e => e.Description)),
 
-                TipoError = TipoErrorPaciente.Validacion
+                TipoError = TipoErrorPaciente.Validacion,
             };
         }
 
-
-        var resultadoRol =
-            await _userManager.AddToRoleAsync(
-                paciente,
-                Roles.Paciente
-            );
-
+        var resultadoRol = await _userManager.AddToRoleAsync(paciente, Roles.Paciente);
 
         if (!resultadoRol.Succeeded)
         {
@@ -115,40 +91,30 @@ public class PacienteService : IPacienteService
             {
                 Exitoso = false,
                 Error = "No se pudo asignar el rol Paciente.",
-                TipoError = TipoErrorPaciente.ErrorInterno
+                TipoError = TipoErrorPaciente.ErrorInterno,
             };
         }
-
 
         var perfil = new PerfilPaciente
         {
             PacienteId = paciente.Id,
 
-            ObjetivoNutricional =
-                dto.ObjetivoNutricional,
+            ObjetivoNutricional = dto.ObjetivoNutricional,
 
-            TipoActividad =
-                dto.TipoActividad,
+            TipoActividad = dto.TipoActividad,
 
-            PesoInicial =
-                dto.PesoInicial,
+            PesoInicial = dto.PesoInicial,
 
-            Altura =
-                dto.Altura,
+            Altura = dto.Altura,
 
-            FechaInicio =
-                dto.FechaInicio ?? DateOnly.FromDateTime(DateTime.UtcNow),
+            FechaInicio = dto.FechaInicio ?? DateOnly.FromDateTime(DateTime.UtcNow),
 
-            ActividadDescripcion =
-                dto.ActividadDescripcion?.Trim(),
+            ActividadDescripcion = dto.ActividadDescripcion?.Trim(),
 
-            ObservacionesGenerales =
-                dto.ObservacionesGenerales?.Trim(),
+            ObservacionesGenerales = dto.ObservacionesGenerales?.Trim(),
 
-            FechaCreacion =
-                DateTime.UtcNow
+            FechaCreacion = DateTime.UtcNow,
         };
-
 
         try
         {
@@ -166,64 +132,39 @@ public class PacienteService : IPacienteService
             throw;
         }
 
-
         return new ResultadoPaciente<PacienteDetalleDto>
         {
             Exitoso = true,
 
             TipoError = TipoErrorPaciente.Ninguno,
 
-            Datos = MapearDetalle(
-                paciente,
-                perfil
-            )
+            Datos = MapearDetalle(paciente, perfil),
         };
     }
-
 
     // ==========================================
     // LISTAR
     // ==========================================
 
-    public async Task<List<PacienteListadoDto>>
-        ObtenerTodosAsync(
-            int nutricionistaId,
-            string? buscar)
+    public async Task<List<PacienteListadoDto>> ObtenerTodosAsync(
+        int nutricionistaId,
+        string? buscar
+    )
     {
-        var query =
-            _context.Pacientes
-                .AsNoTracking()
-                .Where(p =>
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var query = _context
+            .Pacientes.AsNoTracking()
+            .Where(p => p.NutricionistaId == nutricionistaId);
 
         if (!string.IsNullOrWhiteSpace(buscar))
         {
             var termino = buscar.Trim();
 
             query = query.Where(p =>
-                EF.Functions.ILike(
-                    p.Nombre,
-                    $"%{termino}%"
-                )
-                ||
-                EF.Functions.ILike(
-                    p.Apellido,
-                    $"%{termino}%"
-                )
-                ||
-                (
-                    p.Email != null &&
-                    EF.Functions.ILike(
-                        p.Email,
-                        $"%{termino}%"
-                    )
-                )
+                EF.Functions.ILike(p.Nombre, $"%{termino}%")
+                || EF.Functions.ILike(p.Apellido, $"%{termino}%")
+                || (p.Email != null && EF.Functions.ILike(p.Email, $"%{termino}%"))
             );
         }
-
 
         return await query
             .OrderBy(p => p.Apellido)
@@ -231,129 +172,84 @@ public class PacienteService : IPacienteService
             .Select(p => new PacienteListadoDto
             {
                 Id = p.Id,
-
                 Nombre = p.Nombre,
-
                 Apellido = p.Apellido,
-
                 Email = p.Email ?? string.Empty,
-
                 Telefono = p.PhoneNumber,
-
                 Activo = p.Activo,
+                AvatarId = p.AvatarId,
 
                 ObjetivoNutricional =
-                    p.Perfil != null
-                        ? p.Perfil.ObjetivoNutricional.ToString()
-                        : string.Empty
+                    p.Perfil != null ? p.Perfil.ObjetivoNutricional.ToString() : string.Empty,
             })
             .ToListAsync();
     }
-
 
     // ==========================================
     // DETALLE
     // ==========================================
 
-    public async Task<ResultadoPaciente<PacienteDetalleDto>>
-        ObtenerPorIdAsync(
-            int nutricionistaId,
-            int pacienteId)
+    public async Task<ResultadoPaciente<PacienteDetalleDto>> ObtenerPorIdAsync(
+        int nutricionistaId,
+        int pacienteId
+    )
     {
-        var paciente =
-            await _context.Pacientes
-                .AsNoTracking()
-                .Include(p => p.Perfil)
-                .FirstOrDefaultAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var paciente = await _context
+            .Pacientes.AsNoTracking()
+            .Include(p => p.Perfil)
+            .FirstOrDefaultAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
 
         if (paciente is null)
         {
             return NoEncontrado();
         }
-
 
         return new ResultadoPaciente<PacienteDetalleDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearDetalle(
-                    paciente,
-                    paciente.Perfil
-                ),
+            Datos = MapearDetalle(paciente, paciente.Perfil),
 
-            TipoError =
-                TipoErrorPaciente.Ninguno
+            TipoError = TipoErrorPaciente.Ninguno,
         };
     }
-
 
     // ==========================================
     // EDITAR
     // ==========================================
 
-    public async Task<ResultadoPaciente<PacienteDetalleDto>>
-        EditarAsync(
-            int nutricionistaId,
-            int pacienteId,
-            EditarPacienteDto dto)
+    public async Task<ResultadoPaciente<PacienteDetalleDto>> EditarAsync(
+        int nutricionistaId,
+        int pacienteId,
+        EditarPacienteDto dto
+    )
     {
-        var paciente =
-            await _context.Pacientes
-                .Include(p => p.Perfil)
-                .FirstOrDefaultAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var paciente = await _context
+            .Pacientes.Include(p => p.Perfil)
+            .FirstOrDefaultAsync(p => p.Id == pacienteId && p.NutricionistaId == nutricionistaId);
 
         if (paciente is null)
         {
             return NoEncontrado();
         }
 
+        var email = dto.Email.Trim().ToLowerInvariant();
 
-        var email =
-            dto.Email.Trim().ToLowerInvariant();
-
-
-        if (!string.Equals(
-                paciente.Email,
-                email,
-                StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(paciente.Email, email, StringComparison.OrdinalIgnoreCase))
         {
-            var usuarioConEmail =
-                await _userManager
-                    .FindByEmailAsync(email);
+            var usuarioConEmail = await _userManager.FindByEmailAsync(email);
 
-
-            if (usuarioConEmail is not null &&
-                usuarioConEmail.Id != paciente.Id)
+            if (usuarioConEmail is not null && usuarioConEmail.Id != paciente.Id)
             {
                 return new ResultadoPaciente<PacienteDetalleDto>
                 {
                     Exitoso = false,
                     Error = "Ya existe un usuario con ese email.",
-                    TipoError = TipoErrorPaciente.Validacion
+                    TipoError = TipoErrorPaciente.Validacion,
                 };
             }
 
-
-            var resultadoEmail =
-                await _userManager
-                    .SetEmailAsync(
-                        paciente,
-                        email
-                    );
-
+            var resultadoEmail = await _userManager.SetEmailAsync(paciente, email);
 
             if (!resultadoEmail.Succeeded)
             {
@@ -361,18 +257,11 @@ public class PacienteService : IPacienteService
                 {
                     Exitoso = false,
                     Error = "No se pudo actualizar el email.",
-                    TipoError = TipoErrorPaciente.Validacion
+                    TipoError = TipoErrorPaciente.Validacion,
                 };
             }
 
-
-            var resultadoUsername =
-                await _userManager
-                    .SetUserNameAsync(
-                        paciente,
-                        email
-                    );
-
+            var resultadoUsername = await _userManager.SetUserNameAsync(paciente, email);
 
             if (!resultadoUsername.Succeeded)
             {
@@ -380,98 +269,69 @@ public class PacienteService : IPacienteService
                 {
                     Exitoso = false,
                     Error = "No se pudo actualizar el usuario.",
-                    TipoError = TipoErrorPaciente.Validacion
+                    TipoError = TipoErrorPaciente.Validacion,
                 };
             }
         }
 
+        paciente.Nombre = dto.Nombre.Trim();
 
-        paciente.Nombre =
-            dto.Nombre.Trim();
+        paciente.Apellido = dto.Apellido.Trim();
 
-        paciente.Apellido =
-            dto.Apellido.Trim();
+        paciente.PhoneNumber = dto.Telefono?.Trim();
 
-        paciente.PhoneNumber =
-            dto.Telefono?.Trim();
-
-        paciente.FechaNacimiento =
-            dto.FechaNacimiento;
-
+        paciente.FechaNacimiento = dto.FechaNacimiento;
 
         if (paciente.Perfil is null)
         {
             paciente.Perfil = new PerfilPaciente
             {
                 PacienteId = paciente.Id,
-                FechaCreacion = DateTime.UtcNow
+                FechaCreacion = DateTime.UtcNow,
             };
         }
 
+        paciente.Perfil.ObjetivoNutricional = dto.ObjetivoNutricional;
 
-        paciente.Perfil.ObjetivoNutricional =
-            dto.ObjetivoNutricional;
+        paciente.Perfil.TipoActividad = dto.TipoActividad;
 
-        paciente.Perfil.TipoActividad =
-            dto.TipoActividad;
+        paciente.Perfil.PesoInicial = dto.PesoInicial;
 
-        paciente.Perfil.PesoInicial =
-            dto.PesoInicial;
+        paciente.Perfil.Altura = dto.Altura;
 
-        paciente.Perfil.Altura =
-            dto.Altura;
+        paciente.Perfil.FechaInicio = dto.FechaInicio;
 
-        paciente.Perfil.FechaInicio =
-            dto.FechaInicio;
+        paciente.Perfil.ActividadDescripcion = dto.ActividadDescripcion?.Trim();
 
-        paciente.Perfil.ActividadDescripcion =
-            dto.ActividadDescripcion?.Trim();
+        paciente.Perfil.ObservacionesGenerales = dto.ObservacionesGenerales?.Trim();
 
-        paciente.Perfil.ObservacionesGenerales =
-            dto.ObservacionesGenerales?.Trim();
-
-        paciente.Perfil.FechaActualizacion =
-            DateTime.UtcNow;
-
+        paciente.Perfil.FechaActualizacion = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
-
 
         return new ResultadoPaciente<PacienteDetalleDto>
         {
             Exitoso = true,
 
-            Datos =
-                MapearDetalle(
-                    paciente,
-                    paciente.Perfil
-                ),
+            Datos = MapearDetalle(paciente, paciente.Perfil),
 
-            TipoError =
-                TipoErrorPaciente.Ninguno
+            TipoError = TipoErrorPaciente.Ninguno,
         };
     }
-
 
     // ==========================================
     // ACTIVAR / DESACTIVAR
     // ==========================================
 
-    public async Task<ResultadoPaciente<bool>>
-     CambiarEstadoAsync(
-         int nutricionistaId,
-         int pacienteId,
-         bool activo)
+    public async Task<ResultadoPaciente<bool>> CambiarEstadoAsync(
+        int nutricionistaId,
+        int pacienteId,
+        bool activo
+    )
     {
-        var paciente =
-            await _context.Pacientes
-                .FirstOrDefaultAsync(p =>
-                    p.Id == pacienteId
-                    &&
-                    p.NutricionistaId ==
-                    nutricionistaId
-                );
-
+        var paciente = await _context.Pacientes.FirstOrDefaultAsync(p =>
+            p.Id == pacienteId && p.NutricionistaId == nutricionistaId
+        );
 
         if (paciente is null)
         {
@@ -479,11 +339,9 @@ public class PacienteService : IPacienteService
             {
                 Exitoso = false,
                 Error = "Paciente no encontrado.",
-                TipoError =
-                    TipoErrorPaciente.NoEncontrado
+                TipoError = TipoErrorPaciente.NoEncontrado,
             };
         }
-
 
         /*
          * Si el estado ya es el solicitado,
@@ -498,15 +356,11 @@ public class PacienteService : IPacienteService
             {
                 Exitoso = true,
                 Datos = true,
-                TipoError =
-                    TipoErrorPaciente.Ninguno
+                TipoError = TipoErrorPaciente.Ninguno,
             };
         }
 
-
-        paciente.Activo =
-            activo;
-
+        paciente.Activo = activo;
 
         /*
          * Rotamos el SecurityStamp cada vez que
@@ -517,12 +371,7 @@ public class PacienteService : IPacienteService
          * es reactivado posteriormente.
          */
 
-        var resultado =
-            await _userManager
-                .UpdateSecurityStampAsync(
-                    paciente
-                );
-
+        var resultado = await _userManager.UpdateSecurityStampAsync(paciente);
 
         if (!resultado.Succeeded)
         {
@@ -531,21 +380,19 @@ public class PacienteService : IPacienteService
             );
         }
 
-
         return new ResultadoPaciente<bool>
         {
             Exitoso = true,
             Datos = true,
-            TipoError =
-                TipoErrorPaciente.Ninguno
+            TipoError = TipoErrorPaciente.Ninguno,
         };
     }
+
     // ==========================================
     // HELPERS
     // ==========================================
 
-    private static ResultadoPaciente<PacienteDetalleDto>
-        NoEncontrado()
+    private static ResultadoPaciente<PacienteDetalleDto> NoEncontrado()
     {
         return new ResultadoPaciente<PacienteDetalleDto>
         {
@@ -553,15 +400,11 @@ public class PacienteService : IPacienteService
 
             Error = "Paciente no encontrado.",
 
-            TipoError =
-                TipoErrorPaciente.NoEncontrado
+            TipoError = TipoErrorPaciente.NoEncontrado,
         };
     }
 
-
-    private static PacienteDetalleDto MapearDetalle(
-        Paciente paciente,
-        PerfilPaciente? perfil)
+    private static PacienteDetalleDto MapearDetalle(Paciente paciente, PerfilPaciente? perfil)
     {
         return new PacienteDetalleDto
         {
@@ -571,45 +414,31 @@ public class PacienteService : IPacienteService
 
             Apellido = paciente.Apellido,
 
-            Email =
-                paciente.Email ?? string.Empty,
+            Email = paciente.Email ?? string.Empty,
 
-            Telefono =
-                paciente.PhoneNumber,
+            Telefono = paciente.PhoneNumber,
 
-            FechaNacimiento =
-                paciente.FechaNacimiento,
+            FechaNacimiento = paciente.FechaNacimiento,
 
-            Activo =
-                paciente.Activo,
+            Activo = paciente.Activo,
 
-            ObjetivoNutricional =
-                perfil?.ObjetivoNutricional
-                    .ToString()
-                ?? string.Empty,
+            AvatarId = paciente.AvatarId,
 
-            TipoActividad =
-                perfil?.TipoActividad
-                    .ToString()
-                ?? string.Empty,
+            ObjetivoNutricional = perfil?.ObjetivoNutricional.ToString() ?? string.Empty,
 
-            PesoInicial =
-                perfil?.PesoInicial,
+            TipoActividad = perfil?.TipoActividad.ToString() ?? string.Empty,
 
-            Altura =
-                perfil?.Altura,
+            PesoInicial = perfil?.PesoInicial,
 
-            FechaInicio =
-                perfil?.FechaInicio,
+            Altura = perfil?.Altura,
 
-            ActividadDescripcion =
-                perfil?.ActividadDescripcion,
+            FechaInicio = perfil?.FechaInicio,
 
-            ObservacionesGenerales =
-                perfil?.ObservacionesGenerales,
+            ActividadDescripcion = perfil?.ActividadDescripcion,
 
-            FechaCreacion =
-                paciente.FechaCreacion
+            ObservacionesGenerales = perfil?.ObservacionesGenerales,
+
+            FechaCreacion = paciente.FechaCreacion,
         };
     }
 }

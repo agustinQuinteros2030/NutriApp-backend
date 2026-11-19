@@ -1,0 +1,315 @@
+{
+  "version": "1.1.0",
+  "estado": "BORRADOR_NO_APROBADO",
+  "descripcion": "Grupos propuestos, generados a partir de alimentos del catalogo. No activarlos sin revision profesional; grupos y membresias se importan inactivos.",
+  "grupos": [
+    {
+      "nombre": "Arroces crudos",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Arroz seco; evitar mezclar crudo y cocido.",
+      "alimentos": [
+        "Arroz Blanco Largo Fino",
+        "Arroz Parboil",
+        "Arroz Integral / Yamaní"
+      ]
+    },
+    {
+      "nombre": "Pastas secas",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Verificar gluten, huevo y condición de cocción.",
+      "alimentos": [
+        "Fideo de Trigo Candeal",
+        "Fideo al Huevo",
+        "Fideo Integral",
+        "Fideo de Arroz / Sin TACC"
+      ]
+    },
+    {
+      "nombre": "Harinas de trigo",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Varían características culinarias, no son intercambiables en recetas sin ajustes.",
+      "alimentos": [
+        "Harina de Trigo 000",
+        "Harina de Trigo 0000",
+        "Harina Leudante",
+        "Harina Integral de Trigo"
+      ]
+    },
+    {
+      "nombre": "Panificados simples",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Considerar fibra y sodio además de carbohidratos.",
+      "alimentos": [
+        "Pan Lactal Blanco",
+        "Pan Lactal Salvado/Negro",
+        "Pan Lactal Multicereal",
+        "Pan Francés / Mignon"
+      ]
+    },
+    {
+      "nombre": "Legumbres secas",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Solo alimento seco; controlar tolerancia y preparación.",
+      "alimentos": [
+        "Lentejas Secas",
+        "Garbanzos Secos",
+        "Porotos Alubia Secos",
+        "Porotos Negros Secos",
+        "Porotos Pallares Secos",
+        "Porotos Aduki / Colorados Secos"
+      ]
+    },
+    {
+      "nombre": "Harinas de legumbres",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "No convertir directamente cantidades crudas a cocidas.",
+      "alimentos": [
+        "Harina de Legumbres",
+        "Harina de Garbanzos"
+      ]
+    },
+    {
+      "nombre": "Legumbres en conserva",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Producto escurrido; vigilar sodio y tipo de conserva.",
+      "alimentos": [
+        "Lentejas / Garbanzos",
+        "Arvejas"
+      ]
+    },
+    {
+      "nombre": "Pseudocereales crudos",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Comparación de granos secos, sujeto a condición de preparación.",
+      "alimentos": [
+        "Quinoa (Lavada/Pelada)",
+        "Amaranto",
+        "Trigo Sarraceno (Alforfón)",
+        "Mijo Pelado"
+      ]
+    },
+    {
+      "nombre": "Cereales simples",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Diferencias de fibra y proteína; confirmar uso nutricional.",
+      "alimentos": [
+        "Avena (Tradicional/Instantánea)",
+        "Galletas de Arroz (Sin sal)"
+      ]
+    },
+    {
+      "nombre": "Galletitas saladas",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Verificar contenido de sodio y etiqueta del producto.",
+      "alimentos": [
+        "De Agua Clásicas",
+        "De Agua / Salvado Sin Sal"
+      ]
+    },
+    {
+      "nombre": "Dulces concentrados",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Fuentes de azúcares; uso opcional, no equivalentes en calidad nutricional.",
+      "alimentos": [
+        "Mermelada con Azúcar",
+        "Azúcar Blanca Común",
+        "Dulce de Membrillo",
+        "Dulce de Batata",
+        "Miel de Abejas"
+      ]
+    },
+    {
+      "nombre": "Untables lácteos dulces",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Dos formas de dulce de leche, no extensible a cualquier untable.",
+      "alimentos": [
+        "Dulce de Leche Clásico",
+        "Dulce de Leche Repostero"
+      ]
+    },
+    {
+      "nombre": "Gomitas dulces",
+      "criterio": "Carbohidratos",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Grupo alimentario recreativo; advertir diferencias de aditivos.",
+      "alimentos": [
+        "Gomitas Dulces",
+        "Gomitas Ácidas"
+      ]
+    },
+    {
+      "nombre": "Lácteos descremados líquidos",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Diferentes tolerancias a lactosa y preparación; verificar etiquetado.",
+      "alimentos": [
+        "Leche Descremada / 0%",
+        "Leche Deslactosada",
+        "Yogur Bebible Descremado"
+      ]
+    },
+    {
+      "nombre": "Fiambres magros",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Sodio y grado de procesamiento pueden variar.",
+      "alimentos": [
+        "Lomito Horneado",
+        "Jamón Cocido Natural"
+      ]
+    },
+    {
+      "nombre": "Carnes magras",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Valores promedio de cortes; verificar origen y cocción.",
+      "alimentos": [
+        "Carne vacuna — Cortes Magros",
+        "Carne de pollo — Cortes Magros",
+        "Carne de cerdo — Cortes Magros"
+      ]
+    },
+    {
+      "nombre": "Quesos proteicos",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Las grasas y el sodio cambian notablemente; revisar antes de activar.",
+      "alimentos": [
+        "Queso Port Salut Clásico",
+        "Queso Port Salut Light",
+        "Queso Muzzarella",
+        "Queso de Rallar (Sardo/Reggianito)"
+      ]
+    },
+    {
+      "nombre": "Atunes en conserva",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Variación significativa de grasas por aceite; no comparar calorías como iguales.",
+      "alimentos": [
+        "Atún al Natural",
+        "Atún en Aceite"
+      ]
+    },
+    {
+      "nombre": "Proteínas vegetales concentradas",
+      "criterio": "Proteinas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Soja y gluten: diferencias importantes de alérgenos y composición.",
+      "alimentos": [
+        "Proteína Texturizada Soja (PTS)",
+        "Seitán (Gluten Puro de Trigo)"
+      ]
+    },
+    {
+      "nombre": "Frutos secos y pasta de maní",
+      "criterio": "Grasas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Revisar alérgenos, fibra y densidad energética.",
+      "alimentos": [
+        "Pasta de Maní Natural (100%)",
+        "Nueces",
+        "Almendras",
+        "Castañas de Cajú",
+        "Avellanas",
+        "Maní Tostado"
+      ]
+    },
+    {
+      "nombre": "Semillas oleaginosas",
+      "criterio": "Grasas",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Diferencias de fibra, ácidos grasos y digestibilidad.",
+      "alimentos": [
+        "Semillas de Chía",
+        "Semillas de Lino",
+        "Semillas de Sésamo",
+        "Semillas de Girasol",
+        "Semillas de Zapallo",
+        "Mix de Semillas"
+      ]
+    },
+    {
+      "nombre": "Medialunas",
+      "criterio": "Calorias",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Equivalencia energética, NO nutricional integral.",
+      "alimentos": [
+        "Medialuna de Manteca",
+        "Medialuna de Grasa"
+      ]
+    },
+    {
+      "nombre": "Galletitas dulces",
+      "criterio": "Calorias",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Equivalencia energética con diferencias de azúcar y grasas.",
+      "alimentos": [
+        "Dulces Secas Sin Relleno",
+        "Dulces de Chocolate (Secas)",
+        "Dulces Rellenas (Chocolate/Vainilla)",
+        "Con Chips de Chocolate"
+      ]
+    },
+    {
+      "nombre": "Alfajores simples",
+      "criterio": "Calorias",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "No incluye alfajores triples por diferente porción.",
+      "alimentos": [
+        "Alfajor Simple Chocolate",
+        "Alfajor Simple Blanco/Glaseado",
+        "Alfajor Simple Maicena"
+      ]
+    },
+    {
+      "nombre": "Chocolates",
+      "criterio": "Calorias",
+      "aprobado": false,
+      "requiereRevisionProfesional": true,
+      "observaciones": "Diferentes proporciones de grasas y azúcares.",
+      "alimentos": [
+        "Chocolate con Leche (Tableta)",
+        "Chocolate Amargo / Semi (60-70%)",
+        "Chocolate con Maní / Almendras",
+        "Chocolate Relleno (Frutilla/Dulce)"
+      ]
+    }
+  ]
+}

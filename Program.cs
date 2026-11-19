@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +12,8 @@ using NutriApi.Inicializadores;
 using NutriApi.Services.ActivacionCuenta;
 using NutriApi.Services.Alimentos;
 using NutriApi.Services.Auth;
+using NutriApi.Services.CatalogoInicial;
+using NutriApi.Services.Competencias;
 using NutriApi.Services.ControlSeguimiento;
 using NutriApi.Services.Dashboard;
 using NutriApi.Services.Dietas;
@@ -30,8 +34,6 @@ using NutriApi.Services.SustitucionesNutricionales;
 using NutriApi.Services.Turnos;
 using NutriApp.Data;
 using QuestPDF.Infrastructure;
-using System.Security.Claims;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,17 +69,13 @@ builder.Services.AddOpenApi();
 
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException(
-        "No se encontró DefaultConnection."
-    );
+    ?? throw new InvalidOperationException("No se encontró DefaultConnection.");
 
 // =====================================
 // CONFIGURACIÓN DEL POOL NPGSQL
 // =====================================
 
-var connectionBuilder = new NpgsqlConnectionStringBuilder(
-    connectionString
-)
+var connectionBuilder = new NpgsqlConnectionStringBuilder(connectionString)
 {
     // Reutilizar conexiones.
     Pooling = true,
@@ -89,7 +87,7 @@ var connectionBuilder = new NpgsqlConnectionStringBuilder(
     MinPoolSize = 0,
 
     // Liberar conexiones inactivas después de 30 segundos.
-    ConnectionIdleLifetime = 30
+    ConnectionIdleLifetime = 30,
 };
 
 // =====================================
@@ -550,6 +548,14 @@ builder.Services.AddHostedService<ActivacionProgramadaDietasWorker>();
 builder.Services.AddScoped<ISustitucionNutricionalService, SustitucionNutricionalService>();
 
 builder.Services.AddScoped<IAplicarSustitucionService, AplicarSustitucionService>();
+
+builder.Services.AddScoped<ICompetenciaService, CompetenciaService>();
+
+// ==========================================
+// CATÁLOGO INICIAL DE NUTRICIONISTAS
+// ==========================================
+
+builder.Services.AddScoped<ICatalogoInicialService, CatalogoInicialService>();
 
 // =====================================
 // CORS

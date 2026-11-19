@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using NutriApp.Models.Alimentos;
+using NutriApp.Models.Catalogo;
+using NutriApp.Models.Competencias;
 using NutriApp.Models.ControlSeguimiento;
 using NutriApp.Models.Dietas;
 using NutriApp.Models.Mensajes;
@@ -96,6 +98,8 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // =========================
     public DbSet<Turno> Turnos { get; set; }
 
+    public DbSet<Competencia> Competencias { get; set; }
+
     // =========================
     // CONTROL DE SEGUIMIENTO
     // =========================
@@ -103,6 +107,8 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     public DbSet<MensajePaciente> MensajesPacientes { get; set; }
 
     public DbSet<ControlSeguimientoPaciente> ControlesSeguimientoPacientes { get; set; }
+
+    public DbSet<CatalogoInicializacion> CatalogosInicializados { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -125,11 +131,15 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
 
         ConfigurarTurnos(modelBuilder);
 
+        ConfigurarCompetencias(modelBuilder);
+
         ConfigurarPlantillasDietas(modelBuilder);
 
         ConfigurarControlSeguimiento(modelBuilder);
 
         ConfigurarMensajes(modelBuilder);
+
+        ConfigurarCatalogoIniciacion(modelBuilder);
     }
 
     private void ConfigurarNotificaciones(ModelBuilder modelBuilder)
@@ -143,7 +153,7 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
             entity.HasKey(n => n.Id);
 
             // ======================================
-            // USUARIO
+            // USUARIO DESTINATARIO
             // ======================================
 
             entity
@@ -151,6 +161,16 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
                 .WithMany()
                 .HasForeignKey(n => n.UsuarioId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // ======================================
+            // NUTRICIONISTA EMISOR
+            // ======================================
+
+            entity
+                .HasOne(n => n.EmisorNutricionista)
+                .WithMany()
+                .HasForeignKey(n => n.EmisorNutricionistaId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // ======================================
             // CONTENIDO
@@ -180,23 +200,11 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
             // ÍNDICES
             // ======================================
 
-            /*
-             * Consulta principal:
-             *
-             * "dame las notificaciones de este
-             * usuario ordenadas por fecha".
-             */
-
             entity.HasIndex(n => new { n.UsuarioId, n.FechaCreacion });
 
-            /*
-             * Muy utilizado para:
-             *
-             * "¿cuántas notificaciones no leídas
-             * tiene este usuario?"
-             */
-
             entity.HasIndex(n => new { n.UsuarioId, n.Leida });
+
+            entity.HasIndex(n => n.EmisorNutricionistaId);
         });
     }
 
@@ -700,6 +708,89 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
     // PLANTILLAS DE DIETA
     // ==========================================================
 
+    private static void ConfigurarCompetencias(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Competencia>(entity =>
+        {
+            // ======================================
+            // PK
+            // ======================================
+
+            entity.HasKey(c => c.Id);
+
+            // ======================================
+            // PACIENTE
+            // ======================================
+
+            entity
+                .HasOne(c => c.Paciente)
+                .WithMany()
+                .HasForeignKey(c => c.PacienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // ======================================
+            // INFORMACIÓN DE LA COMPETENCIA
+            // ======================================
+
+            entity.Property(c => c.Nombre)
+                .IsRequired()
+                .HasMaxLength(150);
+
+            entity.Property(c => c.Disciplina)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(c => c.Lugar)
+                .HasMaxLength(200);
+
+            entity.Property(c => c.Observaciones)
+                .HasMaxLength(1000);
+
+            // ======================================
+            // FECHAS
+            // ======================================
+
+            entity.Property(c => c.FechaInicio)
+                .IsRequired();
+
+            entity.Property(c => c.FechaFin)
+                .IsRequired(false);
+
+            // ======================================
+            // ESTADO
+            // ======================================
+
+            entity.Property(c => c.Estado)
+                .IsRequired();
+
+            // ======================================
+            // AUDITORÍA
+            // ======================================
+
+            entity.Property(c => c.FechaCreacion)
+                .IsRequired();
+
+            entity.Property(c => c.FechaActualizacion)
+                .IsRequired(false);
+
+            // ======================================
+            // ÍNDICES
+            // ======================================
+
+            entity.HasIndex(c => new
+            {
+                c.PacienteId,
+                c.FechaInicio
+            });
+
+            entity.HasIndex(c => new
+            {
+                c.Estado,
+                c.FechaInicio
+            });
+        });
+    }
+
     private static void ConfigurarPlantillasDietas(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<PlantillaDieta>(entity =>
@@ -841,6 +932,28 @@ public class NutriAppDbContext : IdentityDbContext<UsuarioAplicacion, IdentityRo
             entity.HasIndex(m => new { m.PacienteId, m.FechaCreacion });
 
             entity.HasIndex(m => new { m.NutricionistaId, m.PacienteId });
+        });
+    }
+
+    private void ConfigurarCatalogoIniciacion(ModelBuilder modelBuilder)
+    {
+        // ==========================================
+        // CATÁLOGO INICIAL
+        // ==========================================
+
+        modelBuilder.Entity<CatalogoInicializacion>(entidad =>
+        {
+            entidad.HasKey(x => x.Id);
+
+            entidad.HasIndex(x => x.NutricionistaId).IsUnique();
+
+            entidad.Property(x => x.VersionCatalogo).HasMaxLength(40).IsRequired();
+
+            entidad
+                .HasOne<Nutricionista>()
+                .WithMany()
+                .HasForeignKey(x => x.NutricionistaId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
     }
 }

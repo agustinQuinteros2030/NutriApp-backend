@@ -4,8 +4,8 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
-	  <UserSecretsId>8a581f95-459f-4032-9c1b-52f9b96c1376</UserSecretsId>
-  </PropertyGroup>
+		<UserSecretsId>8a581f95-459f-4032-9c1b-52f9b96c1376</UserSecretsId>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
@@ -16,13 +16,29 @@
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.11" />
 
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.11">
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		  <PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
 
 		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
 
 		<PackageReference Include="QuestPDF" Version="2026.9.0" />
+	</ItemGroup>
+
+	<!-- ========================================== -->
+	<!-- ARCHIVOS DEL CATÁLOGO INICIAL -->
+	<!-- ========================================== -->
+
+	<ItemGroup>
+		<Content Update="DatosIniciales/catalogo_inicial_v1.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
+
+		<Content Update="DatosIniciales/grupos_equivalencias_borrador_v1.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+			<CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+		</Content>
 	</ItemGroup>
 
 </Project>

@@ -3,6 +3,7 @@ using NutriApi.DTOs.Notificaciones;
 using NutriApp.Data;
 using NutriApp.Enums.Notificaciones;
 using NutriApp.Models.Notificaciones;
+using NutriApp.Models.Usuarios;
 
 namespace NutriApi.Services.Notificaciones;
 
@@ -44,6 +45,16 @@ public class NotificacionService : INotificacionService
                 RecursoTipo = n.RecursoTipo,
 
                 RecursoId = n.RecursoId,
+
+                TipoEmisor = n.EmisorNutricionistaId.HasValue ? "Nutricionista" : null,
+
+                EmisorNombre = n.EmisorNutricionistaId.HasValue
+                    ? n.EmisorNutricionista!.Nombre + " " + n.EmisorNutricionista.Apellido
+                    : null,
+
+                EmisorAvatarId = n.EmisorNutricionistaId.HasValue
+                    ? n.EmisorNutricionista!.AvatarId
+                    : null,
             })
             .ToListAsync();
     }
@@ -133,7 +144,8 @@ public class NotificacionService : INotificacionService
         string titulo,
         string mensaje,
         string? recursoTipo = null,
-        int? recursoId = null
+        int? recursoId = null,
+        int? emisorNutricionistaId = null
     )
     {
         // ======================================
@@ -233,12 +245,43 @@ public class NotificacionService : INotificacionService
         }
 
         // ======================================
+        // VALIDAR NUTRICIONISTA EMISOR
+        // ======================================
+
+        if (emisorNutricionistaId.HasValue)
+        {
+            var emisorId = emisorNutricionistaId.Value;
+
+            if (emisorId <= 0)
+            {
+                throw new ArgumentException(
+                    "El identificador del nutricionista emisor no es válido.",
+                    nameof(emisorNutricionistaId)
+                );
+            }
+
+            var relacionValida = await _context
+                .Set<Paciente>()
+                .AsNoTracking()
+                .AnyAsync(p => p.Id == usuarioId && p.NutricionistaId == emisorId);
+
+            if (!relacionValida)
+            {
+                throw new InvalidOperationException(
+                    "El nutricionista emisor no está asociado al paciente destinatario."
+                );
+            }
+        }
+
+        // ======================================
         // CREAR NOTIFICACIÓN
         // ======================================
 
         var notificacion = new Notificacion
         {
             UsuarioId = usuarioId,
+
+            EmisorNutricionistaId = emisorNutricionistaId,
 
             Tipo = tipo,
 

@@ -90,7 +90,8 @@ public class MensajePacienteService : IMensajePacienteService
                 "Nuevo mensaje de tu nutricionista",
                 mensaje.Titulo,
                 RecursoMensajePaciente,
-                mensaje.Id
+                mensaje.Id,
+                emisorNutricionistaId: nutricionistaId
             );
         }
         catch (Exception ex)

@@ -21,4 +21,9 @@ public class NotificacionDto
     public string? RecursoTipo { get; set; }
 
     public int? RecursoId { get; set; }
+    public string? TipoEmisor { get; set; }
+
+    public string? EmisorNombre { get; set; }
+
+    public string? EmisorAvatarId { get; set; }
 }

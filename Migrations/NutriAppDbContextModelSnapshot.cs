@@ -307,6 +307,86 @@ namespace NutriApi.Migrations
                     b.ToTable("GruposEquivalencias");
                 });
 
+            modelBuilder.Entity("NutriApp.Models.Catalogo.CatalogoInicializacion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("FechaInicializacion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("NutricionistaId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("VersionCatalogo")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NutricionistaId")
+                        .IsUnique();
+
+                    b.ToTable("CatalogosInicializados");
+                });
+
+            modelBuilder.Entity("NutriApp.Models.Competencias.Competencia", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Disciplina")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<int>("Estado")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("FechaActualizacion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("FechaCreacion")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateOnly?>("FechaFin")
+                        .HasColumnType("date");
+
+                    b.Property<DateOnly>("FechaInicio")
+                        .HasColumnType("date");
+
+                    b.Property<string>("Lugar")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
+
+                    b.Property<string>("Observaciones")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("PacienteId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Estado", "FechaInicio");
+
+                    b.HasIndex("PacienteId", "FechaInicio");
+
+                    b.ToTable("Competencias");
+                });
+
             modelBuilder.Entity("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", b =>
                 {
                     b.Property<int>("Id")
@@ -730,6 +810,9 @@ namespace NutriApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("EmisorNutricionistaId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("FechaCreacion")
                         .HasColumnType("timestamp with time zone");
 
@@ -765,6 +848,8 @@ namespace NutriApi.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("EmisorNutricionistaId");
 
                     b.HasIndex("UsuarioId", "FechaCreacion");
 
@@ -1121,6 +1206,10 @@ namespace NutriApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("AvatarId")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("text");
@@ -1329,6 +1418,26 @@ namespace NutriApi.Migrations
                     b.Navigation("Nutricionista");
                 });
 
+            modelBuilder.Entity("NutriApp.Models.Catalogo.CatalogoInicializacion", b =>
+                {
+                    b.HasOne("Nutricionista", null)
+                        .WithMany()
+                        .HasForeignKey("NutricionistaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NutriApp.Models.Competencias.Competencia", b =>
+                {
+                    b.HasOne("NutriApp.Models.Usuarios.Paciente", "Paciente")
+                        .WithMany()
+                        .HasForeignKey("PacienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Paciente");
+                });
+
             modelBuilder.Entity("NutriApp.Models.ControlSeguimiento.ControlSeguimientoPaciente", b =>
                 {
                     b.HasOne("NutriApp.Models.Usuarios.Paciente", null)
@@ -1482,11 +1591,18 @@ namespace NutriApi.Migrations
 
             modelBuilder.Entity("NutriApp.Models.Notificaciones.Notificacion", b =>
                 {
+                    b.HasOne("Nutricionista", "EmisorNutricionista")
+                        .WithMany()
+                        .HasForeignKey("EmisorNutricionistaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("UsuarioAplicacion", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("EmisorNutricionista");
 
                     b.Navigation("Usuario");
                 });

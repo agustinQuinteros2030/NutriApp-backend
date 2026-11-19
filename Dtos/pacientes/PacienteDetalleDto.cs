@@ -15,7 +15,7 @@ public class PacienteDetalleDto
     public DateOnly? FechaNacimiento { get; set; }
 
     public bool Activo { get; set; }
-
+    public string? AvatarId { get; set; }
 
     public string ObjetivoNutricional { get; set; } = string.Empty;
 

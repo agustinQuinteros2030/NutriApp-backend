@@ -1,27 +1,25 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using NutriApi.DTOs.Auth;
 using NutriApi.Services.Auth;
 
-using System.Security.Claims;
-
 namespace NutriApi.Controllers;
-
 
 [ApiController]
 [Route("api/auth")]
 public class AuthController : ControllerBase
 {
     private readonly IAuthService _authService;
+    private readonly UserManager<UsuarioAplicacion> _userManager;
 
-
-    public AuthController(
-        IAuthService authService)
+    public AuthController(IAuthService authService, UserManager<UsuarioAplicacion> userManager)
     {
         _authService = authService;
+        _userManager = userManager;
     }
-
 
     // =====================================
     // REGISTRO NUTRICIONISTA
@@ -30,20 +28,11 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("registro-nutricionista")]
     [EnableRateLimiting("AuthSensitive")]
-    public async Task<IActionResult>
-      RegistrarNutricionista(
-          RegistroNutricionistaDto dto)
+    public async Task<IActionResult> RegistrarNutricionista(RegistroNutricionistaDto dto)
     {
-        var resultado =
-            await _authService
-                .RegistrarNutricionistaAsync(
-                    dto
-                );
+        var resultado = await _authService.RegistrarNutricionistaAsync(dto);
 
-
-        return ConvertirResultado(
-            resultado
-        );
+        return ConvertirResultado(resultado);
     }
 
     // =====================================
@@ -53,17 +42,12 @@ public class AuthController : ControllerBase
     [AllowAnonymous]
     [HttpPost("login")]
     [EnableRateLimiting("AuthSensitive")]
-    public async Task<IActionResult>
-        Login(LoginDto dto)
+    public async Task<IActionResult> Login(LoginDto dto)
     {
-        var resultado =
-            await _authService
-                .LoginAsync(dto);
-
+        var resultado = await _authService.LoginAsync(dto);
 
         return ConvertirResultado(resultado);
     }
-
 
     // =====================================
     // USUARIO ACTUAL
@@ -71,83 +55,52 @@ public class AuthController : ControllerBase
 
     [Authorize]
     [HttpGet("me")]
-    public IActionResult Me()
+    public async Task<IActionResult> Me()
     {
-        return Ok(new
+        var usuario = await _userManager.GetUserAsync(User);
+
+        if (usuario is null)
         {
-            UsuarioId =
-                User.FindFirstValue(
-                    ClaimTypes.NameIdentifier
-                ),
+            return Unauthorized(new { mensaje = "Usuario no encontrado." });
+        }
 
-            Nombre =
-                User.FindFirstValue(
-                    ClaimTypes.Name
-                ),
+        return Ok(
+            new
+            {
+                UsuarioId = User.FindFirstValue(ClaimTypes.NameIdentifier),
 
-            Email =
-                User.FindFirstValue(
-                    ClaimTypes.Email
-                ),
+                Nombre = User.FindFirstValue(ClaimTypes.Name),
 
-            Rol =
-                User.FindFirstValue(
-                    ClaimTypes.Role
-                )
-        });
+                Email = User.FindFirstValue(ClaimTypes.Email),
+
+                Rol = User.FindFirstValue(ClaimTypes.Role),
+
+                AvatarId = usuario.AvatarId,
+            }
+        );
     }
 
-
-    private IActionResult ConvertirResultado(
-        ResultadoAuth resultado)
+    private IActionResult ConvertirResultado(ResultadoAuth resultado)
     {
         if (resultado.Exitoso)
         {
             return Ok(resultado.Datos);
         }
 
-
         return resultado.TipoError switch
         {
-            TipoErrorAuth.Validacion =>
-                BadRequest(new
-                {
-                    mensaje = resultado.Error
-                }),
+            TipoErrorAuth.Validacion => BadRequest(new { mensaje = resultado.Error }),
 
+            TipoErrorAuth.CredencialesInvalidas => Unauthorized(new { mensaje = resultado.Error }),
 
-            TipoErrorAuth.CredencialesInvalidas =>
-                Unauthorized(new
-                {
-                    mensaje = resultado.Error
-                }),
+            TipoErrorAuth.UsuarioBloqueado => Unauthorized(new { mensaje = resultado.Error }),
 
+            TipoErrorAuth.UsuarioDesactivado => Unauthorized(new { mensaje = resultado.Error }),
 
-            TipoErrorAuth.UsuarioBloqueado =>
-                Unauthorized(new
-                {
-                    mensaje = resultado.Error
-                }),
-
-
-            TipoErrorAuth.UsuarioDesactivado =>
-                Unauthorized(new
-                {
-                    mensaje = resultado.Error
-                }),
-
-
-            _ =>
-                StatusCode(
-                    StatusCodes
-                        .Status500InternalServerError,
-
-                    new
-                    {
-                        mensaje =
-                            "Ocurrió un error interno."
-                    }
-                )
+            _ => StatusCode(
+                StatusCodes.Status500InternalServerError,
+                new { mensaje = "Ocurrió un error interno." }
+            ),
         };
     }
 }

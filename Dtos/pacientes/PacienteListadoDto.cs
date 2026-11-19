@@ -11,6 +11,7 @@ public class PacienteListadoDto
     public string Email { get; set; } = string.Empty;
 
     public string? Telefono { get; set; }
+    public string? AvatarId { get; set; }
 
     public bool Activo { get; set; }
 

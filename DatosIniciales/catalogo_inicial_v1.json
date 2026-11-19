@@ -1,0 +1,4333 @@
+{
+  "version": "1.0.0",
+  "descripcion": "Catalogo alimentario inicial extraido de cinco planillas provistas por el nutricionista. Valores por cantidadBase; requiere validacion profesional.",
+  "categorias": [
+    "ARROZ Y PASTAS (Crudos)",
+    "HARINAS Y PANIFICADOS",
+    "LÁCTEOS Y BEBIDAS VEGETALES",
+    "QUESOS",
+    "FIAMBRES MAGROS",
+    "CEREALES Y SNACKS",
+    "ENLATADOS (Escurridos)",
+    "ACEITES, GRASAS Y DULCES",
+    "LEGUMBRES SECAS Y DERIVADOS",
+    "AZÚCARES, DULCES Y CONFITERÍA",
+    "BEBIDAS DEPORTIVAS Y VEGETALES",
+    "UNTABLES DULCES",
+    "GALLETITAS SALADAS",
+    "GALLETITAS DULCES",
+    "ALFAJORES Y GOLOSINAS",
+    "CHOCOLATES",
+    "CARNE VACUNA",
+    "CARNE DE POLLO",
+    "CARNE DE CERDO",
+    "PESCADOS",
+    "HUEVO Y PALTA",
+    "VERDURAS (CRUDAS)",
+    "FRUTAS (CRUDAS)",
+    "FRUTOS SECOS",
+    "SEMILLAS",
+    "PANADERÍA ARTESANAL",
+    "PSEUDOCEREALES (Crudos)",
+    "UNIVERSO VEGANO / PLANT-BASED",
+    "MASAS Y ROTISERÍA CASERA",
+    "SUPLEMENTOS PROTEICOS CLÍNICOS",
+    "CONDIMENTOS Y SALSAS BASE"
+  ],
+  "alimentos": [
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Arroz Blanco Largo Fino",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 171.0,
+      "carbohidratos": 39.0,
+      "proteinas": 3.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 3,
+        "nombreOriginal": "Arroz Blanco Largo Fino",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Gallo, Lucchetti, Molinos Ala",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,4",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 0,
+          "Magnesio (mg)": 0,
+          "Fósforo (mg)": 0,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Arroz Parboil",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 169.0,
+      "carbohidratos": 38.0,
+      "proteinas": 3.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 4,
+        "nombreOriginal": "Arroz Parboil",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Gallo Oro, Dos Hermanos",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,1",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 45,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Arroz Integral / Yamaní",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 167.0,
+      "carbohidratos": 35.5,
+      "proteinas": 3.7,
+      "grasas": 1.1,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 5,
+        "nombreOriginal": "Arroz Integral / Yamaní",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Gallo, Yin Yang, Dos Hermanos",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,8",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 45,
+          "Fósforo (mg)": 110,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Fideo de Trigo Candeal",
+      "cantidadBase": 80.0,
+      "unidadBase": "Gramos",
+      "calorias": 278.0,
+      "carbohidratos": 58.0,
+      "proteinas": 9.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 6,
+        "nombreOriginal": "Fideo de Trigo Candeal",
+        "porcionOriginal": "80g (1 plato)",
+        "marcasODetalleReferencia": "Matarazzo, Lucchetti, Knorr",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,2",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "2,4",
+          "Calcio (mg)": 15,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 70,
+          "Ác. Fólico (mcg)": 176,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Fideo al Huevo",
+      "cantidadBase": 80.0,
+      "unidadBase": "Gramos",
+      "calorias": 285.0,
+      "carbohidratos": 55.0,
+      "proteinas": 11.0,
+      "grasas": 2.3,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 7,
+        "nombreOriginal": "Fideo al Huevo",
+        "porcionOriginal": "80g (1 plato)",
+        "marcasODetalleReferencia": "Don Vicente, Matarazzo",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,5",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "2,4",
+          "Calcio (mg)": 20,
+          "Magnesio (mg)": 30,
+          "Fósforo (mg)": 80,
+          "Ác. Fólico (mcg)": 176,
+          "Vit. A (mcg)": 40
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Fideo Integral",
+      "cantidadBase": 80.0,
+      "unidadBase": "Gramos",
+      "calorias": 265.0,
+      "carbohidratos": 52.0,
+      "proteinas": 10.0,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 8,
+        "nombreOriginal": "Fideo Integral",
+        "porcionOriginal": "80g (1 plato)",
+        "marcasODetalleReferencia": "Matarazzo, Nutrabio",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "7,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "2,8",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 60,
+          "Fósforo (mg)": 120,
+          "Ác. Fólico (mcg)": 176,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Fideo de Arroz / Sin TACC",
+      "cantidadBase": 80.0,
+      "unidadBase": "Gramos",
+      "calorias": 282.0,
+      "carbohidratos": 63.0,
+      "proteinas": 5.5,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 9,
+        "nombreOriginal": "Fideo de Arroz / Sin TACC",
+        "porcionOriginal": "80g (1 plato)",
+        "marcasODetalleReferencia": "Gallo, Kapac",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,8",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ARROZ Y PASTAS (Crudos)",
+      "nombre": "Fideo de Legumbres",
+      "cantidadBase": 80.0,
+      "unidadBase": "Gramos",
+      "calorias": 275.0,
+      "carbohidratos": 45.0,
+      "proteinas": 16.0,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 10,
+        "nombreOriginal": "Fideo de Legumbres",
+        "porcionOriginal": "80g (1 plato)",
+        "marcasODetalleReferencia": "Legume, Wakas (Arveja/Lenteja)",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "8,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "3,5",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 90,
+          "Fósforo (mg)": 180,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Harina de Trigo 000",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 36.0,
+      "proteinas": 5.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 12,
+        "nombreOriginal": "Harina de Trigo 000",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Cañuelas, Morixe, Favorita",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 50,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Harina de Trigo 0000",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 175.0,
+      "carbohidratos": 37.0,
+      "proteinas": 4.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 13,
+        "nombreOriginal": "Harina de Trigo 0000",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Blancaflor, Pureza",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 40,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Harina Leudante",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 36.0,
+      "proteinas": 4.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 14,
+        "nombreOriginal": "Harina Leudante",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Blancaflor, Pureza",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 450,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 40,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Harina Integral de Trigo",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 160.0,
+      "carbohidratos": 33.0,
+      "proteinas": 6.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 15,
+        "nombreOriginal": "Harina Integral de Trigo",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Pureza, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,8",
+          "Calcio (mg)": 20,
+          "Magnesio (mg)": 40,
+          "Fósforo (mg)": 110,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Harina de Legumbres",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 175.0,
+      "carbohidratos": 28.0,
+      "proteinas": 11.0,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 16,
+        "nombreOriginal": "Harina de Legumbres",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 50,
+          "Fósforo (mg)": 130,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Pan Lactal Blanco",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 130.0,
+      "carbohidratos": 24.0,
+      "proteinas": 4.0,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 17,
+        "nombreOriginal": "Pan Lactal Blanco",
+        "porcionOriginal": "50g (2 fetas)",
+        "marcasODetalleReferencia": "Fargo, Bimbo, Lactal",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 200,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 45,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Pan Lactal Salvado/Negro",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 120.0,
+      "carbohidratos": 22.0,
+      "proteinas": 4.5,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 18,
+        "nombreOriginal": "Pan Lactal Salvado/Negro",
+        "porcionOriginal": "50g (2 fetas)",
+        "marcasODetalleReferencia": "Fargo, Bimbo",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,5",
+          "Sodio (mg)": 220,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 30,
+          "Fósforo (mg)": 70,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HARINAS Y PANIFICADOS",
+      "nombre": "Pan Lactal Multicereal",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 140.0,
+      "carbohidratos": 20.0,
+      "proteinas": 5.0,
+      "grasas": 3.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 19,
+        "nombreOriginal": "Pan Lactal Multicereal",
+        "porcionOriginal": "50g (2 fetas)",
+        "marcasODetalleReferencia": "Fargo, Bimbo Artesano",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,0",
+          "Sodio (mg)": 180,
+          "Hierro (mg)": "1,8",
+          "Calcio (mg)": 50,
+          "Magnesio (mg)": 40,
+          "Fósforo (mg)": 85,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Leche Entera",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 114.0,
+      "carbohidratos": 9.0,
+      "proteinas": 6.0,
+      "grasas": 6.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 21,
+        "nombreOriginal": "Leche Entera",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "La Serenísima, Tregar, Ilolay",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 100,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 230,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 180,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 120
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Leche Descremada / 0%",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 70.0,
+      "carbohidratos": 9.0,
+      "proteinas": 6.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 22,
+        "nombreOriginal": "Leche Descremada / 0%",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "La Serenísima, Tregar, Ilolay",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 100,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 230,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 180,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 120
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Leche Deslactosada",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 70.0,
+      "carbohidratos": 9.0,
+      "proteinas": 6.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 23,
+        "nombreOriginal": "Leche Deslactosada",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "La Serenísima, Tregar",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 100,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 230,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 180,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 120
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Leche Proteica",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 95.0,
+      "carbohidratos": 9.0,
+      "proteinas": 11.0,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 24,
+        "nombreOriginal": "Leche Proteica",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "La Serenísima Protein",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 110,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 260,
+          "Magnesio (mg)": 30,
+          "Fósforo (mg)": 210,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 120
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Bebida de Almendras (Sin Azúcar)",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 30.0,
+      "carbohidratos": 1.0,
+      "proteinas": 1.0,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 25,
+        "nombreOriginal": "Bebida de Almendras (Sin Azúcar)",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Silk, Tratenfu, Ades",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 80,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 240,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 35,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Bebida de Soja",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 90.0,
+      "carbohidratos": 10.0,
+      "proteinas": 5.0,
+      "grasas": 3.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 26,
+        "nombreOriginal": "Bebida de Soja",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Ades (Regular)",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 90,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 120,
+          "Magnesio (mg)": 30,
+          "Fósforo (mg)": 90,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Yogur Firme Entero",
+      "cantidadBase": 190.0,
+      "unidadBase": "Gramos",
+      "calorias": 160.0,
+      "carbohidratos": 24.0,
+      "proteinas": 7.0,
+      "grasas": 4.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 27,
+        "nombreOriginal": "Yogur Firme Entero",
+        "porcionOriginal": "190g (1 pote)",
+        "marcasODetalleReferencia": "Yogurísimo, Tregar",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 115,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 200,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 150,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 50
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Yogur Bebible Descremado",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 60.0,
+      "carbohidratos": 9.0,
+      "proteinas": 6.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 28,
+        "nombreOriginal": "Yogur Bebible Descremado",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Ser, Yogurísimo 0%, Tregar",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 110,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 210,
+          "Magnesio (mg)": 22,
+          "Fósforo (mg)": 160,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 110
+        }
+      }
+    },
+    {
+      "categoria": "LÁCTEOS Y BEBIDAS VEGETALES",
+      "nombre": "Crema de Leche",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 50.0,
+      "carbohidratos": 0.5,
+      "proteinas": 0.3,
+      "grasas": 5.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 29,
+        "nombreOriginal": "Crema de Leche",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "La Serenísima, Sancor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 2,
+          "Fósforo (mg)": 10,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 40
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso Crema Clásico",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 75.0,
+      "carbohidratos": 1.5,
+      "proteinas": 1.5,
+      "grasas": 7.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 31,
+        "nombreOriginal": "Queso Crema Clásico",
+        "porcionOriginal": "30g (2 cdas)",
+        "marcasODetalleReferencia": "Casancrem, Mendicrim, Finlandia",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 40,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 5,
+          "Fósforo (mg)": 50,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 60
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso Crema Light",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 45.0,
+      "carbohidratos": 2.0,
+      "proteinas": 2.5,
+      "grasas": 3.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 32,
+        "nombreOriginal": "Queso Crema Light",
+        "porcionOriginal": "30g (2 cdas)",
+        "marcasODetalleReferencia": "Casancrem Light, Mendicrim",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 45,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 35,
+          "Magnesio (mg)": 6,
+          "Fósforo (mg)": 55,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 30
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso Port Salut Clásico",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 95.0,
+      "carbohidratos": 0.5,
+      "proteinas": 7.0,
+      "grasas": 7.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 33,
+        "nombreOriginal": "Queso Port Salut Clásico",
+        "porcionOriginal": "30g (1 porción)",
+        "marcasODetalleReferencia": "La Serenísima, Cremón, Paulina",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 140,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 150,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 120,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 80
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso Port Salut Light",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 75.0,
+      "carbohidratos": 0.5,
+      "proteinas": 8.5,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 34,
+        "nombreOriginal": "Queso Port Salut Light",
+        "porcionOriginal": "30g (1 porción)",
+        "marcasODetalleReferencia": "La Serenísima, Cremón Light",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 160,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 180,
+          "Magnesio (mg)": 12,
+          "Fósforo (mg)": 140,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 50
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso Muzzarella",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 100.0,
+      "carbohidratos": 0.0,
+      "proteinas": 7.5,
+      "grasas": 7.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 35,
+        "nombreOriginal": "Queso Muzzarella",
+        "porcionOriginal": "30g (1 porción)",
+        "marcasODetalleReferencia": "Barraza, Vacalin, La Paulina",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 180,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 170,
+          "Magnesio (mg)": 12,
+          "Fósforo (mg)": 130,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 90
+        }
+      }
+    },
+    {
+      "categoria": "QUESOS",
+      "nombre": "Queso de Rallar (Sardo/Reggianito)",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 65.0,
+      "carbohidratos": 0.0,
+      "proteinas": 5.5,
+      "grasas": 4.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 36,
+        "nombreOriginal": "Queso de Rallar (Sardo/Reggianito)",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "La Serenísima, Sancor, Melincué",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 150,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 160,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 140,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 70
+        }
+      }
+    },
+    {
+      "categoria": "FIAMBRES MAGROS",
+      "nombre": "Lomito Horneado",
+      "cantidadBase": 40.0,
+      "unidadBase": "Gramos",
+      "calorias": 40.0,
+      "carbohidratos": 1.0,
+      "proteinas": 8.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 38,
+        "nombreOriginal": "Lomito Horneado",
+        "porcionOriginal": "40g (2 fetas)",
+        "marcasODetalleReferencia": "Paladini, Bocatti, Lario",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 350,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 100,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "FIAMBRES MAGROS",
+      "nombre": "Jamón Cocido Natural",
+      "cantidadBase": 40.0,
+      "unidadBase": "Gramos",
+      "calorias": 45.0,
+      "carbohidratos": 1.0,
+      "proteinas": 7.0,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 39,
+        "nombreOriginal": "Jamón Cocido Natural",
+        "porcionOriginal": "40g (2 fetas)",
+        "marcasODetalleReferencia": "Paladini, Campo Austral",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 380,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 6,
+          "Magnesio (mg)": 12,
+          "Fósforo (mg)": 90,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CEREALES Y SNACKS",
+      "nombre": "Avena (Tradicional/Instantánea)",
+      "cantidadBase": 40.0,
+      "unidadBase": "Gramos",
+      "calorias": 140.0,
+      "carbohidratos": 24.0,
+      "proteinas": 5.0,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 41,
+        "nombreOriginal": "Avena (Tradicional/Instantánea)",
+        "porcionOriginal": "40g (1/4 taza)",
+        "marcasODetalleReferencia": "Quaker, Morixe, Yin Yang",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 20,
+          "Magnesio (mg)": 50,
+          "Fósforo (mg)": 140,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CEREALES Y SNACKS",
+      "nombre": "Granola Comercial Clásica",
+      "cantidadBase": 40.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 25.0,
+      "proteinas": 4.0,
+      "grasas": 6.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 42,
+        "nombreOriginal": "Granola Comercial Clásica",
+        "porcionOriginal": "40g (1/4 taza)",
+        "marcasODetalleReferencia": "Integra, Quaker, Zafrán",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,0",
+          "Sodio (mg)": 20,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 25,
+          "Magnesio (mg)": 40,
+          "Fósforo (mg)": 110,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CEREALES Y SNACKS",
+      "nombre": "Galletas de Arroz (Sin sal)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 110.0,
+      "carbohidratos": 24.0,
+      "proteinas": 2.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 43,
+        "nombreOriginal": "Galletas de Arroz (Sin sal)",
+        "porcionOriginal": "30g (3-4 ud)",
+        "marcasODetalleReferencia": "Gallo, Tostex, Brinky",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 3,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ENLATADOS (Escurridos)",
+      "nombre": "Lentejas / Garbanzos",
+      "cantidadBase": 130.0,
+      "unidadBase": "Gramos",
+      "calorias": 110.0,
+      "carbohidratos": 18.0,
+      "proteinas": 7.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 45,
+        "nombreOriginal": "Lentejas / Garbanzos",
+        "porcionOriginal": "130g (1/2 taza)",
+        "marcasODetalleReferencia": "Inalpa, Arcor, La Campagnola",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 300,
+          "Hierro (mg)": "2,0",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 40,
+          "Fósforo (mg)": 120,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ENLATADOS (Escurridos)",
+      "nombre": "Arvejas",
+      "cantidadBase": 130.0,
+      "unidadBase": "Gramos",
+      "calorias": 90.0,
+      "carbohidratos": 13.0,
+      "proteinas": 5.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 46,
+        "nombreOriginal": "Arvejas",
+        "porcionOriginal": "130g (1/2 taza)",
+        "marcasODetalleReferencia": "Inalpa, Arcor, La Campagnola",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,0",
+          "Sodio (mg)": 250,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 25,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 70,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 20
+        }
+      }
+    },
+    {
+      "categoria": "ENLATADOS (Escurridos)",
+      "nombre": "Choclo Amarillo en grano",
+      "cantidadBase": 130.0,
+      "unidadBase": "Gramos",
+      "calorias": 100.0,
+      "carbohidratos": 20.0,
+      "proteinas": 3.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 47,
+        "nombreOriginal": "Choclo Amarillo en grano",
+        "porcionOriginal": "130g (1/2 taza)",
+        "marcasODetalleReferencia": "Inalpa, Arcor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,0",
+          "Sodio (mg)": 200,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 50,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "ENLATADOS (Escurridos)",
+      "nombre": "Atún al Natural",
+      "cantidadBase": 60.0,
+      "unidadBase": "Gramos",
+      "calorias": 60.0,
+      "carbohidratos": 0.0,
+      "proteinas": 14.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 48,
+        "nombreOriginal": "Atún al Natural",
+        "porcionOriginal": "60g (1/2 lata)",
+        "marcasODetalleReferencia": "Gomes da Costa, La Campagnola",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 200,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 120,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "ENLATADOS (Escurridos)",
+      "nombre": "Atún en Aceite",
+      "cantidadBase": 60.0,
+      "unidadBase": "Gramos",
+      "calorias": 110.0,
+      "carbohidratos": 0.0,
+      "proteinas": 14.0,
+      "grasas": 6.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 49,
+        "nombreOriginal": "Atún en Aceite",
+        "porcionOriginal": "60g (1/2 lata)",
+        "marcasODetalleReferencia": "Gomes da Costa, La Campagnola",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 200,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 120,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "ACEITES, GRASAS Y DULCES",
+      "nombre": "Aceite (Girasol, Maíz, Oliva)",
+      "cantidadBase": 13.0,
+      "unidadBase": "Mililitros",
+      "calorias": 117.0,
+      "carbohidratos": 0.0,
+      "proteinas": 0.0,
+      "grasas": 13.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 51,
+        "nombreOriginal": "Aceite (Girasol, Maíz, Oliva)",
+        "porcionOriginal": "13ml (1 cda)",
+        "marcasODetalleReferencia": "Natura, Cocinero, Lira, Cañuelas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 0,
+          "Magnesio (mg)": 0,
+          "Fósforo (mg)": 0,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ACEITES, GRASAS Y DULCES",
+      "nombre": "Manteca",
+      "cantidadBase": 10.0,
+      "unidadBase": "Gramos",
+      "calorias": 75.0,
+      "carbohidratos": 0.0,
+      "proteinas": 0.0,
+      "grasas": 8.2,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 52,
+        "nombreOriginal": "Manteca",
+        "porcionOriginal": "10g (1 cda)",
+        "marcasODetalleReferencia": "La Serenísima, Sancor, Tonadita",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 2,
+          "Magnesio (mg)": 0,
+          "Fósforo (mg)": 2,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 80
+        }
+      }
+    },
+    {
+      "categoria": "ACEITES, GRASAS Y DULCES",
+      "nombre": "Mermelada con Azúcar",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 55.0,
+      "carbohidratos": 14.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 53,
+        "nombreOriginal": "Mermelada con Azúcar",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Arcor, La Campagnola, BC",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 2,
+          "Fósforo (mg)": 5,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ACEITES, GRASAS Y DULCES",
+      "nombre": "Mermelada Sin Azúcar / Diet",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 25.0,
+      "carbohidratos": 6.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 54,
+        "nombreOriginal": "Mermelada Sin Azúcar / Diet",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "BC, Emeth, CuidaDós",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 8,
+          "Magnesio (mg)": 3,
+          "Fósforo (mg)": 6,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ACEITES, GRASAS Y DULCES",
+      "nombre": "Pasta de Maní Natural (100%)",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 90.0,
+      "carbohidratos": 3.0,
+      "proteinas": 4.0,
+      "grasas": 7.0,
+      "origen": {
+        "archivo": "Tabla de composicion Quimica(1).xlsx",
+        "hoja": "dame la fila de micronutrientes",
+        "fila": 55,
+        "nombreOriginal": "Pasta de Maní Natural (100%)",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "King, Le-Fit, Dame Maní",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 50,
+          "Fósforo (mg)": 80,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Lentejas Secas",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 30.0,
+      "proteinas": 12.0,
+      "grasas": 0.8,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 3,
+        "nombreOriginal": "Lentejas Secas",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "10,0",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "3,5",
+          "Calcio (mg)": 25,
+          "Magnesio (mg)": 60,
+          "Fósforo (mg)": 200,
+          "Ác. Fólico (mcg)": 90,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Garbanzos Secos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 180.0,
+      "carbohidratos": 30.0,
+      "proteinas": 10.0,
+      "grasas": 3.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 4,
+        "nombreOriginal": "Garbanzos Secos",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "8,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "3,1",
+          "Calcio (mg)": 50,
+          "Magnesio (mg)": 60,
+          "Fósforo (mg)": 160,
+          "Ác. Fólico (mcg)": 85,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Porotos Alubia Secos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 30.0,
+      "proteinas": 11.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 5,
+        "nombreOriginal": "Porotos Alubia Secos",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "9,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "3,0",
+          "Calcio (mg)": 60,
+          "Magnesio (mg)": 70,
+          "Fósforo (mg)": 150,
+          "Ác. Fólico (mcg)": 100,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Porotos Negros Secos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 31.0,
+      "proteinas": 11.0,
+      "grasas": 0.7,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 6,
+        "nombreOriginal": "Porotos Negros Secos",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "8,0",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "2,6",
+          "Calcio (mg)": 45,
+          "Magnesio (mg)": 70,
+          "Fósforo (mg)": 170,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Porotos Pallares Secos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 165.0,
+      "carbohidratos": 30.0,
+      "proteinas": 10.0,
+      "grasas": 0.6,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 7,
+        "nombreOriginal": "Porotos Pallares Secos",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "8,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "2,8",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 65,
+          "Fósforo (mg)": 160,
+          "Ác. Fólico (mcg)": 80,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Porotos Aduki / Colorados Secos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 30.0,
+      "proteinas": 11.0,
+      "grasas": 0.6,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 8,
+        "nombreOriginal": "Porotos Aduki / Colorados Secos",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Inalpa, Dos Hermanos, Marolio, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "9,0",
+          "Sodio (mg)": 3,
+          "Hierro (mg)": "3,0",
+          "Calcio (mg)": 45,
+          "Magnesio (mg)": 70,
+          "Fósforo (mg)": 180,
+          "Ác. Fólico (mcg)": 90,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Soja en Grano Seca",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 210.0,
+      "carbohidratos": 15.0,
+      "proteinas": 18.0,
+      "grasas": 9.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 9,
+        "nombreOriginal": "Soja en Grano Seca",
+        "porcionOriginal": "50g crudo",
+        "marcasODetalleReferencia": "Arcor, Dos Hermanos, Marolio, Morixe, Yin Yang",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "3,5",
+          "Calcio (mg)": 110,
+          "Magnesio (mg)": 120,
+          "Fósforo (mg)": 250,
+          "Ác. Fólico (mcg)": 100,
+          "Vit. A (mcg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Harina de Garbanzos",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 190.0,
+      "carbohidratos": 30.0,
+      "proteinas": 11.0,
+      "grasas": 3.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 10,
+        "nombreOriginal": "Harina de Garbanzos",
+        "porcionOriginal": "50g",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Legume, Wakas, Morixe",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 50,
+          "Fósforo (mg)": 140,
+          "Ác. Fólico (mcg)": 70,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "LEGUMBRES SECAS Y DERIVADOS",
+      "nombre": "Harina de Soja",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 200.0,
+      "carbohidratos": 16.0,
+      "proteinas": 18.0,
+      "grasas": 8.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 11,
+        "nombreOriginal": "Harina de Soja",
+        "porcionOriginal": "50g",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Morixe, Granix, Soyana",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,0",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "3,0",
+          "Calcio (mg)": 100,
+          "Magnesio (mg)": 110,
+          "Fósforo (mg)": 240,
+          "Ác. Fólico (mcg)": 90,
+          "Vit. A (mcg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Azúcar Blanca Común",
+      "cantidadBase": 5.0,
+      "unidadBase": "Gramos",
+      "calorias": 20.0,
+      "carbohidratos": 5.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 13,
+        "nombreOriginal": "Azúcar Blanca Común",
+        "porcionOriginal": "5g (1 cdita)",
+        "marcasODetalleReferencia": "Ledesma, Chango, San Javier, Arcor, Bella Vista",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 0,
+          "Magnesio (mg)": 0,
+          "Fósforo (mg)": 0,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Dulce de Membrillo",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 55.0,
+      "carbohidratos": 14.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 14,
+        "nombreOriginal": "Dulce de Membrillo",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Arcor, La Campagnola, Emeth, Marolio, Dulcor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 2,
+          "Fósforo (mg)": 5,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Dulce de Batata",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 55.0,
+      "carbohidratos": 14.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 15,
+        "nombreOriginal": "Dulce de Batata",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Arcor, La Campagnola, Emeth, Marolio, Dulcor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 2,
+          "Fósforo (mg)": 5,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Dulce Mixto (Batata y Membrillo/Choc.)",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 55.0,
+      "carbohidratos": 14.0,
+      "proteinas": 0.2,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 16,
+        "nombreOriginal": "Dulce Mixto (Batata y Membrillo/Choc.)",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Arcor, La Campagnola, Emeth, Dulcor, Marolio",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 6,
+          "Magnesio (mg)": 3,
+          "Fósforo (mg)": 6,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Miel de Abejas",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 64.0,
+      "carbohidratos": 17.0,
+      "proteinas": 0.1,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 17,
+        "nombreOriginal": "Miel de Abejas",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Cuyo Miel, Granix, Arcor, Marolio, Tregar",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 1,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 1,
+          "Magnesio (mg)": 1,
+          "Fósforo (mg)": 1,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Geles Deportivos",
+      "cantidadBase": 35.0,
+      "unidadBase": "Gramos",
+      "calorias": 100.0,
+      "carbohidratos": 25.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 18,
+        "nombreOriginal": "Geles Deportivos",
+        "porcionOriginal": "35g (1 sachet)",
+        "marcasODetalleReferencia": "Ena, Enervit, Nutrisport, Star Nutrition, Body Advance",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 50,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 15,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Gomitas Dulces",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 105.0,
+      "carbohidratos": 26.0,
+      "proteinas": 2.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 19,
+        "nombreOriginal": "Gomitas Dulces",
+        "porcionOriginal": "30g",
+        "marcasODetalleReferencia": "Mogul, Flynn Paff, Arcor, Trululú, Billiken",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 15,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 2,
+          "Magnesio (mg)": 1,
+          "Fósforo (mg)": 2,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "AZÚCARES, DULCES Y CONFITERÍA",
+      "nombre": "Gomitas Ácidas",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 105.0,
+      "carbohidratos": 26.0,
+      "proteinas": 2.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 20,
+        "nombreOriginal": "Gomitas Ácidas",
+        "porcionOriginal": "30g",
+        "marcasODetalleReferencia": "Mogul Ácido, Trululú Ácido, Flynn Paff, Georgalos, Arcor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 20,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 2,
+          "Magnesio (mg)": 1,
+          "Fósforo (mg)": 2,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Bebida Deportiva / Isotónica",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 60.0,
+      "carbohidratos": 14.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 22,
+        "nombreOriginal": "Bebida Deportiva / Isotónica",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Gatorade, Powerade, Ena Sport Isotonic, Vital 360, Raid",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 110,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 2,
+          "Magnesio (mg)": 5,
+          "Fósforo (mg)": 15,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Leche de Almendras",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 28.0,
+      "carbohidratos": 1.0,
+      "proteinas": 1.0,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 23,
+        "nombreOriginal": "Leche de Almendras",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Silk, Tratenfu, Ades, Pampa's Life, Felices las Vacas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 80,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 240,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 35,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 120
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Leche de Castañas de Cajú",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 35.0,
+      "carbohidratos": 2.0,
+      "proteinas": 1.0,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 24,
+        "nombreOriginal": "Leche de Castañas de Cajú",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Felices las Vacas, Silk, Tratenfu, Aequilibrium, Zafrán",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,3",
+          "Sodio (mg)": 85,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 230,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 40,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 110
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Leche de Coco",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 60.0,
+      "carbohidratos": 2.0,
+      "proteinas": 0.5,
+      "grasas": 5.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 25,
+        "nombreOriginal": "Leche de Coco",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Blue Dragon, Aroy-D, Cocoon, Marolio, Natura",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 150,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 20,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Leche de Avena",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 80.0,
+      "carbohidratos": 14.0,
+      "proteinas": 1.5,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 26,
+        "nombreOriginal": "Leche de Avena",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Tratenfu, Felices las Vacas, Silk, Aequilibrium, Pampa's Life",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 90,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 220,
+          "Magnesio (mg)": 20,
+          "Fósforo (mg)": 50,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 110
+        }
+      }
+    },
+    {
+      "categoria": "BEBIDAS DEPORTIVAS Y VEGETALES",
+      "nombre": "Leche de Arroz",
+      "cantidadBase": 200.0,
+      "unidadBase": "Mililitros",
+      "calorias": 90.0,
+      "carbohidratos": 18.0,
+      "proteinas": 0.8,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 2(2).xlsx",
+        "hoja": "2",
+        "fila": 27,
+        "nombreOriginal": "Leche de Arroz",
+        "porcionOriginal": "200ml (1 vaso)",
+        "marcasODetalleReferencia": "Tratenfu, Felices las Vacas, Pampa's Life, Green Food, Silk",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,3",
+          "Sodio (mg)": 85,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 200,
+          "Magnesio (mg)": 12,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 110
+        }
+      }
+    },
+    {
+      "categoria": "UNTABLES DULCES",
+      "nombre": "Dulce de Leche Clásico",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 65.0,
+      "carbohidratos": 11.0,
+      "proteinas": 1.5,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 3,
+        "nombreOriginal": "Dulce de Leche Clásico",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "La Serenísima, Sancor, Ilolay, Vacalin, Milkaut",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 50,
+          "Magnesio (mg)": 5,
+          "Fósforo (mg)": 45,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "UNTABLES DULCES",
+      "nombre": "Dulce de Leche Repostero",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 68.0,
+      "carbohidratos": 12.0,
+      "proteinas": 1.4,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 4,
+        "nombreOriginal": "Dulce de Leche Repostero",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Vacalin, La Serenísima, Sancor, Ilolay, Verónica",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 30,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 48,
+          "Magnesio (mg)": 5,
+          "Fósforo (mg)": 40,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "UNTABLES DULCES",
+      "nombre": "Crema de Avellanas (Nutella)",
+      "cantidadBase": 20.0,
+      "unidadBase": "Gramos",
+      "calorias": 107.0,
+      "carbohidratos": 11.5,
+      "proteinas": 1.2,
+      "grasas": 6.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 5,
+        "nombreOriginal": "Crema de Avellanas (Nutella)",
+        "porcionOriginal": "20g (1 cda)",
+        "marcasODetalleReferencia": "Nutella, Águila, Mapricuber, Arcor, Día",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 25,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 35,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS SALADAS",
+      "nombre": "De Agua Clásicas",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 130.0,
+      "carbohidratos": 20.0,
+      "proteinas": 3.0,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 7,
+        "nombreOriginal": "De Agua Clásicas",
+        "porcionOriginal": "30g (aprox 5-6)",
+        "marcasODetalleReferencia": "Criollitas, Express, Traviata, Serranas, Paseo",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,8",
+          "Sodio (mg)": 250,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 8,
+          "Magnesio (mg)": 8,
+          "Fósforo (mg)": 25,
+          "Ác. Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS SALADAS",
+      "nombre": "De Agua / Salvado Sin Sal",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 130.0,
+      "carbohidratos": 20.0,
+      "proteinas": 3.0,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 8,
+        "nombreOriginal": "De Agua / Salvado Sin Sal",
+        "porcionOriginal": "30g (aprox 5-6)",
+        "marcasODetalleReferencia": "Express Sin Sal, Criollitas Sin Sal, Granix, Paseo",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,2",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 8,
+          "Magnesio (mg)": 12,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS DULCES",
+      "nombre": "Dulces Secas Sin Relleno",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 135.0,
+      "carbohidratos": 22.0,
+      "proteinas": 2.5,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 10,
+        "nombreOriginal": "Dulces Secas Sin Relleno",
+        "porcionOriginal": "30g (aprox 5-6)",
+        "marcasODetalleReferencia": "Lincoln, Vocación, Manón, Diversión, Boca de Dama",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 100,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 8,
+          "Fósforo (mg)": 20,
+          "Ác. Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS DULCES",
+      "nombre": "Dulces de Chocolate (Secas)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 138.0,
+      "carbohidratos": 21.0,
+      "proteinas": 2.2,
+      "grasas": 4.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 11,
+        "nombreOriginal": "Dulces de Chocolate (Secas)",
+        "porcionOriginal": "30g (aprox 5-6)",
+        "marcasODetalleReferencia": "Chocolinas, Toddy (sin chips), Cacao (Bagley), Macucas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 110,
+          "Hierro (mg)": "1,1",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS DULCES",
+      "nombre": "Dulces Rellenas (Chocolate/Vainilla)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 145.0,
+      "carbohidratos": 20.0,
+      "proteinas": 1.5,
+      "grasas": 6.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 12,
+        "nombreOriginal": "Dulces Rellenas (Chocolate/Vainilla)",
+        "porcionOriginal": "30g (aprox 3 ud)",
+        "marcasODetalleReferencia": "Oreo, Merengadas, Rumba, Amor, Sonrisas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 120,
+          "Hierro (mg)": "0,7",
+          "Calcio (mg)": 8,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 20,
+          "Ác. Fólico (mcg)": 50,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "GALLETITAS DULCES",
+      "nombre": "Con Chips de Chocolate",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 150.0,
+      "carbohidratos": 19.0,
+      "proteinas": 1.8,
+      "grasas": 7.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 13,
+        "nombreOriginal": "Con Chips de Chocolate",
+        "porcionOriginal": "30g (aprox 3 ud)",
+        "marcasODetalleReferencia": "Toddy, Pepitos, Cachafaz, Tía Maruca, Granix",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,8",
+          "Sodio (mg)": 100,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 10,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 25,
+          "Ác. Fólico (mcg)": 55,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "ALFAJORES Y GOLOSINAS",
+      "nombre": "Alfajor Simple Chocolate",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 200.0,
+      "carbohidratos": 30.0,
+      "proteinas": 3.0,
+      "grasas": 8.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 15,
+        "nombreOriginal": "Alfajor Simple Chocolate",
+        "porcionOriginal": "50g (1 unidad)",
+        "marcasODetalleReferencia": "Jorgito, Guaymallén, Terrabusi, Milka, Havanna",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 80,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 45,
+          "Ác. Fólico (mcg)": 80,
+          "Vit. A (mcg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "ALFAJORES Y GOLOSINAS",
+      "nombre": "Alfajor Simple Blanco/Glaseado",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 190.0,
+      "carbohidratos": 32.0,
+      "proteinas": 2.5,
+      "grasas": 6.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 16,
+        "nombreOriginal": "Alfajor Simple Blanco/Glaseado",
+        "porcionOriginal": "50g (1 unidad)",
+        "marcasODetalleReferencia": "Guaymallén, Fantoche, Tatín, Capitán del Espacio, Jorgito",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 70,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 35,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 40,
+          "Ác. Fólico (mcg)": 80,
+          "Vit. A (mcg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "ALFAJORES Y GOLOSINAS",
+      "nombre": "Alfajor Simple Maicena",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 195.0,
+      "carbohidratos": 33.0,
+      "proteinas": 2.0,
+      "grasas": 6.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 17,
+        "nombreOriginal": "Alfajor Simple Maicena",
+        "porcionOriginal": "50g (1 unidad)",
+        "marcasODetalleReferencia": "Cachafaz, Havanna, Fantoche, Tía Maruca, Artesanales",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 60,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 30,
+          "Magnesio (mg)": 5,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 20,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "ALFAJORES Y GOLOSINAS",
+      "nombre": "Alfajor Triple Chocolate",
+      "cantidadBase": 70.0,
+      "unidadBase": "Gramos",
+      "calorias": 280.0,
+      "carbohidratos": 42.0,
+      "proteinas": 4.0,
+      "grasas": 11.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 18,
+        "nombreOriginal": "Alfajor Triple Chocolate",
+        "porcionOriginal": "70g (1 unidad)",
+        "marcasODetalleReferencia": "Jorgelín, Fantoche, Terrabusi, Milka, Block",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 120,
+          "Hierro (mg)": "1,7",
+          "Calcio (mg)": 55,
+          "Magnesio (mg)": 25,
+          "Fósforo (mg)": 65,
+          "Ác. Fólico (mcg)": 110,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "ALFAJORES Y GOLOSINAS",
+      "nombre": "Turrón de Maní",
+      "cantidadBase": 25.0,
+      "unidadBase": "Gramos",
+      "calorias": 98.0,
+      "carbohidratos": 19.0,
+      "proteinas": 2.0,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 19,
+        "nombreOriginal": "Turrón de Maní",
+        "porcionOriginal": "25g (1 unidad)",
+        "marcasODetalleReferencia": "Arcor, Misky, Georgalos, Nevares, Namur",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 5,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 15,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CHOCOLATES",
+      "nombre": "Chocolate con Leche (Tableta)",
+      "cantidadBase": 25.0,
+      "unidadBase": "Gramos",
+      "calorias": 135.0,
+      "carbohidratos": 14.0,
+      "proteinas": 1.5,
+      "grasas": 8.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 21,
+        "nombreOriginal": "Chocolate con Leche (Tableta)",
+        "porcionOriginal": "25g (1 porción)",
+        "marcasODetalleReferencia": "Milka, Cadbury, Cofler, Arcor, Hamlet",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 50,
+          "Magnesio (mg)": 15,
+          "Fósforo (mg)": 45,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "CHOCOLATES",
+      "nombre": "Chocolate Amargo / Semi (60-70%)",
+      "cantidadBase": 25.0,
+      "unidadBase": "Gramos",
+      "calorias": 125.0,
+      "carbohidratos": 11.0,
+      "proteinas": 2.0,
+      "grasas": 9.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 22,
+        "nombreOriginal": "Chocolate Amargo / Semi (60-70%)",
+        "porcionOriginal": "25g (1 porción)",
+        "marcasODetalleReferencia": "Águila, Cofler Extra, Lindt, Felfort, Georgalos",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 15,
+          "Magnesio (mg)": 40,
+          "Fósforo (mg)": 55,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CHOCOLATES",
+      "nombre": "Chocolate con Maní / Almendras",
+      "cantidadBase": 25.0,
+      "unidadBase": "Gramos",
+      "calorias": 140.0,
+      "carbohidratos": 12.0,
+      "proteinas": 2.5,
+      "grasas": 9.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 23,
+        "nombreOriginal": "Chocolate con Maní / Almendras",
+        "porcionOriginal": "25g (1 porción)",
+        "marcasODetalleReferencia": "Cofler Block, Milka Almendras, Vizzio, Shot, Cadbury",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 15,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 40,
+          "Magnesio (mg)": 30,
+          "Fósforo (mg)": 50,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "CHOCOLATES",
+      "nombre": "Chocolate Relleno (Frutilla/Dulce)",
+      "cantidadBase": 25.0,
+      "unidadBase": "Gramos",
+      "calorias": 130.0,
+      "carbohidratos": 15.0,
+      "proteinas": 1.0,
+      "grasas": 7.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 3(1).xlsx",
+        "hoja": "3",
+        "fila": 24,
+        "nombreOriginal": "Chocolate Relleno (Frutilla/Dulce)",
+        "porcionOriginal": "25g (1 porción)",
+        "marcasODetalleReferencia": "Milka Leger, Cofler Frutilla, Cadbury, Águila, Arcor",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,2",
+          "Sodio (mg)": 20,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 35,
+          "Magnesio (mg)": 10,
+          "Fósforo (mg)": 30,
+          "Ác. Fólico (mcg)": 0,
+          "Vit. A (mcg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "CARNE VACUNA",
+      "nombre": "Carne vacuna — Cortes Magros",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 125.0,
+      "carbohidratos": 0.0,
+      "proteinas": 21.5,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 3,
+        "nombreOriginal": "Cortes Magros",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Nalga, Peceto, Cuadril, Lomo, Bola de lomo, Paleta.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 60,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 200,
+          "Fólico (mcg)": 10,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE VACUNA",
+      "nombre": "Carne vacuna — Cortes Grasos",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 240.0,
+      "carbohidratos": 0.0,
+      "proteinas": 17.5,
+      "grasas": 18.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 4,
+        "nombreOriginal": "Cortes Grasos",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Vacío, Entraña, Aguja, Tapa de asado, Matambre.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 65,
+          "Hierro (mg)": "2,2",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 20,
+          "Fósf (mg)": 160,
+          "Fólico (mcg)": 8,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE VACUNA",
+      "nombre": "Carne vacuna — Cortes con Hueso",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 265.0,
+      "carbohidratos": 0.0,
+      "proteinas": 16.0,
+      "grasas": 22.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 5,
+        "nombreOriginal": "Cortes con Hueso",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Asado de tira, Bife de costilla. (Rinde 60%: 165g bruto = 100g neto comestible).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 65,
+          "Hierro (mg)": "2,0",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 18,
+          "Fósf (mg)": 150,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE POLLO",
+      "nombre": "Carne de pollo — Cortes Magros",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 110.0,
+      "carbohidratos": 0.0,
+      "proteinas": 22.5,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 7,
+        "nombreOriginal": "Cortes Magros",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Pechuga sin piel, Suprema deshuesada.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 55,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 28,
+          "Fósf (mg)": 210,
+          "Fólico (mcg)": 4,
+          "Vit. A (mcg)": 5,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE POLLO",
+      "nombre": "Carne de pollo — Cortes Grasos",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 210.0,
+      "carbohidratos": 0.0,
+      "proteinas": 17.0,
+      "grasas": 15.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 8,
+        "nombreOriginal": "Cortes Grasos",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Pata, Muslo (con piel), Alitas.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 70,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 20,
+          "Fósf (mg)": 160,
+          "Fólico (mcg)": 6,
+          "Vit. A (mcg)": 45,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE POLLO",
+      "nombre": "Carne de pollo — Cortes con Hueso",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 180.0,
+      "carbohidratos": 0.0,
+      "proteinas": 18.5,
+      "grasas": 11.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 9,
+        "nombreOriginal": "Cortes con Hueso",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Pollo entero, Pata-muslo. (Rinde 70%: 145g bruto = 100g neto comestible).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 65,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 14,
+          "Mag (mg)": 22,
+          "Fósf (mg)": 180,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 30,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE CERDO",
+      "nombre": "Carne de cerdo — Cortes Magros",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 135.0,
+      "carbohidratos": 0.0,
+      "proteinas": 22.0,
+      "grasas": 4.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 11,
+        "nombreOriginal": "Cortes Magros",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Solomillo, Carré deshuesado, Jamón (pata) crudo magro.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 50,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 220,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE CERDO",
+      "nombre": "Carne de cerdo — Cortes Grasos",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 245.0,
+      "carbohidratos": 0.0,
+      "proteinas": 16.5,
+      "grasas": 19.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 12,
+        "nombreOriginal": "Cortes Grasos",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Bondiola, Pechito de cerdo, Panceta fresca.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 60,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 20,
+          "Fósf (mg)": 180,
+          "Fólico (mcg)": 3,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CARNE DE CERDO",
+      "nombre": "Carne de cerdo — Cortes con Hueso",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 210.0,
+      "carbohidratos": 0.0,
+      "proteinas": 17.5,
+      "grasas": 15.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 13,
+        "nombreOriginal": "Cortes con Hueso",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Costillitas, Pechito c/ hueso. (Rinde 65%: 155g bruto = 100g neto).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 55,
+          "Hierro (mg)": "1,1",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 22,
+          "Fósf (mg)": 190,
+          "Fólico (mcg)": 4,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PESCADOS",
+      "nombre": "Cortes Magros (Blancos)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 85.0,
+      "carbohidratos": 0.0,
+      "proteinas": 18.0,
+      "grasas": 1.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 15,
+        "nombreOriginal": "Cortes Magros (Blancos)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Merluza, Lenguado, Abadejo, Pollo de mar, Pejerrey.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 90,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 30,
+          "Mag (mg)": 35,
+          "Fósf (mg)": 200,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 10,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PESCADOS",
+      "nombre": "Cortes Grasos (Azules)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 180.0,
+      "carbohidratos": 0.0,
+      "proteinas": 20.0,
+      "grasas": 11.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 16,
+        "nombreOriginal": "Cortes Grasos (Azules)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Salmón rosado, Trucha, Caballa, Atún rojo fresco.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 60,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 20,
+          "Mag (mg)": 30,
+          "Fósf (mg)": 250,
+          "Fólico (mcg)": 25,
+          "Vit. A (mcg)": 40,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HUEVO Y PALTA",
+      "nombre": "Huevo Entero",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 74.0,
+      "carbohidratos": 0.5,
+      "proteinas": 6.3,
+      "grasas": 5.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 18,
+        "nombreOriginal": "Huevo Entero",
+        "porcionOriginal": "50g (1 ud)",
+        "marcasODetalleReferencia": "Huevo de gallina entero fresco (Clase L).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 70,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 25,
+          "Mag (mg)": 6,
+          "Fósf (mg)": 95,
+          "Fólico (mcg)": 24,
+          "Vit. A (mcg)": 95,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HUEVO Y PALTA",
+      "nombre": "Clara de Huevo",
+      "cantidadBase": 35.0,
+      "unidadBase": "Gramos",
+      "calorias": 17.0,
+      "carbohidratos": 0.2,
+      "proteinas": 3.8,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 19,
+        "nombreOriginal": "Clara de Huevo",
+        "porcionOriginal": "35g (1 ud)",
+        "marcasODetalleReferencia": "Clara de huevo fresca o pasteurizada.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 55,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 3,
+          "Mag (mg)": 4,
+          "Fósf (mg)": 5,
+          "Fólico (mcg)": 1,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "HUEVO Y PALTA",
+      "nombre": "Palta (Hass/Torres)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 160.0,
+      "carbohidratos": 8.5,
+      "proteinas": 2.0,
+      "grasas": 14.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 20,
+        "nombreOriginal": "Palta (Hass/Torres)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Pulpa de palta fresca (Aporta grasas monoinsaturadas).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "6,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,5",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 29,
+          "Fósf (mg)": 50,
+          "Fólico (mcg)": 80,
+          "Vit. A (mcg)": 7,
+          "Vit. C (mg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "VERDURAS (CRUDAS)",
+      "nombre": "Vegetales Almidonados",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 90.0,
+      "carbohidratos": 20.5,
+      "proteinas": 1.8,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 22,
+        "nombreOriginal": "Vegetales Almidonados",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Papa, Batata, Boniato, Choclo, Mandioca.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,5",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "0,6",
+          "Calcio (mg)": 20,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 50,
+          "Fólico (mcg)": 20,
+          "Vit. A (mcg)": 50,
+          "Vit. C (mg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "VERDURAS (CRUDAS)",
+      "nombre": "Hojas Verdes (Fólico/Mg)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 22.0,
+      "carbohidratos": 3.5,
+      "proteinas": 2.5,
+      "grasas": 0.3,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 23,
+        "nombreOriginal": "Hojas Verdes (Fólico/Mg)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Espinaca, Acelga, Lechuga, Rúcula, Kale, Achicoria.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,2",
+          "Sodio (mg)": 45,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 90,
+          "Mag (mg)": 70,
+          "Fósf (mg)": 45,
+          "Fólico (mcg)": 150,
+          "Vit. A (mcg)": 450,
+          "Vit. C (mg)": 25
+        }
+      }
+    },
+    {
+      "categoria": "VERDURAS (CRUDAS)",
+      "nombre": "Crucíferas (Vit C/K)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 32.0,
+      "carbohidratos": 5.5,
+      "proteinas": 3.0,
+      "grasas": 0.3,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 24,
+        "nombreOriginal": "Crucíferas (Vit C/K)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Brócoli, Coliflor, Repollo, Repollitos de Bruselas.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,0",
+          "Sodio (mg)": 25,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 45,
+          "Mag (mg)": 20,
+          "Fósf (mg)": 60,
+          "Fólico (mcg)": 75,
+          "Vit. A (mcg)": 40,
+          "Vit. C (mg)": 80
+        }
+      }
+    },
+    {
+      "categoria": "VERDURAS (CRUDAS)",
+      "nombre": "Acuosos (Bajo IG/Kcal)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 18.0,
+      "carbohidratos": 3.8,
+      "proteinas": 1.0,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 25,
+        "nombreOriginal": "Acuosos (Bajo IG/Kcal)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Tomate, Zapallito, Berenjena, Pepino, Apio, Zucchini.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 12,
+          "Fósf (mg)": 25,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 30,
+          "Vit. C (mg)": 12
+        }
+      }
+    },
+    {
+      "categoria": "FRUTAS (CRUDAS)",
+      "nombre": "Altas en Vitamina C",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 45.0,
+      "carbohidratos": 10.5,
+      "proteinas": 0.8,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 27,
+        "nombreOriginal": "Altas en Vitamina C",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Naranja, Pomelo, Mandarina, Frutilla, Kiwi, Limón.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,0",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 35,
+          "Mag (mg)": 12,
+          "Fósf (mg)": 20,
+          "Fólico (mcg)": 30,
+          "Vit. A (mcg)": 15,
+          "Vit. C (mg)": 55
+        }
+      }
+    },
+    {
+      "categoria": "FRUTAS (CRUDAS)",
+      "nombre": "Altas en Potasio/Densas",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 85.0,
+      "carbohidratos": 21.5,
+      "proteinas": 1.1,
+      "grasas": 0.3,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 28,
+        "nombreOriginal": "Altas en Potasio/Densas",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Banana, Uva, Higo fresco, Mango.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,5",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 25,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 10,
+          "Vit. C (mg)": 10
+        }
+      }
+    },
+    {
+      "categoria": "FRUTAS (CRUDAS)",
+      "nombre": "Acuosas (Bajas Kcal)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 32.0,
+      "carbohidratos": 7.5,
+      "proteinas": 0.6,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 29,
+        "nombreOriginal": "Acuosas (Bajas Kcal)",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Sandía, Melón.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,6",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 8,
+          "Mag (mg)": 10,
+          "Fósf (mg)": 12,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 25,
+          "Vit. C (mg)": 15
+        }
+      }
+    },
+    {
+      "categoria": "FRUTAS (CRUDAS)",
+      "nombre": "Ricas en Pectina",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 50.0,
+      "carbohidratos": 13.0,
+      "proteinas": 0.5,
+      "grasas": 0.2,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 30,
+        "nombreOriginal": "Ricas en Pectina",
+        "porcionOriginal": "100g neto",
+        "marcasODetalleReferencia": "Manzana, Pera, Durazno, Ciruela, Damasco.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "2,5",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 8,
+          "Fósf (mg)": 15,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 15,
+          "Vit. C (mg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "FRUTOS SECOS",
+      "nombre": "Nueces",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 98.0,
+      "carbohidratos": 2.0,
+      "proteinas": 2.3,
+      "grasas": 9.8,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 32,
+        "nombreOriginal": "Nueces",
+        "porcionOriginal": "15g (1 puñado)",
+        "marcasODetalleReferencia": "Peladas (Aportan Omega 3 y 6).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,4",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 55,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "FRUTOS SECOS",
+      "nombre": "Almendras",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 87.0,
+      "carbohidratos": 3.2,
+      "proteinas": 3.2,
+      "grasas": 7.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 33,
+        "nombreOriginal": "Almendras",
+        "porcionOriginal": "15g (1 puñado)",
+        "marcasODetalleReferencia": "Peladas (Mayor aporte de Calcio del grupo).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,8",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,6",
+          "Calcio (mg)": 40,
+          "Mag (mg)": 40,
+          "Fósf (mg)": 70,
+          "Fólico (mcg)": 7,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "FRUTOS SECOS",
+      "nombre": "Castañas de Cajú",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 83.0,
+      "carbohidratos": 4.5,
+      "proteinas": 2.7,
+      "grasas": 6.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 34,
+        "nombreOriginal": "Castañas de Cajú",
+        "porcionOriginal": "15g (1 puñado)",
+        "marcasODetalleReferencia": "Peladas (Mayor aporte de carbohidratos del grupo).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 6,
+          "Mag (mg)": 45,
+          "Fósf (mg)": 90,
+          "Fólico (mcg)": 4,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "FRUTOS SECOS",
+      "nombre": "Avellanas",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 94.0,
+      "carbohidratos": 2.5,
+      "proteinas": 2.2,
+      "grasas": 9.1,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 35,
+        "nombreOriginal": "Avellanas",
+        "porcionOriginal": "15g (1 puñado)",
+        "marcasODetalleReferencia": "Peladas (Alto aporte de Vitamina E).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,4",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,7",
+          "Calcio (mg)": 17,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 45,
+          "Fólico (mcg)": 17,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "FRUTOS SECOS",
+      "nombre": "Maní Tostado",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 85.0,
+      "carbohidratos": 2.4,
+      "proteinas": 3.9,
+      "grasas": 7.4,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 36,
+        "nombreOriginal": "Maní Tostado",
+        "porcionOriginal": "15g (1 puñado)",
+        "marcasODetalleReferencia": "Sin sal, sin piel (Legumbre tratada como fruto seco).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,3",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 60,
+          "Fólico (mcg)": 36,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Semillas de Chía",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 73.0,
+      "carbohidratos": 6.3,
+      "proteinas": 2.5,
+      "grasas": 4.6,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 38,
+        "nombreOriginal": "Semillas de Chía",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Enteras o molidas (Excelente fuente de fibra y Omega 3).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,1",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "1,1",
+          "Calcio (mg)": 95,
+          "Mag (mg)": 50,
+          "Fósf (mg)": 130,
+          "Fólico (mcg)": 7,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Semillas de Lino",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 80.0,
+      "carbohidratos": 4.3,
+      "proteinas": 2.7,
+      "grasas": 6.3,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 39,
+        "nombreOriginal": "Semillas de Lino",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Enteras o molidas (Excelente fuente de Omega 3).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,1",
+          "Sodio (mg)": 5,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 38,
+          "Mag (mg)": 60,
+          "Fósf (mg)": 95,
+          "Fólico (mcg)": 13,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Semillas de Sésamo",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 86.0,
+      "carbohidratos": 3.5,
+      "proteinas": 2.6,
+      "grasas": 7.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 40,
+        "nombreOriginal": "Semillas de Sésamo",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Blancas/Integrales (Mayor aporte de Calcio vegetal).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,8",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "2,1",
+          "Calcio (mg)": 145,
+          "Mag (mg)": 52,
+          "Fósf (mg)": 95,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Semillas de Girasol",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 87.0,
+      "carbohidratos": 3.0,
+      "proteinas": 3.1,
+      "grasas": 7.7,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 41,
+        "nombreOriginal": "Semillas de Girasol",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Peladas.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,3",
+          "Sodio (mg)": 1,
+          "Hierro (mg)": "0,8",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 48,
+          "Fósf (mg)": 100,
+          "Fólico (mcg)": 34,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Semillas de Zapallo",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 85.0,
+      "carbohidratos": 2.3,
+      "proteinas": 4.5,
+      "grasas": 7.3,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 42,
+        "nombreOriginal": "Semillas de Zapallo",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Peladas (Excelente fuente de Zinc y Magnesio).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 1,
+          "Hierro (mg)": "1,3",
+          "Calcio (mg)": 6,
+          "Mag (mg)": 88,
+          "Fósf (mg)": 170,
+          "Fólico (mcg)": 9,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SEMILLAS",
+      "nombre": "Mix de Semillas",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 82.0,
+      "carbohidratos": 4.0,
+      "proteinas": 3.0,
+      "grasas": 6.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 43,
+        "nombreOriginal": "Mix de Semillas",
+        "porcionOriginal": "15g (1 cda)",
+        "marcasODetalleReferencia": "Promedio: Chía, Lino, Sésamo, Girasol.",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,0",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 70,
+          "Mag (mg)": 55,
+          "Fósf (mg)": 110,
+          "Fólico (mcg)": 16,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PANADERÍA ARTESANAL",
+      "nombre": "Pan Francés / Mignon",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 135.0,
+      "carbohidratos": 28.0,
+      "proteinas": 4.5,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 45,
+        "nombreOriginal": "Pan Francés / Mignon",
+        "porcionOriginal": "50g (1 ud/flautita)",
+        "marcasODetalleReferencia": "Panadería clásica (Agua, harina, levadura, sal).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 300,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 12,
+          "Fósf (mg)": 45,
+          "Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PANADERÍA ARTESANAL",
+      "nombre": "Medialuna de Manteca",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 210.0,
+      "carbohidratos": 24.0,
+      "proteinas": 4.0,
+      "grasas": 11.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 46,
+        "nombreOriginal": "Medialuna de Manteca",
+        "porcionOriginal": "50g (1 ud grande)",
+        "marcasODetalleReferencia": "Panadería (Masa hojaldrada dulce, almíbar, manteca).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 150,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 20,
+          "Mag (mg)": 10,
+          "Fósf (mg)": 40,
+          "Fólico (mcg)": 80,
+          "Vit. A (mcg)": 40,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PANADERÍA ARTESANAL",
+      "nombre": "Medialuna de Grasa",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 225.0,
+      "carbohidratos": 21.0,
+      "proteinas": 4.5,
+      "grasas": 13.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 47,
+        "nombreOriginal": "Medialuna de Grasa",
+        "porcionOriginal": "50g (1 ud grande)",
+        "marcasODetalleReferencia": "Panadería (Masa salada/dulce hojaldrada con grasa bovina).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 220,
+          "Hierro (mg)": "1,2",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 10,
+          "Fósf (mg)": 40,
+          "Fólico (mcg)": 80,
+          "Vit. A (mcg)": 10,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PANADERÍA ARTESANAL",
+      "nombre": "Bizcochitos de Grasa",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 250.0,
+      "carbohidratos": 25.0,
+      "proteinas": 5.0,
+      "grasas": 15.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 4(1).xlsx",
+        "hoja": "4",
+        "fila": 48,
+        "nombreOriginal": "Bizcochitos de Grasa",
+        "porcionOriginal": "50g (1 puñado)",
+        "marcasODetalleReferencia": "Panadería (Masa rica en grasa bovina refinada y sal).",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,2",
+          "Sodio (mg)": 350,
+          "Hierro (mg)": "1,3",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 12,
+          "Fósf (mg)": 45,
+          "Fólico (mcg)": 90,
+          "Vit. A (mcg)": 10,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PSEUDOCEREALES (Crudos)",
+      "nombre": "Quinoa (Lavada/Pelada)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 185.0,
+      "carbohidratos": 32.0,
+      "proteinas": 7.0,
+      "grasas": 3.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 3,
+        "nombreOriginal": "Quinoa (Lavada/Pelada)",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Valle Imperial, El Portugués, Pampa",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,5",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "2,3",
+          "Calcio (mg)": 25,
+          "Mag (mg)": 100,
+          "Fósf (mg)": 225,
+          "Fólico (mcg)": 90,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PSEUDOCEREALES (Crudos)",
+      "nombre": "Amaranto",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 185.0,
+      "carbohidratos": 33.0,
+      "proteinas": 7.0,
+      "grasas": 3.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 4,
+        "nombreOriginal": "Amaranto",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Valle Imperial, Pampa, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,5",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "3,8",
+          "Calcio (mg)": 80,
+          "Mag (mg)": 125,
+          "Fósf (mg)": 280,
+          "Fólico (mcg)": 40,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PSEUDOCEREALES (Crudos)",
+      "nombre": "Trigo Sarraceno (Alforfón)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 35.0,
+      "proteinas": 6.5,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 5,
+        "nombreOriginal": "Trigo Sarraceno (Alforfón)",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Valle Imperial, Pampa, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,1",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 115,
+          "Fósf (mg)": 170,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "PSEUDOCEREALES (Crudos)",
+      "nombre": "Mijo Pelado",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 190.0,
+      "carbohidratos": 36.0,
+      "proteinas": 5.5,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 6,
+        "nombreOriginal": "Mijo Pelado",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Valle Imperial, Pampa, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,3",
+          "Sodio (mg)": 2,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 5,
+          "Mag (mg)": 55,
+          "Fósf (mg)": 140,
+          "Fólico (mcg)": 42,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Proteína Texturizada Soja (PTS)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 170.0,
+      "carbohidratos": 15.0,
+      "proteinas": 25.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 8,
+        "nombreOriginal": "Proteína Texturizada Soja (PTS)",
+        "porcionOriginal": "50g (deshidratada)",
+        "marcasODetalleReferencia": "Yin Yang, Olienka, Granix, Pampa, Dietéticas a granel",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "8,0",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "4,5",
+          "Calcio (mg)": 120,
+          "Mag (mg)": 145,
+          "Fósf (mg)": 340,
+          "Fólico (mcg)": 150,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Tofu Firme (Coagulado c/Calcio)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 80.0,
+      "carbohidratos": 2.0,
+      "proteinas": 8.0,
+      "grasas": 4.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 9,
+        "nombreOriginal": "Tofu Firme (Coagulado c/Calcio)",
+        "porcionOriginal": "100g",
+        "marcasODetalleReferencia": "Soyana, Rincón Vegano, Morixe, Green Food, Artesanales",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 15,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 200,
+          "Mag (mg)": 30,
+          "Fósf (mg)": 95,
+          "Fólico (mcg)": 15,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Seitán (Gluten Puro de Trigo)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 185.0,
+      "carbohidratos": 7.0,
+      "proteinas": 37.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 10,
+        "nombreOriginal": "Seitán (Gluten Puro de Trigo)",
+        "porcionOriginal": "50g (Polvo seco)",
+        "marcasODetalleReferencia": "Yin Yang (Polvo), Olienka (Polvo), Rincón Vegano (Hecho)",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 70,
+          "Mag (mg)": 45,
+          "Fósf (mg)": 130,
+          "Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Tempeh (Soja Fermentada)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 190.0,
+      "carbohidratos": 9.0,
+      "proteinas": 19.0,
+      "grasas": 10.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 11,
+        "nombreOriginal": "Tempeh (Soja Fermentada)",
+        "porcionOriginal": "100g",
+        "marcasODetalleReferencia": "Rincón Vegano, Tempeh Arg, Artesanales de Dietética",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "6,0",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "2,7",
+          "Calcio (mg)": 110,
+          "Mag (mg)": 80,
+          "Fósf (mg)": 260,
+          "Fólico (mcg)": 24,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Levadura Nutricional Inactiva",
+      "cantidadBase": 15.0,
+      "unidadBase": "Gramos",
+      "calorias": 60.0,
+      "carbohidratos": 5.0,
+      "proteinas": 7.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 12,
+        "nombreOriginal": "Levadura Nutricional Inactiva",
+        "porcionOriginal": "15g (1 cda sopera)",
+        "marcasODetalleReferencia": "Titán, Virgen, Calsa, Pampa, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "3,0",
+          "Sodio (mg)": 15,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 160,
+          "Fólico (mcg)": 350,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Medallón de Legumbres (Tradicional)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 140.0,
+      "carbohidratos": 18.0,
+      "proteinas": 8.0,
+      "grasas": 4.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 13,
+        "nombreOriginal": "Medallón de Legumbres (Tradicional)",
+        "porcionOriginal": "100g (1 medallón)",
+        "marcasODetalleReferencia": "Vegetalex, Granix, Lucchetti, Green Food, Nutree",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "5,0",
+          "Sodio (mg)": 350,
+          "Hierro (mg)": "2,0",
+          "Calcio (mg)": 25,
+          "Mag (mg)": 35,
+          "Fósf (mg)": 90,
+          "Fólico (mcg)": 45,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Burger Plant-Based (Símil Carne)",
+      "cantidadBase": 100.0,
+      "unidadBase": "Gramos",
+      "calorias": 250.0,
+      "carbohidratos": 10.0,
+      "proteinas": 15.0,
+      "grasas": 16.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 14,
+        "nombreOriginal": "Burger Plant-Based (Símil Carne)",
+        "porcionOriginal": "100g (1 medallón)",
+        "marcasODetalleReferencia": "NotCo (NotBurger), Felices las Vacas, VeggLand, Granix",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "4,0",
+          "Sodio (mg)": 400,
+          "Hierro (mg)": "2,5",
+          "Calcio (mg)": 40,
+          "Mag (mg)": 30,
+          "Fósf (mg)": 110,
+          "Fólico (mcg)": 20,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Espirulina en Polvo",
+      "cantidadBase": 5.0,
+      "unidadBase": "Gramos",
+      "calorias": 15.0,
+      "carbohidratos": 1.0,
+      "proteinas": 3.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 15,
+        "nombreOriginal": "Espirulina en Polvo",
+        "porcionOriginal": "5g (1 cdita)",
+        "marcasODetalleReferencia": "Bogado, Hydrofarm, Yin Yang, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 50,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 6,
+          "Mag (mg)": 10,
+          "Fósf (mg)": 6,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 28,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "UNIVERSO VEGANO / PLANT-BASED",
+      "nombre": "Maca Peruana en Polvo",
+      "cantidadBase": 5.0,
+      "unidadBase": "Gramos",
+      "calorias": 15.0,
+      "carbohidratos": 3.5,
+      "proteinas": 0.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 16,
+        "nombreOriginal": "Maca Peruana en Polvo",
+        "porcionOriginal": "5g (1 cdita)",
+        "marcasODetalleReferencia": "Kawsay, Yin Yang, Olienka, Dietéticas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 1,
+          "Hierro (mg)": "0,7",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 4,
+          "Fósf (mg)": 5,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 1
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Tapas de Empanada (Horno/Criolla)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 90.0,
+      "carbohidratos": 14.0,
+      "proteinas": 2.5,
+      "grasas": 2.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 18,
+        "nombreOriginal": "Tapas de Empanada (Horno/Criolla)",
+        "porcionOriginal": "30g (1 tapa)",
+        "marcasODetalleReferencia": "La Salteña, Fargo, Signo de Oro, Mendía, Villa D'Agri",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 150,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 5,
+          "Mag (mg)": 8,
+          "Fósf (mg)": 25,
+          "Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Tapas de Empanada (Freír/Hojaldre)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 110.0,
+      "carbohidratos": 13.0,
+      "proteinas": 2.0,
+      "grasas": 5.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 19,
+        "nombreOriginal": "Tapas de Empanada (Freír/Hojaldre)",
+        "porcionOriginal": "30g (1 tapa)",
+        "marcasODetalleReferencia": "La Salteña, Fargo, Signo de Oro, Mendía, Villa D'Agri",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 150,
+          "Hierro (mg)": "0,9",
+          "Calcio (mg)": 5,
+          "Mag (mg)": 7,
+          "Fósf (mg)": 25,
+          "Fólico (mcg)": 66,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Tapas de Pascualina / Tarta",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 155.0,
+      "carbohidratos": 23.0,
+      "proteinas": 4.0,
+      "grasas": 5.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 20,
+        "nombreOriginal": "Tapas de Pascualina / Tarta",
+        "porcionOriginal": "50g (1 porción)",
+        "marcasODetalleReferencia": "La Salteña, Fargo, Signo de Oro, Mendía, Villa D'Agri",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 250,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 10,
+          "Mag (mg)": 12,
+          "Fósf (mg)": 40,
+          "Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Pre-pizza de Trigo Blanca",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 135.0,
+      "carbohidratos": 25.0,
+      "proteinas": 4.0,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 21,
+        "nombreOriginal": "Pre-pizza de Trigo Blanca",
+        "porcionOriginal": "50g (1 porción)",
+        "marcasODetalleReferencia": "Fargo, Sibarita, Bimbo, Valente, Artesanales",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 220,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 15,
+          "Mag (mg)": 15,
+          "Fósf (mg)": 45,
+          "Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Pan Rallado / Rebozador",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 180.0,
+      "carbohidratos": 36.0,
+      "proteinas": 5.0,
+      "grasas": 1.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 22,
+        "nombreOriginal": "Pan Rallado / Rebozador",
+        "porcionOriginal": "50g (1/2 taza)",
+        "marcasODetalleReferencia": "Preferido, Morixe, Lucchetti, Mamá Cocina, Cañuelas",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 350,
+          "Hierro (mg)": "1,5",
+          "Calcio (mg)": 12,
+          "Mag (mg)": 16,
+          "Fósf (mg)": 50,
+          "Fólico (mcg)": 110,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "MASAS Y ROTISERÍA CASERA",
+      "nombre": "Polenta (Harina de Maíz)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 175.0,
+      "carbohidratos": 38.0,
+      "proteinas": 4.0,
+      "grasas": 0.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 23,
+        "nombreOriginal": "Polenta (Harina de Maíz)",
+        "porcionOriginal": "50g (1/4 taza)",
+        "marcasODetalleReferencia": "Presto Pronta, Morixe, Arcor, Del Campo, Marolio",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,5",
+          "Sodio (mg)": 0,
+          "Hierro (mg)": "1,0",
+          "Calcio (mg)": 2,
+          "Mag (mg)": 16,
+          "Fósf (mg)": 35,
+          "Fólico (mcg)": 10,
+          "Vit. A (mcg)": 10,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SUPLEMENTOS PROTEICOS CLÍNICOS",
+      "nombre": "Whey Protein Concentrate (80%)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 120.0,
+      "carbohidratos": 2.0,
+      "proteinas": 24.0,
+      "grasas": 2.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 25,
+        "nombreOriginal": "Whey Protein Concentrate (80%)",
+        "porcionOriginal": "30g (1 scoop)",
+        "marcasODetalleReferencia": "Star Nutrition, ENA, Pulver, Hoch Sport, Gentech",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 60,
+          "Hierro (mg)": "0,2",
+          "Calcio (mg)": 120,
+          "Mag (mg)": 25,
+          "Fósf (mg)": 90,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "SUPLEMENTOS PROTEICOS CLÍNICOS",
+      "nombre": "Proteína Vegana (Arveja/Soja)",
+      "cantidadBase": 30.0,
+      "unidadBase": "Gramos",
+      "calorias": 115.0,
+      "carbohidratos": 1.5,
+      "proteinas": 24.0,
+      "grasas": 1.5,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 26,
+        "nombreOriginal": "Proteína Vegana (Arveja/Soja)",
+        "porcionOriginal": "30g (1 scoop)",
+        "marcasODetalleReferencia": "Body Advance, ENA Vegan, Gentech, Pulver, Star Nutrition",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "1,0",
+          "Sodio (mg)": 250,
+          "Hierro (mg)": "4,0",
+          "Calcio (mg)": 40,
+          "Mag (mg)": 30,
+          "Fósf (mg)": 150,
+          "Fólico (mcg)": 10,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Puré de Tomate (Tetra Brik)",
+      "cantidadBase": 50.0,
+      "unidadBase": "Gramos",
+      "calorias": 15.0,
+      "carbohidratos": 3.0,
+      "proteinas": 0.5,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 28,
+        "nombreOriginal": "Puré de Tomate (Tetra Brik)",
+        "porcionOriginal": "50g",
+        "marcasODetalleReferencia": "Salsati, Arcor, La Campagnola, Marolio, Alco",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,5",
+          "Sodio (mg)": 120,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 5,
+          "Mag (mg)": 7,
+          "Fósf (mg)": 12,
+          "Fólico (mcg)": 5,
+          "Vit. A (mcg)": 20,
+          "Vit. C (mg)": 5
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Salsa de Soja Clásica",
+      "cantidadBase": 15.0,
+      "unidadBase": "Mililitros",
+      "calorias": 10.0,
+      "carbohidratos": 1.0,
+      "proteinas": 1.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 29,
+        "nombreOriginal": "Salsa de Soja Clásica",
+        "porcionOriginal": "15ml (1 cda)",
+        "marcasODetalleReferencia": "Dos Anclas, Sakura, Alicante, Vanoli, Imperial",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 900,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 3,
+          "Mag (mg)": 6,
+          "Fósf (mg)": 20,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Salsa de Soja Reducida en Sodio",
+      "cantidadBase": 15.0,
+      "unidadBase": "Mililitros",
+      "calorias": 10.0,
+      "carbohidratos": 1.0,
+      "proteinas": 1.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 30,
+        "nombreOriginal": "Salsa de Soja Reducida en Sodio",
+        "porcionOriginal": "15ml (1 cda)",
+        "marcasODetalleReferencia": "Dos Anclas Light, Sakura Light, Imperial Light",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 450,
+          "Hierro (mg)": "0,3",
+          "Calcio (mg)": 3,
+          "Mag (mg)": 6,
+          "Fósf (mg)": 20,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Aceto Balsámico",
+      "cantidadBase": 15.0,
+      "unidadBase": "Mililitros",
+      "calorias": 15.0,
+      "carbohidratos": 3.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 31,
+        "nombreOriginal": "Aceto Balsámico",
+        "porcionOriginal": "15ml (1 cda)",
+        "marcasODetalleReferencia": "Casalta, Lira, Dos Anclas, Marolio, Menoyo",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 10,
+          "Hierro (mg)": "0,1",
+          "Calcio (mg)": 4,
+          "Mag (mg)": 2,
+          "Fósf (mg)": 3,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Sal de Mesa Clásica",
+      "cantidadBase": 5.0,
+      "unidadBase": "Gramos",
+      "calorias": 0.0,
+      "carbohidratos": 0.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 32,
+        "nombreOriginal": "Sal de Mesa Clásica",
+        "porcionOriginal": "5g (1 cdita)",
+        "marcasODetalleReferencia": "Celusal, Dos Anclas, Marolio, Macarena, Alicante",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 1950,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 1,
+          "Mag (mg)": 0,
+          "Fósf (mg)": 0,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    },
+    {
+      "categoria": "CONDIMENTOS Y SALSAS BASE",
+      "nombre": "Sal Light (Cloruro de Potasio)",
+      "cantidadBase": 5.0,
+      "unidadBase": "Gramos",
+      "calorias": 0.0,
+      "carbohidratos": 0.0,
+      "proteinas": 0.0,
+      "grasas": 0.0,
+      "origen": {
+        "archivo": "Tabla de composicion quimica 5(1).xlsx",
+        "hoja": "5",
+        "fila": 33,
+        "nombreOriginal": "Sal Light (Cloruro de Potasio)",
+        "porcionOriginal": "5g (1 cdita)",
+        "marcasODetalleReferencia": "Celusal Light, Dos Anclas Light",
+        "micronutrientesNoImportados": {
+          "Fibra (g)": "0,0",
+          "Sodio (mg)": 650,
+          "Hierro (mg)": "0,0",
+          "Calcio (mg)": 1,
+          "Mag (mg)": 0,
+          "Fósf (mg)": 0,
+          "Fólico (mcg)": 0,
+          "Vit. A (mcg)": 0,
+          "Vit. C (mg)": 0
+        }
+      }
+    }
+  ],
+  "gruposEquivalencia": [],
+  "nota": "Los grupos equivalentes se configuran por separado; pertenecer a una categoria no implica equivalencia clinica."
+}

@@ -57,4 +57,12 @@ public class Notificacion
     public string? RecursoTipo { get; set; }
 
     public int? RecursoId { get; set; }
+
+    // ==========================================
+    // NUTRICIONISTA EMISOR
+    // ==========================================
+
+    public int? EmisorNutricionistaId { get; set; }
+
+    public Nutricionista? EmisorNutricionista { get; set; }
 }
